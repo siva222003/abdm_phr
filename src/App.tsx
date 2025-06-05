@@ -1,5 +1,9 @@
 function App() {
-  return <h1>HELLo</h1>;
+  return (
+    <div>
+      <h1>HELLo</h1>
+    </div>
+  );
 }
 
 export default App;
