@@ -53,6 +53,7 @@ export function makeHeaders(noAuth: boolean, additionalHeaders?: HeadersInit) {
 }
 
 export function getAuthorizationHeader() {
+  //TODO: Fix this
   const LocalStorageKeys = {
     accessToken: "accessToken",
   };
