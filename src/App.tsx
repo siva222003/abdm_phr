@@ -6,6 +6,8 @@ import {
 } from "@tanstack/react-query";
 import { useLocationChange } from "raviger";
 
+import { Toaster } from "@/components/ui/sonner";
+
 import { handleHttpError } from "@/utils/request/error-handler";
 import { HTTPError } from "@/utils/request/types";
 
@@ -45,6 +47,13 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ScrollToTop />
       <h1>ABDM PHR</h1>
+      <Toaster
+        position="top-right"
+        theme="light"
+        richColors
+        expand
+        toastOptions={{ closeButton: true }}
+      />
     </QueryClientProvider>
   );
 }
