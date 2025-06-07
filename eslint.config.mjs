@@ -86,10 +86,6 @@ export default [
     rules: {
       ...reactPlugin.configs.recommended.rules,
       ...reactHooksPlugin.configs.recommended.rules,
-      "react-refresh/only-export-components": [
-        "warn",
-        { allowConstantExport: true },
-      ],
       "react/prop-types": "off",
       "react/no-children-prop": "off",
       "react/no-unescaped-entities": "off",

@@ -11,6 +11,10 @@ import { Toaster } from "@/components/ui/sonner";
 import { handleHttpError } from "@/utils/request/error-handler";
 import { HTTPError } from "@/utils/request/types";
 
+import AuthUserProvider from "./providers/AuthProvider";
+import PrivateRouter from "./router/PrivateRouter";
+import PublicRouter from "./router/PublicRouter";
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -46,7 +50,10 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ScrollToTop />
-      <h1>ABDM PHR</h1>
+      <AuthUserProvider
+        publicRouter={<PublicRouter />}
+        privateRouter={<PrivateRouter />}
+      />
       <Toaster
         position="top-right"
         theme="light"
