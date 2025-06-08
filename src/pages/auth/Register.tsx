@@ -1,0 +1,673 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "raviger";
+import { FC, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+
+// import { I18NNAMESPACE, MAX_OTP_RESEND_COUNT } from "@/lib/constants";
+
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+import AbhaNumberOtpFlow from "@/components/auth/AbhaNumberOtpFlow";
+import HandleExistingAbhaAddress from "@/components/auth/HandleExistingAbha";
+import MobileNumberOtpFlow from "@/components/auth/MobileNumberOtpFlow";
+// import { AuthHero } from "./AuthHero";
+import {
+  BasicDetailsSection,
+  LocationDetailsSection,
+  SetPasswordSection,
+} from "@/components/profile/ProfileFormSections";
+
+import useMultiStepForm, { InjectedStepProps } from "@/hooks/useMultiStepForm";
+
+import ValidationHelper from "@/common/ui/validation-helper";
+
+import routes from "@/api";
+import { AuthMode, FormMemory } from "@/types/auth";
+import { mutate } from "@/utils/request/request";
+
+const DOMAIN = "@sbx";
+
+const RegisterAbha = () => {
+  const { currentStep } = useMultiStepForm<FormMemory>(
+    [
+      {
+        id: "register-abha",
+        element: <Register {...({} as RegisterProps)} />,
+      },
+      {
+        id: "handle-existing-abha",
+        element: <HandleExistingAbha {...({} as HandleExistingAbhaProps)} />,
+      },
+      {
+        id: "add-personal-details",
+        element: <AddBasicDetails {...({} as AddBasicDetailsProps)} />,
+      },
+      {
+        id: "add-address",
+        element: <AddLocationDetails {...({} as AddLocationDetailsProps)} />,
+      },
+      {
+        id: "choose-abha-address",
+        element: <ChooseAbhaAddress {...({} as ChooseAbhaAddressProps)} />,
+      },
+      {
+        id: "set-password",
+        element: <SetPassword {...({} as SetPasswordProps)} />,
+      },
+    ],
+    {
+      transactionId: "mock-id",
+      mode: "mobile-number",
+      existingAbhaAddresses: [],
+      phrProfile: {
+        health_id: "",
+        name: "",
+        first_name: "",
+        middle_name: "",
+        last_name: "",
+        gender: "O",
+        date_of_birth: "",
+        password: "",
+        address: "",
+        state: "",
+        state_code: "",
+        district: "",
+        district_code: "",
+        pincode: "",
+        mobile: "",
+        email: "",
+        profile_photo: "",
+      },
+    },
+  );
+
+  //   const { urls, stateLogo, customLogo, customLogoAlt } = careConfig;
+
+  //   const logos = [stateLogo, customLogo].filter(
+  //     (logo) => logo?.light || logo?.dark,
+  //   );
+
+  return (
+    <div className="relative flex min-h-screen flex-col md:h-screen md:flex-row">
+      {/* <AuthHero /> */}
+
+      {/* Login Forms Section */}
+      {/* <div className="login-hero-form my-4 w-full md:mt-0 md:h-full md:w-1/2">
+        <div className="relative h-full items-center flex justify-center md:flex">
+          <div className="w-full max-w-[400px] space-y-6">
+            <div className="px-4 flex items-center mx-auto gap-4 md:hidden">
+              {logos.map((logo, index) =>
+                logo && logo.dark ? (
+                  <div key={index} className="flex items-center">
+                    <img
+                      src={logo.dark}
+                      className="h-14 rounded-lg py-3"
+                      alt="state logo"
+                    />
+                  </div>
+                ) : null,
+              )}
+              {logos.length === 0 && (
+                <a
+                  href={urls.ohcn}
+                  className="inline-block"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img
+                    src={customLogoAlt?.light ?? "/images/ohc_logo_light.svg"}
+                    className="h-8"
+                    alt="Open Healthcare Network logo"
+                  />
+                </a>
+              )}
+            </div>
+            {currentStep}
+          </div>
+        </div>
+      </div> */}
+      {currentStep}
+    </div>
+  );
+};
+
+export default RegisterAbha;
+
+/* ************* REGISTER ***************** */
+
+type RegisterProps = InjectedStepProps<FormMemory>;
+
+const Register: FC<RegisterProps> = ({ memory, setMemory, goTo }) => {
+  const navigate = useNavigate();
+
+  return (
+    <Card className="mx-4">
+      <CardHeader className="space-y-1 px-4">
+        <CardTitle className="text-2xl font-bold">Register with ABHA</CardTitle>
+        <CardDescription>Choose a method to register with ABHA</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Tabs
+          defaultValue="staff"
+          value={memory?.mode ?? "mobile-number"}
+          onValueChange={(value) => {
+            setMemory((prev) => ({
+              ...prev,
+              mode: value as AuthMode,
+            }));
+          }}
+        >
+          <TabsList className="flex w-full">
+            <TabsTrigger className="flex-1" value="mobile-number">
+              Mobile
+            </TabsTrigger>
+            <TabsTrigger className="flex-1" value="abha-number">
+              ABHA Number
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="mobile-number">
+            <MobileNumberOtpFlow
+              flowType="enrollment"
+              transactionId={memory?.transactionId}
+              setMemory={setMemory}
+              goTo={goTo}
+            />
+          </TabsContent>
+
+          <TabsContent value="abha-number">
+            <AbhaNumberOtpFlow
+              flowType="enrollment"
+              transactionId={memory?.transactionId}
+              setMemory={setMemory}
+              goTo={goTo}
+            />
+          </TabsContent>
+          <div className="mt-4 text-sm text-center text-gray-500">
+            <span>Already have an account? </span>
+            <Button
+              variant="link"
+              className="h-auto p-0 text-primary-600"
+              onClick={() => navigate("/login?mode=patient")}
+            >
+              Login
+            </Button>
+          </div>
+        </Tabs>
+      </CardContent>
+    </Card>
+  );
+};
+
+/* ************* EXISTING ABHA ADDRESS ***************** */
+
+type HandleExistingAbhaProps = InjectedStepProps<FormMemory>;
+
+const HandleExistingAbha: FC<HandleExistingAbhaProps> = ({ memory, goTo }) => {
+  return (
+    <HandleExistingAbhaAddress
+      flowType="enrollment"
+      memory={memory}
+      goTo={goTo}
+    />
+  );
+};
+
+/* ************* ADD PERSONAL DETAILS ***************** */
+
+type AddBasicDetailsProps = InjectedStepProps<FormMemory>;
+
+const AddBasicDetails: FC<AddBasicDetailsProps> = ({
+  memory,
+  setMemory,
+  goTo,
+}) => {
+  const schema = z.object({
+    first_name: z.string().nonempty({
+      message: "First name is required",
+    }),
+    middle_name: z.string().optional(),
+    last_name: z.string().optional(),
+    gender: z.enum(["M", "F", "O"], {
+      required_error: "Gender is required",
+    }),
+    date_of_birth: z.string({
+      required_error: "Date of birth is required",
+    }),
+    email: z
+      .string()
+      .email({
+        message: "Invalid email address",
+      })
+      .optional(),
+    profile_photo: z.string().optional(),
+  });
+
+  const form = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      first_name: "",
+      middle_name: "",
+      last_name: "",
+      gender: undefined,
+      date_of_birth: "",
+      email: "",
+    },
+  });
+
+  const onSubmit = (data: z.infer<typeof schema>) => {
+    if (!memory?.phrProfile) return;
+
+    setMemory((prev) => ({
+      ...prev,
+      phrProfile: {
+        ...prev.phrProfile!,
+        ...data,
+        middle_name: data.middle_name || "",
+        last_name: data.last_name || "",
+        email: data.email || "",
+        profile_photo: data.profile_photo || "",
+      },
+    }));
+    goTo("add-address");
+  };
+
+  return (
+    <Card className="mx-4 sm:w-full">
+      <CardHeader className="px-4 space-y-1">
+        <CardTitle className="text-2xl font-bold">Personal Details</CardTitle>
+        <CardDescription>Enter your basic details to proceed.</CardDescription>
+      </CardHeader>
+
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <BasicDetailsSection form={form} showEmail />
+
+            <Button
+              type="submit"
+              disabled={!form.formState.isDirty}
+              className="w-full"
+            >
+              Continue
+            </Button>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
+  );
+};
+
+// ************** ADD LOCATION DETAILS ***************** */
+
+type AddLocationDetailsProps = InjectedStepProps<FormMemory>;
+
+const AddLocationDetails: FC<AddLocationDetailsProps> = ({
+  setMemory,
+  goTo,
+}) => {
+  const schema = z.object({
+    state_code: z.number({ required_error: "State is required" }),
+    state_name: z.string(),
+    district_code: z.number({ required_error: "District is required" }),
+    district_name: z.string(),
+    address: z.string().min(1, { message: "Address is required" }),
+    pin_code: z
+      .string()
+      .regex(/^\d{6}$/, { message: "Pin code must be exactly 6 digits" }),
+  });
+
+  const form = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      state_code: undefined,
+      district_code: undefined,
+      address: "",
+      pin_code: "",
+    },
+  });
+
+  const onSubmit = (data: z.infer<typeof schema>) => {
+    setMemory((prev) => ({
+      ...prev,
+      phrProfile: {
+        ...prev.phrProfile!,
+        state: data.state_name,
+        state_code: data.state_code.toString(),
+        district: data.district_name,
+        district_code: data.district_code.toString(),
+        address: data.address,
+        pincode: data.pin_code,
+      },
+    }));
+    goTo("choose-abha-address");
+  };
+
+  return (
+    <Card className="mx-4 sm:w-full">
+      <CardHeader className="px-4 space-y-1">
+        <CardTitle className="text-2xl font-bold">Location Details</CardTitle>
+        <CardDescription>Enter your location and address info.</CardDescription>
+      </CardHeader>
+
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <LocationDetailsSection form={form} />
+            <Button
+              type="submit"
+              disabled={!form.formState.isDirty}
+              className="w-full"
+            >
+              Continue
+            </Button>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
+  );
+};
+
+/* ************** CREATE ABHA ADDRESS ***************** */
+
+type ChooseAbhaAddressProps = InjectedStepProps<FormMemory>;
+
+export const ChooseAbhaAddress: FC<ChooseAbhaAddressProps> = ({
+  memory,
+  setMemory,
+  goTo,
+}) => {
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+
+  const schema = z.object({
+    abhaAddress: z.string().regex(/^(?![\d.])[a-zA-Z0-9._]{4,}(?<!\.)$/),
+  });
+
+  type FormValues = z.infer<typeof schema>;
+
+  const form = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      abhaAddress: "",
+    },
+  });
+
+  const abhaSuggestionsMutationFn = mutate(
+    routes.register.abhaAddressSuggestions,
+  );
+  const fetchSuggestionsMutation = useMutation({
+    mutationFn: abhaSuggestionsMutationFn,
+    onSuccess: ({ transaction_id, abha_addresses }) => {
+      setMemory((prev) => ({ ...prev, transactionId: transaction_id }));
+      setSuggestions(abha_addresses.map((a) => a.replace(DOMAIN, "")));
+    },
+    onError: () => {
+      toast.error("Failed to fetch ABHA address suggestions");
+    },
+  });
+
+  const checkAbhaAdressExistsMutationFn = mutate(
+    routes.register.checkAbhaExists,
+  );
+  const checkAbhaAddressExistsMutation = useMutation({
+    mutationFn: checkAbhaAdressExistsMutationFn,
+    onSuccess: (data) => {
+      if (data.exists) {
+        toast.error("ABHA address already exists. Please choose another.");
+      } else {
+        setMemory((prev) => ({
+          ...prev,
+          phrProfile: {
+            ...prev.phrProfile!,
+            health_id: `${form.getValues("abhaAddress")}${DOMAIN}`,
+          },
+        }));
+        goTo("set-password");
+      }
+    },
+    onError: () => {
+      toast.error("Failed to check ABHA address existence");
+    },
+  });
+
+  useEffect(() => {
+    if (
+      !memory?.transactionId ||
+      !memory?.phrProfile ||
+      suggestions.length > 0
+    ) {
+      return;
+    }
+
+    fetchSuggestionsMutation.mutate({
+      transaction_id: memory.transactionId,
+      first_name:
+        memory.phrProfile.first_name ?? memory.phrProfile.name.split(" ")[0],
+      year_of_birth: memory.phrProfile.date_of_birth
+        ? new Date(memory.phrProfile.date_of_birth).getFullYear().toString()
+        : "",
+    });
+  }, [memory?.transactionId, memory?.phrProfile, suggestions]);
+
+  const onSubmit = (values: FormValues) => {
+    const fullAddress = `${values.abhaAddress}${DOMAIN}`;
+    checkAbhaAddressExistsMutation.mutate({
+      abha_address: fullAddress,
+    });
+  };
+
+  const abhaInput = form.watch("abhaAddress");
+
+  const rules = [
+    {
+      condition: abhaInput.length >= 4,
+      content: "Must be at least 4 characters",
+    },
+    {
+      condition: /^[a-zA-Z_]/.test(abhaInput),
+      content: "Must start with alphabet or underscore",
+    },
+    { condition: !abhaInput.endsWith("."), content: "Must not end with a dot" },
+    {
+      condition: /^[0-9a-zA-Z._]+$/.test(abhaInput),
+      content: "Can only contain alphanumeric, dots, underscores",
+    },
+  ];
+
+  return (
+    <Card className="mx-4 sm:w-full">
+      <CardHeader className="space-y-1 px-4">
+        <CardTitle className="text-2xl font-bold">
+          Create ABHA Address
+        </CardTitle>
+        <CardDescription className="text-sm">
+          Choose an ABHA address of your choice.
+        </CardDescription>
+      </CardHeader>
+
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="abhaAddress"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>ABHA Address</FormLabel>
+                  <div className="relative">
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="Enter ABHA Address"
+                        className="pr-16"
+                      />
+                    </FormControl>
+                    <span className="absolute inset-y-0 right-3 flex items-center text-sm text-muted-foreground pointer-events-none">
+                      {DOMAIN}
+                    </span>
+                  </div>
+                  <FormDescription>
+                    {rules.map((r) => (
+                      <ValidationHelper key={r.content} {...r} />
+                    ))}
+                  </FormDescription>
+                </FormItem>
+              )}
+            />
+
+            {(fetchSuggestionsMutation.isPending || suggestions.length > 0) && (
+              <div>
+                <h4 className="text-sm text-muted-foreground mb-1">
+                  Suggestions
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {fetchSuggestionsMutation.isPending
+                    ? Array.from({ length: 6 }).map((_, i) => (
+                        <Skeleton key={i} className="h-6 w-20 rounded-md" />
+                      ))
+                    : suggestions
+                        .filter((s) => s !== abhaInput)
+                        .map((s) => (
+                          <button
+                            key={s}
+                            type="button"
+                            onClick={() =>
+                              form.setValue("abhaAddress", s, {
+                                shouldValidate: true,
+                                shouldDirty: true,
+                              })
+                            }
+                            className="cursor-pointer rounded-md bg-primary px-2.5 py-1 text-xs text-white"
+                          >
+                            {s}
+                          </button>
+                        ))}
+                </div>
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              className="w-full" //TODO: Add loading state
+              disabled={!form.formState.isDirty}
+            >
+              Continue
+            </Button>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
+  );
+};
+
+// ************* SET PASSWORD *****************
+
+type SetPasswordProps = InjectedStepProps<FormMemory>;
+
+export const SetPassword: FC<SetPasswordProps> = ({ memory, setMemory }) => {
+  const passwordRegex =
+    /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$^-])[A-Za-z\d!@#$%^&*-]{8,}$/;
+
+  const schema = z
+    .object({
+      password: z.string().regex(passwordRegex, {
+        message:
+          "Password must be 8+ characters, 1 uppercase, 1 number, 1 special char",
+      }),
+      confirmPassword: z.string().nonempty({
+        message: "Confirm Password is required",
+      }),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      path: ["confirmPassword"],
+      message: "Passwords do not match",
+    });
+
+  const form = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      password: "",
+      confirmPassword: "",
+    },
+  });
+
+  const enrollAbhaAddressMutation = useMutation({
+    mutationFn: async () => {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({
+            transaction_id: "mock-transaction-123",
+            abha_number: "12345678901234",
+            success: true,
+          });
+        }, 1000);
+      });
+    },
+    onSuccess: ({ transaction_id, abha_number }: any) => {
+      setMemory((prev) => ({
+        ...prev,
+        transactionId: transaction_id,
+        abhaNumber: abha_number,
+      }));
+      toast.success("ABHA Address created successfully");
+    },
+    onError: () => {
+      toast.error("Some error occured");
+    },
+  });
+
+  const onSubmit = () => {
+    if (!memory?.transactionId || !memory?.phrProfile?.health_id) return;
+    // enrollAbhaAddressMutation.mutate({
+    //   abha_address: memory.phrProfile?.health_id,
+    //   transaction_id: memory.transactionId,
+    // });
+    enrollAbhaAddressMutation.mutate();
+  };
+
+  return (
+    <Card className="mx-4 sm:w-full">
+      <CardHeader className="space-y-1 px-4">
+        <CardTitle className="text-2xl font-bold">Set Password</CardTitle>
+        <CardDescription className="text-sm">
+          Set a password for your ABHA address.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <SetPasswordSection form={form} />
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={!form.formState.isDirty}
+            >
+              Continue
+            </Button>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
+  );
+};

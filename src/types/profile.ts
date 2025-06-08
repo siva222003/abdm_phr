@@ -1,0 +1,43 @@
+export type PhrProfilePartial = {
+  health_id: string;
+  name: string;
+  first_name: string | null;
+  middle_name: string | null;
+  last_name: string | null;
+  gender: "F" | "M" | "O";
+  date_of_birth: string | null;
+  address: string | null;
+  district: string | null;
+  state: string | null;
+  pincode: string | null;
+  mobile: string | null;
+  email: string | null;
+  profile_photo: string | null;
+};
+
+export type PhrProfile = {
+  abhaAddress: string;
+  abhaNumber?: string;
+  address: string;
+  dateOfBirth: string;
+  dayOfBirth: string | null;
+  districtCode: string;
+  districtName: string;
+  email: string | null;
+  emailVerified: "true" | "false";
+  firstName: string;
+  fullName: string;
+  gender: "M" | "F" | "O";
+  kycStatus: "VERIFIED" | "PENDING";
+  lastName: string | null;
+  middleName: string | null;
+  mobile: string;
+  mobileVerified: "true" | "false";
+  monthOfBirth: string | null;
+  pinCode: string;
+  profilePhoto: string | null;
+  stateCode: string;
+  stateName: string;
+  status: string;
+  yearOfBirth: string;
+};

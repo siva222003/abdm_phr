@@ -12,6 +12,7 @@ export default function AuthUserProvider({
   privateRouter,
 }: Props) {
   const [user, _] = useState<any>(null);
+
   return (
     <AuthUserContext.Provider
       value={{
