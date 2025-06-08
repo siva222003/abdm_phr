@@ -27,10 +27,9 @@ import OtpInput from "@/components/auth/ui/otp-resend-input";
 
 import { useOtpFlow } from "@/hooks/useOtpFlow";
 
-import { FormMemory } from "@/types/auth";
+import { DOMAIN, OTP_LENGTH } from "@/common/constants";
 
-const OTP_LENGTH = 6;
-const DOMAIN = "@sbx";
+import { FormMemory } from "@/types/auth";
 
 type AbhaAddressFlowProps = {
   flowType: "login" | "enrollment";

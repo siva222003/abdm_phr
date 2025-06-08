@@ -1,12 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import routes from "@/api";
 import { FormMemory } from "@/types/auth";
 import { mutate } from "@/utils/request/request";
-
-import { useOtpTimer } from "./useOtpTimer";
 
 const RESEND_OTP_DURATION = 60;
 
@@ -17,7 +15,15 @@ export const useOtpFlow = (
 ) => {
   const [otpSent, setOtpSent] = useState(false);
   const [isOtpValid, setIsOtpValid] = useState(true);
-  const { resendCountdown, resetCountdown } = useOtpTimer(RESEND_OTP_DURATION);
+  const [resendCountdown, setResendCountdown] = useState(RESEND_OTP_DURATION);
+
+  const resetCountdown = () => setResendCountdown(RESEND_OTP_DURATION);
+
+  useEffect(() => {
+    if (resendCountdown <= 0) return;
+    const interval = setInterval(() => setResendCountdown((t) => t - 1), 1000);
+    return () => clearInterval(interval);
+  }, [resendCountdown]);
 
   const sendOtpMutationFn =
     flowType === "enrollment"

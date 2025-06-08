@@ -19,7 +19,7 @@ export const useAuthContext = () => {
 export default function useAuth() {
   const user = useAuthContext().user;
   if (!user) {
-    throw new Error("'useAuthUser' must be used within 'Private' only");
+    throw new Error("'useAuthUser' must be used within 'PrivateRouter' only");
   }
   return user;
 }

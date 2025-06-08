@@ -6,8 +6,6 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-// import { I18NNAMESPACE, MAX_OTP_RESEND_COUNT } from "@/lib/constants";
-
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -40,13 +38,12 @@ import {
 
 import useMultiStepForm, { InjectedStepProps } from "@/hooks/useMultiStepForm";
 
+import { DOMAIN } from "@/common/constants";
 import ValidationHelper from "@/common/ui/validation-helper";
 
 import routes from "@/api";
 import { AuthMode, FormMemory } from "@/types/auth";
 import { mutate } from "@/utils/request/request";
-
-const DOMAIN = "@sbx";
 
 const RegisterAbha = () => {
   const { currentStep } = useMultiStepForm<FormMemory>(

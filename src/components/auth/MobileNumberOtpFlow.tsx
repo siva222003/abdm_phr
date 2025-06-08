@@ -19,6 +19,8 @@ import OtpInput from "@/components/auth/ui/otp-resend-input";
 
 import { useOtpFlow } from "@/hooks/useOtpFlow";
 
+import { OTP_LENGTH } from "@/common/constants";
+
 import { FormMemory } from "@/types/auth";
 
 type MobileNumberOtpFlowProps = {
@@ -27,8 +29,6 @@ type MobileNumberOtpFlowProps = {
   setMemory: Dispatch<SetStateAction<FormMemory>>;
   goTo: (step: string) => void;
 };
-
-const OTP_LENGTH = 6;
 
 const MobileNumberOtpFlow: FC<MobileNumberOtpFlowProps> = ({
   flowType,
