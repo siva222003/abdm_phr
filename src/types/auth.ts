@@ -33,7 +33,7 @@ export type PhrAddressDetails = {
   pincode: string;
   mobile: string;
   email?: string;
-  profile_photo?: string;
+  profile_photo?: string | null;
   password: string;
 };
 
@@ -88,11 +88,6 @@ export type CheckAuthMethodsResponse = {
 };
 
 // Enrolment specific types
-export type EnrolAddressBody = {
-  transaction_id: string;
-  phr_details: PhrAddressDetails;
-};
-
 export type AbhaAddressSuggestionsBody = {
   transaction_id: string;
   first_name: string;
@@ -115,14 +110,15 @@ export type AbhaAddressExistsResponse = {
   exists: boolean;
 };
 
+export type EnrolAddressBody = {
+  transaction_id: string;
+  phr_details: PhrAddressDetails;
+};
+
 // Form memory type to store state during the auth flow
 export type FormMemory = {
   transactionId: string;
   mode: AuthMode;
   existingAbhaAddresses?: User[];
-  phrProfile?: PhrProfilePartial & {
-    password: string;
-    state_code: string;
-    district_code: string;
-  };
+  phrProfile?: PhrAddressDetails;
 };

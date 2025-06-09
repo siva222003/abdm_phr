@@ -5,6 +5,7 @@ import {
   AbhaAddressSuggestionsResponse,
   CheckAuthMethodsBody,
   CheckAuthMethodsResponse,
+  EnrolAddressBody,
   SendOtpBody,
   SendOtpResponse,
   VerifyOtpBody,
@@ -29,6 +30,9 @@ export const register = {
   >("POST /health_id/create/abha_address_suggestion/"),
   checkAbhaExists: API<AbhaAddressExistsResponse, AbhaAddressExistsBody>(
     "POST /health_id/create/abha_address_exists/",
+  ),
+  enrolAbhaAddress: API<VerifyUserResponse, EnrolAddressBody>(
+    "POST /health_id/create/enrol_abha_address/",
   ),
 };
 

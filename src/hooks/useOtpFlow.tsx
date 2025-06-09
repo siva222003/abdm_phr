@@ -53,17 +53,30 @@ export const useOtpFlow = (
   const verifyOtpMutation = useMutation({
     mutationFn: verifyOtpMutationFn,
     onSuccess: (data) => {
+      const dob = data.abha_number?.date_of_birth ?? "";
+      const [year, month, day] = dob.split("-");
+
       setMemory((prev) => ({
         ...prev,
         transactionId: data.transaction_id,
         existingAbhaAddresses: data.users,
-        ...(flowType === "enrollment" && {
-          phrProfile: {
-            ...prev.phrProfile!,
-            ...data.abha_number,
-            mobile: sendOtpMutation.variables?.value || "",
-          },
-        }),
+        ...(flowType === "enrollment" &&
+          data.abha_number && {
+            phrProfile: {
+              ...prev.phrProfile!,
+              ...data.abha_number,
+              abha_address: data.abha_number.health_id ?? "",
+              day_of_birth: day ?? "",
+              month_of_birth: month ?? "",
+              year_of_birth: year ?? "",
+              district_name: data.abha_number.district ?? "",
+              state_name: data.abha_number.state ?? "",
+              mobile: sendOtpMutation.variables?.value ?? "",
+              last_name: data.abha_number.last_name ?? "",
+              middle_name: data.abha_number.middle_name ?? "",
+              email: data.abha_number.email ?? "",
+            },
+          }),
       }));
 
       goTo("handle-existing-abha");

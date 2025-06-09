@@ -11,7 +11,7 @@ const Routes: AppRoutes = {
 };
 
 export default function PublicRouter() {
-  const pages = useRoutes(Routes) || <h1>404 Not Found</h1>;
+  const pages = useRoutes(Routes) || <LoginAbha />;
 
   return <>{pages}</>;
 }

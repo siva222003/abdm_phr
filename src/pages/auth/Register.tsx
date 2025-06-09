@@ -78,23 +78,24 @@ const RegisterAbha = () => {
       mode: "mobile-number",
       existingAbhaAddresses: [],
       phrProfile: {
-        health_id: "",
-        name: "",
+        abha_address: "",
         first_name: "",
         middle_name: "",
         last_name: "",
         gender: "O",
-        date_of_birth: "",
-        password: "",
+        day_of_birth: "",
+        month_of_birth: "",
+        year_of_birth: "",
         address: "",
-        state: "",
+        state_name: "",
         state_code: "",
-        district: "",
+        district_name: "",
         district_code: "",
         pincode: "",
         mobile: "",
         email: "",
         profile_photo: "",
+        password: "",
       },
     },
   );
@@ -239,10 +240,10 @@ const AddBasicDetails: FC<AddBasicDetailsProps> = ({
       phrProfile: {
         ...prev.phrProfile!,
         ...data,
-        middle_name: data.middle_name || "",
-        last_name: data.last_name || "",
-        email: data.email || "",
-        profile_photo: data.profile_photo || "",
+        middle_name: data.middle_name ?? "",
+        last_name: data.last_name ?? "",
+        email: data.email ?? "",
+        profile_photo: data.profile_photo ?? "",
       },
     }));
     goTo("add-address");
@@ -286,7 +287,7 @@ const AddLocationDetails: FC<AddLocationDetailsProps> = ({
     district_code: z.number({ required_error: "District is required" }),
     district_name: z.string(),
     address: z.string().min(1, { message: "Address is required" }),
-    pin_code: z
+    pincode: z
       .string()
       .regex(/^\d{6}$/, { message: "Pin code must be exactly 6 digits" }),
   });
@@ -297,7 +298,7 @@ const AddLocationDetails: FC<AddLocationDetailsProps> = ({
       state_code: undefined,
       district_code: undefined,
       address: "",
-      pin_code: "",
+      pincode: "",
     },
   });
 
@@ -306,12 +307,9 @@ const AddLocationDetails: FC<AddLocationDetailsProps> = ({
       ...prev,
       phrProfile: {
         ...prev.phrProfile!,
-        state: data.state_name,
+        ...data,
         state_code: data.state_code.toString(),
-        district: data.district_name,
         district_code: data.district_code.toString(),
-        address: data.address,
-        pincode: data.pin_code,
       },
     }));
     goTo("choose-abha-address");
@@ -391,7 +389,7 @@ export const ChooseAbhaAddress: FC<ChooseAbhaAddressProps> = ({
           ...prev,
           phrProfile: {
             ...prev.phrProfile!,
-            health_id: `${form.getValues("abhaAddress")}${DOMAIN}`,
+            abha_address: `${form.getValues("abhaAddress")}${DOMAIN}`,
           },
         }));
         goTo("set-password");
@@ -411,17 +409,13 @@ export const ChooseAbhaAddress: FC<ChooseAbhaAddressProps> = ({
       return;
     }
 
-    const [year = "", month = "", day = ""] =
-      memory.phrProfile.date_of_birth?.split("-") ?? [];
-
     fetchSuggestionsMutation.mutate({
       transaction_id: memory.transactionId,
-      first_name:
-        memory.phrProfile.first_name || memory.phrProfile.name.split(" ")[0],
-      year_of_birth: year,
-      last_name: memory.phrProfile.last_name || "",
-      month_of_birth: month || "",
-      day_of_birth: day || "",
+      first_name: memory.phrProfile.first_name,
+      year_of_birth: memory.phrProfile.year_of_birth,
+      last_name: memory.phrProfile.last_name ?? "",
+      month_of_birth: memory.phrProfile.month_of_birth ?? "",
+      day_of_birth: memory.phrProfile.day_of_birth ?? "",
     });
   }, [memory?.transactionId, memory?.phrProfile, suggestions]);
 
@@ -525,7 +519,10 @@ export const ChooseAbhaAddress: FC<ChooseAbhaAddressProps> = ({
             <Button
               type="submit"
               className="w-full"
-              disabled={!form.formState.isDirty}
+              disabled={
+                !form.formState.isDirty ||
+                checkAbhaAddressExistsMutation.isPending
+              }
             >
               {checkAbhaAddressExistsMutation.isPending ? (
                 <Loader2Icon className="text-white animate-spin scale-150" />
@@ -542,7 +539,7 @@ export const ChooseAbhaAddress: FC<ChooseAbhaAddressProps> = ({
 
 type SetPasswordProps = InjectedStepProps<FormMemory>;
 
-export const SetPassword: FC<SetPasswordProps> = ({ memory, setMemory }) => {
+export const SetPassword: FC<SetPasswordProps> = ({ memory }) => {
   const passwordRegex =
     /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$^-])[A-Za-z\d!@#$%^&*-]{8,}$/;
 
@@ -570,37 +567,24 @@ export const SetPassword: FC<SetPasswordProps> = ({ memory, setMemory }) => {
   });
 
   const enrollAbhaAddressMutation = useMutation({
-    mutationFn: async () => {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve({
-            transaction_id: "mock-transaction-123",
-            abha_number: "12345678901234",
-            success: true,
-          });
-        }, 1000);
-      });
-    },
-    onSuccess: ({ transaction_id, abha_number }: any) => {
-      setMemory((prev) => ({
-        ...prev,
-        transactionId: transaction_id,
-        abhaNumber: abha_number,
-      }));
+    mutationFn: mutate(routes.register.enrolAbhaAddress),
+    onSuccess: () => {
       toast.success("ABHA Address created successfully");
     },
     onError: () => {
-      toast.error("Some error occured");
+      toast.error("Error creating ABHA Address");
     },
   });
 
   const onSubmit = () => {
-    if (!memory?.transactionId || !memory?.phrProfile?.health_id) return;
-    // enrollAbhaAddressMutation.mutate({
-    //   abha_address: memory.phrProfile?.health_id,
-    //   transaction_id: memory.transactionId,
-    // });
-    enrollAbhaAddressMutation.mutate();
+    if (!memory?.transactionId || !memory?.phrProfile) return;
+    enrollAbhaAddressMutation.mutate({
+      transaction_id: memory.transactionId,
+      phr_details: {
+        ...memory.phrProfile,
+        password: form.getValues("password"),
+      },
+    });
   };
 
   return (
@@ -618,7 +602,9 @@ export const SetPassword: FC<SetPasswordProps> = ({ memory, setMemory }) => {
             <Button
               type="submit"
               className="w-full"
-              disabled={!form.formState.isDirty}
+              disabled={
+                !form.formState.isDirty || enrollAbhaAddressMutation.isPending
+              }
             >
               {enrollAbhaAddressMutation.isPending ? (
                 <Loader2Icon className="text-white animate-spin scale-150" />

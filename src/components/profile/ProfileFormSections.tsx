@@ -184,7 +184,7 @@ export const LocationDetailsSection = ({
               <FormLabel aria-required>State</FormLabel>
               <Select
                 onValueChange={handleStateChange}
-                value={field.value?.toString() || ""}
+                value={field.value?.toString() ?? ""}
               >
                 <FormControl>
                   <SelectTrigger>
@@ -212,7 +212,7 @@ export const LocationDetailsSection = ({
               <FormLabel aria-required>District</FormLabel>
               <Select
                 onValueChange={handleDistrictChange}
-                value={field.value?.toString() || ""}
+                value={field.value?.toString() ?? ""}
                 disabled={!watchStateCode || !districts.length}
               >
                 <FormControl>
@@ -239,7 +239,7 @@ export const LocationDetailsSection = ({
 
       <FormField
         control={control}
-        name="pin_code"
+        name="pincode"
         render={({ field }) => (
           <FormItem>
             <FormLabel aria-required>Pin Code</FormLabel>

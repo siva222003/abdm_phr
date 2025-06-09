@@ -12,7 +12,9 @@ export type PhrProfilePartial = {
   date_of_birth: string;
   address: string;
   district: string;
+  district_code: string;
   state: string;
+  state_code: string;
   pincode: string;
   mobile: string;
   email: string | null;
