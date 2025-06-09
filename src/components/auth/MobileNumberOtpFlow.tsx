@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LoaderCircleIcon } from "lucide-react";
+import { Loader2Icon } from "lucide-react";
 import { Dispatch, FC, SetStateAction } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -152,7 +152,7 @@ const MobileNumberOtpFlow: FC<MobileNumberOtpFlowProps> = ({
           }
         >
           {isSubmitting ? (
-            <LoaderCircleIcon className="text-white" />
+            <Loader2Icon className="text-white animate-spin scale-150" />
           ) : otpSent ? (
             "Verify OTP"
           ) : (

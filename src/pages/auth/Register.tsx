@@ -29,7 +29,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AbhaNumberOtpFlow from "@/components/auth/AbhaNumberOtpFlow";
 import HandleExistingAbhaAddress from "@/components/auth/HandleExistingAbha";
 import MobileNumberOtpFlow from "@/components/auth/MobileNumberOtpFlow";
-// import { AuthHero } from "./AuthHero";
 import {
   BasicDetailsSection,
   LocationDetailsSection,
@@ -99,52 +98,12 @@ const RegisterAbha = () => {
     },
   );
 
-  //   const { urls, stateLogo, customLogo, customLogoAlt } = careConfig;
-
-  //   const logos = [stateLogo, customLogo].filter(
-  //     (logo) => logo?.light || logo?.dark,
-  //   );
-
   return (
-    <div className="relative flex min-h-screen flex-col md:h-screen md:flex-row">
-      {/* <AuthHero /> */}
-
-      {/* Login Forms Section */}
-      {/* <div className="login-hero-form my-4 w-full md:mt-0 md:h-full md:w-1/2">
-        <div className="relative h-full items-center flex justify-center md:flex">
-          <div className="w-full max-w-[400px] space-y-6">
-            <div className="px-4 flex items-center mx-auto gap-4 md:hidden">
-              {logos.map((logo, index) =>
-                logo && logo.dark ? (
-                  <div key={index} className="flex items-center">
-                    <img
-                      src={logo.dark}
-                      className="h-14 rounded-lg py-3"
-                      alt="state logo"
-                    />
-                  </div>
-                ) : null,
-              )}
-              {logos.length === 0 && (
-                <a
-                  href={urls.ohcn}
-                  className="inline-block"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <img
-                    src={customLogoAlt?.light ?? "/images/ohc_logo_light.svg"}
-                    className="h-8"
-                    alt="Open Healthcare Network logo"
-                  />
-                </a>
-              )}
-            </div>
-            {currentStep}
-          </div>
-        </div>
-      </div> */}
-      {currentStep}
+    <div className="flex min-h-screen flex-col-reverse md:flex-row">
+      <div className="bg-primary-500 flex-1"></div>
+      <div className="md:w-1/2 w-full flex justify-center items-center my-8">
+        <div className="w-full max-w-[400px]">{currentStep}</div>
+      </div>
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { LoaderCircleIcon } from "lucide-react";
+import { Loader2Icon } from "lucide-react";
 import { FC, useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -126,7 +126,7 @@ const HandleExistingAbhaAddress: FC<HandleExistingAbhaProps> = ({
           onClick={handleSelectExisting}
         >
           {verifyUserMutation.isPending ? (
-            <LoaderCircleIcon className="text-white" />
+            <Loader2Icon className="text-white animate-spin scale-150" />
           ) : (
             "Continue"
           )}
