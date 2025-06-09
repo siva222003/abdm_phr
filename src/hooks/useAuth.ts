@@ -1,11 +1,13 @@
 import { createContext, useContext } from "react";
 
-import { PhrVerifyUserBody } from "@/types/auth";
+import { PhrVerifyPasswordBody, PhrVerifyUserBody } from "@/types/auth";
 
 interface AuthContextType {
   user: any;
   verifyUser: (payload: PhrVerifyUserBody) => void;
   isVerifyingUser: boolean;
+  verifyPassword: (payload: PhrVerifyPasswordBody) => void;
+  isVerifyingPassword: boolean;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);

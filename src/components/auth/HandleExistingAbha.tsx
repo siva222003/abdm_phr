@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-import useAuth from "@/hooks/useAuth";
+import { useAuthContext } from "@/hooks/useAuth";
 
 import { FormMemory } from "@/types/auth";
 
@@ -28,7 +28,7 @@ const HandleExistingAbhaAddress: FC<HandleExistingAbhaProps> = ({
   goTo,
   flowType,
 }) => {
-  const { verifyUser, isVerifyingUser } = useAuth();
+  const { verifyUser, isVerifyingUser } = useAuthContext();
 
   const { existingAbhaAddresses = [] } = memory || {};
 

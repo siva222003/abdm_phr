@@ -27,12 +27,24 @@ export default function AuthUserProvider({
     onError: () => toast.error("Session expired. Please try again."),
   });
 
+  const { mutate: verifyPassword, isPending: isVerifyingPassword } =
+    useMutation({
+      mutationFn: mutate(routes.login.verifyPassword),
+      onSuccess: () => {
+        toast.success("Password verified successfully!");
+        //TODO: Save the token and redirect to the home page
+      },
+      onError: () => toast.error("Failed to verify password."),
+    });
+
   return (
     <AuthContext.Provider
       value={{
         user,
         verifyUser,
         isVerifyingUser,
+        verifyPassword,
+        isVerifyingPassword,
       }}
     >
       {user ? privateRouter : publicRouter}

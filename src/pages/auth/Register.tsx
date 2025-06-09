@@ -49,10 +49,6 @@ const RegisterAbha = () => {
   const { currentStep } = useMultiStepForm<FormMemory>(
     [
       {
-        id: "add-personal-details",
-        element: <AddBasicDetails {...({} as AddBasicDetailsProps)} />,
-      },
-      {
         id: "register-abha",
         element: <Register {...({} as RegisterProps)} />,
       },
@@ -170,7 +166,7 @@ const Register: FC<RegisterProps> = ({ memory, setMemory, goTo }) => {
             <Button
               variant="link"
               className="h-auto p-0 text-primary-600"
-              onClick={() => navigate("/login?mode=patient")}
+              onClick={() => navigate("/login")}
             >
               Login
             </Button>

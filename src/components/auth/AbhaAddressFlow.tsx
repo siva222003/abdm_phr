@@ -25,6 +25,7 @@ import {
 
 import OtpInput from "@/components/auth/ui/otp-resend-input";
 
+import { useAuthContext } from "@/hooks/useAuth";
 import { useOtpFlow } from "@/hooks/useOtpFlow";
 
 import { DOMAIN, OTP_LENGTH } from "@/common/constants";
@@ -53,6 +54,8 @@ const AbhaAddressFlow: FC<AbhaAddressFlowProps> = ({
     sendOtpMutation,
     verifyOtpMutation,
   } = useOtpFlow(flowType, setMemory, goTo);
+
+  const { verifyPassword, isVerifyingPassword } = useAuthContext();
 
   const passwordRegex =
     /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$^-])[A-Za-z\d!@#$%^&*-]{8,}$/;
@@ -92,7 +95,7 @@ const AbhaAddressFlow: FC<AbhaAddressFlowProps> = ({
     if (values.otpMethod === "password") {
       //TODO: CHECK AUTH METHODS
       if (!values.password) return;
-      verifyOtpMutation.mutate({
+      verifyPassword({
         password: values.password,
         abha_address: values.abhaAddress,
         type: "abha-address",
@@ -122,7 +125,10 @@ const AbhaAddressFlow: FC<AbhaAddressFlowProps> = ({
     });
   };
 
-  const isSubmitting = sendOtpMutation.isPending || verifyOtpMutation.isPending;
+  const isSubmitting =
+    sendOtpMutation.isPending ||
+    verifyOtpMutation.isPending ||
+    isVerifyingPassword;
   const otpValue = form.watch("otp");
 
   return (
