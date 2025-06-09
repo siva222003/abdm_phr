@@ -49,7 +49,7 @@ const RegisterAbha = () => {
   const { currentStep } = useMultiStepForm<FormMemory>(
     [
       {
-        id: "register-abha",
+        id: "register",
         element: <Register {...({} as RegisterProps)} />,
       },
       {
@@ -110,8 +110,6 @@ const RegisterAbha = () => {
 };
 
 export default RegisterAbha;
-
-/* ************* REGISTER ***************** */
 
 type RegisterProps = InjectedStepProps<FormMemory>;
 
@@ -177,8 +175,6 @@ const Register: FC<RegisterProps> = ({ memory, setMemory, goTo }) => {
   );
 };
 
-/* ************* EXISTING ABHA ADDRESS ***************** */
-
 type HandleExistingAbhaProps = InjectedStepProps<FormMemory>;
 
 const HandleExistingAbha: FC<HandleExistingAbhaProps> = ({ memory, goTo }) => {
@@ -190,8 +186,6 @@ const HandleExistingAbha: FC<HandleExistingAbhaProps> = ({ memory, goTo }) => {
     />
   );
 };
-
-/* ************* ADD PERSONAL DETAILS ***************** */
 
 type AddBasicDetailsProps = InjectedStepProps<FormMemory>;
 
@@ -280,8 +274,6 @@ const AddBasicDetails: FC<AddBasicDetailsProps> = ({
   );
 };
 
-// ************** ADD LOCATION DETAILS ***************** */
-
 type AddLocationDetailsProps = InjectedStepProps<FormMemory>;
 
 const AddLocationDetails: FC<AddLocationDetailsProps> = ({
@@ -349,8 +341,6 @@ const AddLocationDetails: FC<AddLocationDetailsProps> = ({
     </Card>
   );
 };
-
-/* ************** CREATE ABHA ADDRESS ***************** */
 
 type ChooseAbhaAddressProps = InjectedStepProps<FormMemory>;
 
@@ -549,8 +539,6 @@ export const ChooseAbhaAddress: FC<ChooseAbhaAddressProps> = ({
     </Card>
   );
 };
-
-// ************* SET PASSWORD *****************
 
 type SetPasswordProps = InjectedStepProps<FormMemory>;
 

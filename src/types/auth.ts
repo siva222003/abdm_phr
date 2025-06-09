@@ -37,6 +37,7 @@ export type PhrAddressDetails = {
   password: string;
 };
 
+// Verification specific types
 export type SendOtpBody = {
   value: string;
   type: AuthMode;
@@ -114,6 +115,7 @@ export type AbhaAddressExistsResponse = {
   exists: boolean;
 };
 
+// Form memory type to store state during the auth flow
 export type FormMemory = {
   transactionId: string;
   mode: AuthMode;

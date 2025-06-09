@@ -1,11 +1,13 @@
 import { useRoutes } from "raviger";
 
+import LoginAbha from "@/pages/auth/Login";
 import RegisterAbha from "@/pages/auth/Register";
 
 import { AppRoutes } from "./types";
 
 const Routes: AppRoutes = {
-  "/login": () => <RegisterAbha />,
+  "/login": () => <LoginAbha />,
+  "/register": () => <RegisterAbha />,
 };
 
 export default function PublicRouter() {

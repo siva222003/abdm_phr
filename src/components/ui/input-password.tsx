@@ -1,4 +1,4 @@
-import { Eye, EyeOff } from "lucide-react";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
@@ -24,7 +24,7 @@ function PasswordInput({
         className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-600 focus:outline-hidden"
         onClick={() => setShowPassword(!showPassword)}
       >
-        {showPassword ? <Eye /> : <EyeOff />}
+        {showPassword ? <EyeIcon size={20} /> : <EyeOffIcon size={20} />}
       </button>
     </div>
   );

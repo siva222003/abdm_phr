@@ -1,4 +1,4 @@
-type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+import { HttpMethod } from "./types";
 
 function Type<T>(): T {
   return {} as T;
