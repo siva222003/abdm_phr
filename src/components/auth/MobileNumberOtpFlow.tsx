@@ -75,12 +75,14 @@ const MobileNumberOtpFlow: FC<MobileNumberOtpFlowProps> = ({
 
     if (!(values.otp?.length === OTP_LENGTH && !!transactionId)) return;
 
+    const systemKey =
+      flowType === "enrollment" ? "otp_system" : "verify_system";
     setIsOtpValid(true);
     verifyOtpMutation.mutate({
       otp: values.otp,
       transaction_id: transactionId,
-      verify_system: "abdm",
       type: "mobile-number",
+      [systemKey]: "abdm",
     });
   };
 

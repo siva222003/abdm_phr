@@ -1,7 +1,5 @@
-import { useMutation } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
 import { FC, useEffect, useState } from "react";
-import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
 
@@ -15,9 +13,9 @@ import {
 } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-import routes from "@/api";
+import useAuth from "@/hooks/useAuth";
+
 import { FormMemory } from "@/types/auth";
-import { mutate } from "@/utils/request/request";
 
 interface HandleExistingAbhaProps {
   flowType: "enrollment" | "login";
@@ -30,20 +28,13 @@ const HandleExistingAbhaAddress: FC<HandleExistingAbhaProps> = ({
   goTo,
   flowType,
 }) => {
+  const { verifyUser, isVerifyingUser } = useAuth();
+
   const { existingAbhaAddresses = [] } = memory || {};
 
   const [selectedAddress, setSelectedAddress] = useState(
     existingAbhaAddresses[0]?.abhaAddress || "",
   );
-
-  const verifyUserMutation = useMutation({
-    mutationFn: mutate(routes.login.verifyUser),
-    onSuccess: () => {
-      toast.success("Verified User successfully!");
-      //TODO: Save the token and redirect to the home page
-    },
-    onError: () => toast.error("Session expired. Please try again."),
-  });
 
   const handleCreateNew = () => {
     if (memory?.mode === "abha-number") goTo("choose-abha-address");
@@ -60,7 +51,7 @@ const HandleExistingAbhaAddress: FC<HandleExistingAbhaProps> = ({
     if (!selectedAddress || !memory?.transactionId) {
       return;
     }
-    verifyUserMutation.mutate({
+    verifyUser({
       abha_address: selectedAddress,
       transaction_id: memory.transactionId,
       type: memory.mode,
@@ -122,10 +113,10 @@ const HandleExistingAbhaAddress: FC<HandleExistingAbhaProps> = ({
       <div className="space-y-4">
         <Button
           className="w-full"
-          disabled={!selectedAddress || verifyUserMutation.isPending}
+          disabled={!selectedAddress || isVerifyingUser}
           onClick={handleSelectExisting}
         >
-          {verifyUserMutation.isPending ? (
+          {isVerifyingUser ? (
             <Loader2Icon className="text-white animate-spin scale-150" />
           ) : (
             "Continue"
@@ -145,7 +136,7 @@ const HandleExistingAbhaAddress: FC<HandleExistingAbhaProps> = ({
               <Button
                 variant="link"
                 className="h-auto p-0 text-primary-600"
-                disabled={verifyUserMutation.isPending}
+                disabled={isVerifyingUser}
                 onClick={handleCreateNew}
               >
                 Create

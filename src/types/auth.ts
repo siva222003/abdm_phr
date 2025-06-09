@@ -51,6 +51,9 @@ export type PhrAbhaAddressSuggestionsBody = {
   transaction_id: string;
   first_name: string;
   year_of_birth: string;
+  last_name?: string;
+  month_of_birth?: string;
+  day_of_birth?: string;
 };
 
 export type PhrAbhaAddressSuggestionsResponse = {

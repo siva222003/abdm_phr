@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { Loader2Icon } from "lucide-react";
 import { useNavigate } from "raviger";
 import { FC, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -47,6 +48,10 @@ import { mutate } from "@/utils/request/request";
 const RegisterAbha = () => {
   const { currentStep } = useMultiStepForm<FormMemory>(
     [
+      {
+        id: "add-personal-details",
+        element: <AddBasicDetails {...({} as AddBasicDetailsProps)} />,
+      },
       {
         id: "register-abha",
         element: <Register {...({} as RegisterProps)} />,
@@ -208,9 +213,13 @@ const AddBasicDetails: FC<AddBasicDetailsProps> = ({
     gender: z.enum(["M", "F", "O"], {
       required_error: "Gender is required",
     }),
-    date_of_birth: z.string({
-      required_error: "Date of birth is required",
-    }),
+    date_of_birth: z
+      .string({
+        required_error: "Date of birth is required",
+      })
+      .regex(/^\d{4}-\d{2}-\d{2}$/, {
+        message: "Date of birth must be in YYYY-MM-DD format",
+      }),
     email: z
       .string()
       .email({
@@ -416,13 +425,17 @@ export const ChooseAbhaAddress: FC<ChooseAbhaAddressProps> = ({
       return;
     }
 
+    const [year = "", month = "", day = ""] =
+      memory.phrProfile.date_of_birth?.split("-") ?? [];
+
     fetchSuggestionsMutation.mutate({
       transaction_id: memory.transactionId,
       first_name:
-        memory.phrProfile.first_name ?? memory.phrProfile.name.split(" ")[0],
-      year_of_birth: memory.phrProfile.date_of_birth
-        ? new Date(memory.phrProfile.date_of_birth).getFullYear().toString()
-        : "",
+        memory.phrProfile.first_name || memory.phrProfile.name.split(" ")[0],
+      year_of_birth: year,
+      last_name: memory.phrProfile.last_name || "",
+      month_of_birth: month || "",
+      day_of_birth: day || "",
     });
   }, [memory?.transactionId, memory?.phrProfile, suggestions]);
 
@@ -525,10 +538,14 @@ export const ChooseAbhaAddress: FC<ChooseAbhaAddressProps> = ({
 
             <Button
               type="submit"
-              className="w-full" //TODO: Add loading state
+              className="w-full"
               disabled={!form.formState.isDirty}
             >
-              Continue
+              {checkAbhaAddressExistsMutation.isPending ? (
+                <Loader2Icon className="text-white animate-spin scale-150" />
+              ) : (
+                "Continue"
+              )}
             </Button>
           </form>
         </Form>
@@ -619,7 +636,11 @@ export const SetPassword: FC<SetPasswordProps> = ({ memory, setMemory }) => {
               className="w-full"
               disabled={!form.formState.isDirty}
             >
-              Continue
+              {enrollAbhaAddressMutation.isPending ? (
+                <Loader2Icon className="text-white animate-spin scale-150" />
+              ) : (
+                "Create ABHA Address"
+              )}
             </Button>
           </form>
         </Form>
