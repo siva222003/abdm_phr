@@ -9,11 +9,13 @@ import FallbackErrorPage from "@/components/errors/FallbackErrorPage";
 import useSidebarState from "@/hooks/useSidebarState";
 
 import HomePage from "@/pages/HomePage";
+import Profile from "@/pages/Profile";
 
 import { AppRoutes } from "./types";
 
 const Routes: AppRoutes = {
   "/": () => <HomePage />,
+  "/profile": () => <Profile />,
 
   "/login": () => <Redirect to="/" />,
   "/register": () => <Redirect to="/" />,

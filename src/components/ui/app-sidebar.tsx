@@ -1,4 +1,5 @@
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
+import { Home, Inbox } from "lucide-react";
+import { ActiveLink } from "raviger";
 
 import {
   Sidebar,
@@ -15,28 +16,13 @@ import {
 const items = [
   {
     title: "Home",
-    url: "#",
-    icon: Home,
+    url: "/hey",
+    icon: <Home />,
   },
   {
-    title: "Inbox",
-    url: "#",
-    icon: Inbox,
-  },
-  {
-    title: "Calendar",
-    url: "#",
-    icon: Calendar,
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: Search,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: Settings,
+    title: "Profile",
+    url: "/profile",
+    icon: <Inbox />,
   },
 ];
 
@@ -47,22 +33,28 @@ export function AppSidebar() {
       variant="sidebar"
       className="group-data-[side=left]:border-r-0"
     >
-      <SidebarHeader>
-        <div className="flex">
-          <h4>ABDM PHR</h4>
-        </div>
-      </SidebarHeader>
+      <SidebarHeader></SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
+                  <SidebarMenuButton
+                    asChild
+                    tooltip={item.title}
+                    className="text-gray-600 transition font-normal hover:bg-gray-200 hover:text-green-700"
+                  >
+                    <ActiveLink
+                      href={item.url}
+                      activeClass="bg-white text-green-700 shadow-sm"
+                    >
+                      {item.icon}
+
+                      <span className="group-data-[collapsible=icon]:hidden ml-1">
+                        {item.title}
+                      </span>
+                    </ActiveLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
