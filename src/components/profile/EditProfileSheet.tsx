@@ -10,34 +10,34 @@ import {
 
 import { PhrProfile } from "@/types/profile";
 
-import PhrProfileForm from "./PhrProfileForm";
+import EditProfileForm from "./EditProfileForm";
 
-interface EditPhrProfileProps {
+interface EditProfileSheetProps {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   userData: PhrProfile;
 }
 
-export default function EditPhrProfile({
+export default function EditProfileSheet({
   open,
   setOpen,
   userData,
-}: EditPhrProfileProps) {
-  //   const { t } = useTranslation();
+}: EditProfileSheetProps) {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetContent
         side="right"
-        className="w-full sm:max-w-2xl overflow-y-auto"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+        className="w-full sm:max-w-2xl overflow-y-auto p-6"
       >
-        <SheetHeader>
-          <SheetTitle>Edit Abha Profile</SheetTitle>
+        <SheetHeader className="p-0">
+          <SheetTitle className="text-lg">Edit Abha Profile</SheetTitle>
           <SheetDescription>
             Update your Abha profile details below.
           </SheetDescription>
         </SheetHeader>
-        <div className="mt-6">
-          <PhrProfileForm
+        <div className="mt-4">
+          <EditProfileForm
             userData={userData}
             onUpdateSuccess={() => {
               setOpen(false);

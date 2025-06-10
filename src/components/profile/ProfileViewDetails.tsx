@@ -1,4 +1,7 @@
-// import { formatPhoneNumberIntl } from "react-phone-number-input";
+import { Ellipsis, Mail, Phone } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -31,7 +34,7 @@ const LabelValue = ({
     <p className="text-sm text-gray-500">{label}</p>
     <Tooltip>
       <TooltipTrigger asChild>
-        <span id={`view-${id}`} className="text-sm truncate">
+        <span id={`view-${id}`} className="text-sm truncate w-fit">
           {value || "-"}
         </span>
       </TooltipTrigger>
@@ -55,10 +58,11 @@ export const Badge = ({
     <div className="mb-4">
       <div className="my-1 h-1 w-6 bg-blue-600" />
       <span
-        className={`
-          inline-flex items-center rounded-full text-base font-semibold
-         ${textColor} ${className}
-        `}
+        className={cn(
+          "inline-flex items-center rounded-full text-base font-semibold",
+          textColor,
+          className,
+        )}
       >
         {text}
       </span>
@@ -66,7 +70,7 @@ export const Badge = ({
   );
 };
 
-export const BasicInfoDetails = ({ user }: UserViewDetailsProps) => {
+export const BasicInfo = ({ user }: UserViewDetailsProps) => {
   return (
     <div className="pt-2 pb-5">
       <Badge text="Basic Information" />
@@ -74,7 +78,7 @@ export const BasicInfoDetails = ({ user }: UserViewDetailsProps) => {
         <LabelValue
           id="abha_number"
           label="ABHA Number"
-          value={user?.abhaNumber}
+          value={user.abhaNumber}
         />
         <LabelValue
           id="abha_address"
@@ -99,7 +103,7 @@ export const BasicInfoDetails = ({ user }: UserViewDetailsProps) => {
   );
 };
 
-export const ContactInfoDetails = ({ user }: UserViewDetailsProps) => {
+export const ContactInfo = ({ user }: UserViewDetailsProps) => {
   return (
     <div className="pt-2 pb-5">
       <div className="flex justify-between">
@@ -107,7 +111,7 @@ export const ContactInfoDetails = ({ user }: UserViewDetailsProps) => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="secondary">
-              {/* <CareIcon icon="l-ellipsis-h" /> */}
+              <Ellipsis />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -118,7 +122,7 @@ export const ContactInfoDetails = ({ user }: UserViewDetailsProps) => {
                 variant="ghost"
                 className="w-full flex flex-row justify-stretch items-center"
               >
-                {/* <CareIcon icon="l-envelope" className="mr-1" /> */}
+                <Mail className="mr-1" />
                 <span>Update Email</span>
               </Button>
             </DropdownMenuItem>
@@ -129,7 +133,7 @@ export const ContactInfoDetails = ({ user }: UserViewDetailsProps) => {
                 variant="ghost"
                 className="w-full flex flex-row justify-stretch items-center"
               >
-                {/* <CareIcon icon="l-outgoing-call" className="mr-1" /> */}
+                <Phone className="mr-1" />
                 <span>Update Mobile</span>
               </Button>
             </DropdownMenuItem>
@@ -137,21 +141,17 @@ export const ContactInfoDetails = ({ user }: UserViewDetailsProps) => {
         </DropdownMenu>
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <LabelValue id="email" label="email" value={user.email} />
-        <LabelValue
-          id="phone_number"
-          label="phone_number"
-          // value={user.mobile && formatPhoneNumberIntl(user.mobile)}
-        />
+        <LabelValue id="email" label="Email" value={user.email} />
+        <LabelValue id="phone_number" label="Mobile" value={user.mobile} />
       </div>
     </div>
   );
 };
 
-export const GeoOrgDetails = ({ user }: UserViewDetailsProps) => {
+export const LocationInfo = ({ user }: UserViewDetailsProps) => {
   return (
     <div className="pt-2 pb-5">
-      <Badge text="location" />
+      <Badge text="Location" />
       <div className="space-y-4">
         <LabelValue id="address" label="Address" value={user.address} />
 

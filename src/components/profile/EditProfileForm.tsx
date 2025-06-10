@@ -15,15 +15,15 @@ import {
 
 import { PhrProfile } from "@/types/profile";
 
-type PhrProfileFormProps = {
+type EditProfileFormProps = {
   userData: PhrProfile;
   onUpdateSuccess: () => void;
 };
 
-export default function PhrProfileForm({
+export default function EditProfileForm({
   userData,
   onUpdateSuccess,
-}: PhrProfileFormProps) {
+}: EditProfileFormProps) {
   // const queryClient = useQueryClient();
 
   const phrFormSchema = z.object({
@@ -45,7 +45,7 @@ export default function PhrProfileForm({
       .min(1, { message: "Select a district" }),
     district_name: z.string(),
     address: z.string().min(1, "Address is required"),
-    pin_code: z.string().regex(/^\d{6}$/, "Pin code must be 6 digits"),
+    pincode: z.string().regex(/^\d{6}$/, "Pin code must be 6 digits"),
   });
 
   const form = useForm({
@@ -61,7 +61,7 @@ export default function PhrProfileForm({
       state_name: userData.stateName,
       district_name: userData.districtName,
       address: userData.address,
-      pin_code: userData.pinCode,
+      pincode: userData.pinCode,
     },
   });
 
@@ -97,7 +97,7 @@ export default function PhrProfileForm({
       districtCode: values.district_code.toString(),
       districtName: values.district_name,
       address: values.address,
-      pinCode: values.pin_code,
+      pinCode: values.pincode,
       mobile: userData.mobile,
       email: userData.email,
     };

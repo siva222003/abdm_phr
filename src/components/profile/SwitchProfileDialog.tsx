@@ -29,7 +29,7 @@ const SwitchProfile = ({
   const [selectedAddress, setSelectedAddress] =
     useState<string>(currentAbhaAddress);
 
-  const { data: phrProfiles, isLoading } = useQuery({
+  const { data: phrProfiles } = useQuery({
     queryKey: ["phrProfiles"],
     queryFn: async () => {
       return new Promise<string[]>((resolve) => {
@@ -51,9 +51,6 @@ const SwitchProfile = ({
     },
     refetchOnMount: false,
   });
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

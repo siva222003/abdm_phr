@@ -18,23 +18,21 @@ import { Avatar } from "@/components/common/Avatar";
 import Page from "@/components/common/Page";
 // import AbhaUnlinkDialog from "@/components/profile/AbhaUnlinkDialog";
 import DownloadAbhaDialog from "@/components/profile/DownloadAbhaDialog";
-import EditPhrProfileSheet from "@/components/profile/EditPhrProfileSheet";
+import EditProfileSheet from "@/components/profile/EditPhrProfileSheet";
 import PhrProfileActions from "@/components/profile/PhrProfileActions";
 import PhrProfileColumns from "@/components/profile/PhrProfileColumns";
-import ResetPassword from "@/components/profile/ResetPassword";
-import SwitchProfileDialog from "@/components/profile/SwitchProfileDialog";
 // import UserAvatar from "@/components/profile/UserAvatar";
 import {
-  BasicInfoDetails,
-  ContactInfoDetails,
-  GeoOrgDetails,
-} from "@/components/profile/UserViewDetails";
+  BasicInfo,
+  ContactInfo,
+  LocationInfo,
+} from "@/components/profile/ProfileViewDetails";
+import ResetPassword from "@/components/profile/ResetPassword";
+import SwitchProfileDialog from "@/components/profile/SwitchProfileDialog";
 
 import { PhrProfile as PhrProfileType } from "@/types/profile";
 
-const PhrProfile = () => {
-  //ADD A QUERY TO FETCH USER DATA
-
+const Profile = () => {
   const userData: PhrProfileType = {
     abhaAddress: "91316778610170@sbx",
     abhaNumber: "91-3167-7861-0170",
@@ -71,32 +69,32 @@ const PhrProfile = () => {
     return null;
   }
 
-  const renderBasicInformation = () => {
+  const renderBasicInfo = () => {
     return (
       <div className="overflow-visible px-4 py-5 sm:px-6 rounded-lg shadow-sm sm:rounded-lg bg-white">
-        <BasicInfoDetails user={userData} />
+        <BasicInfo user={userData} />
       </div>
     );
   };
 
-  const renderContactInformation = () => {
+  const renderContactInfo = () => {
     return (
       <div className="overflow-visible px-4 py-5 sm:px-6 rounded-lg shadow-sm sm:rounded-lg bg-white">
-        <ContactInfoDetails user={userData} />
+        <ContactInfo user={userData} />
       </div>
     );
   };
 
-  const renderGeoOrgDetails = () => {
+  const renderLocationInfo = () => {
     return (
       <div className="overflow-visible px-4 py-5 sm:px-6 rounded-lg shadow-sm sm:rounded-lg bg-white">
-        <GeoOrgDetails user={userData} />
+        <LocationInfo user={userData} />
       </div>
     );
   };
 
   const isKYCVerified =
-    userData.abhaAddress && userData?.kycStatus === "VERIFIED";
+    userData.abhaNumber && userData?.kycStatus === "VERIFIED";
 
   return (
     <Page title="Abha Profile" hideTitleOnPage>
@@ -110,16 +108,12 @@ const PhrProfile = () => {
         <div className="grid grid-cols-1 self-center">
           <div className="flex items-center gap-3">
             <Tooltip>
-              <TooltipTrigger>
+              <TooltipTrigger asChild>
                 <h1 className="text-xl font-bold truncate">
                   {userData.abhaAddress}
                 </h1>
               </TooltipTrigger>
-              <TooltipContent side="top">
-                <p className="text-sm text-secondary-600">
-                  {userData.abhaAddress}
-                </p>
-              </TooltipContent>
+              <TooltipContent side="top">{userData.abhaAddress}</TooltipContent>
             </Tooltip>
             <div className="text-sm text-secondary-600">
               {isKYCVerified ? (
@@ -143,15 +137,13 @@ const PhrProfile = () => {
           </div>
           {isKYCVerified ? (
             <Tooltip>
-              <TooltipTrigger>
-                <p className="text-sm font-light leading-relaxed text-secondary-600 truncate">
+              <TooltipTrigger asChild>
+                <p className="text-left text-sm font-light leading-relaxed text-secondary-600 truncate">
                   {userData.abhaNumber}
                 </p>
               </TooltipTrigger>
               <TooltipContent side="bottom">
-                <p className="text-sm text-secondary-600">
-                  Your ABHA Number is linked successfully.
-                </p>
+                {userData.abhaNumber}
               </TooltipContent>
             </Tooltip>
           ) : (
@@ -163,7 +155,7 @@ const PhrProfile = () => {
       </div>
 
       {/* CONTENT */}
-      <EditPhrProfileSheet
+      <EditProfileSheet
         open={showPhrProfileEditSheet}
         setOpen={setShowPhrProfileEditSheet}
         userData={userData}
@@ -228,19 +220,19 @@ const PhrProfile = () => {
         <PhrProfileColumns
           heading="Basic Information"
           note="This section contains your personal information."
-          Child={renderBasicInformation}
+          Child={renderBasicInfo}
           childProps={userData}
         />
         <PhrProfileColumns
           heading="Contact Information"
           note="This section contains your contact details."
-          Child={renderContactInformation}
+          Child={renderContactInfo}
           childProps={userData}
         />
         <PhrProfileColumns
           heading="Location Information"
           note="Your location details are important for service delivery."
-          Child={renderGeoOrgDetails}
+          Child={renderLocationInfo}
           childProps={userData}
         />
 
@@ -251,12 +243,6 @@ const PhrProfile = () => {
           childProps={userData}
         />
 
-        {/* <PhrProfileColumns
-            heading=
-            note={t("two_factor_authentication_note")}
-            Child={TwoFactorAuth}
-            childProps={userData}
-          /> */}
         {/* <PhrProfileColumns
             heading={t("language_selection")}
             note={t("set_your_local_language")}
@@ -292,4 +278,4 @@ const PhrProfile = () => {
   );
 };
 
-export default PhrProfile;
+export default Profile;
