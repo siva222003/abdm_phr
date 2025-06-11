@@ -100,6 +100,7 @@ export default function EditProfileForm({
       pinCode: values.pincode,
       mobile: userData.mobile,
       email: userData.email,
+      profilePhoto: userData.profilePhoto,
     };
 
     console.log(payload);

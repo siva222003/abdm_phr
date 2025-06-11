@@ -1,8 +1,8 @@
 import {
   CircleAlertIcon,
   CircleCheckIcon,
-  Edit2Icon,
   Link2Icon,
+  SquarePen,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -16,11 +16,11 @@ import {
 
 import { Avatar } from "@/components/common/Avatar";
 import Page from "@/components/common/Page";
-// import AbhaUnlinkDialog from "@/components/profile/AbhaUnlinkDialog";
+import AbhaUnlinkDialog from "@/components/profile/AbhaUnlinkDialog";
 import DownloadAbhaDialog from "@/components/profile/DownloadAbhaDialog";
-import EditProfileSheet from "@/components/profile/EditPhrProfileSheet";
-import PhrProfileActions from "@/components/profile/PhrProfileActions";
+import EditProfileSheet from "@/components/profile/EditProfileSheet";
 import PhrProfileColumns from "@/components/profile/PhrProfileColumns";
+import PhrProfileActions from "@/components/profile/ProfileActions";
 // import UserAvatar from "@/components/profile/UserAvatar";
 import {
   BasicInfo,
@@ -28,7 +28,9 @@ import {
   LocationInfo,
 } from "@/components/profile/ProfileViewDetails";
 import ResetPassword from "@/components/profile/ResetPassword";
+import SelectPreferredAbhaDialog from "@/components/profile/SelectPreferredAbhaDialog";
 import SwitchProfileDialog from "@/components/profile/SwitchProfileDialog";
+import UpdateMobileDialog from "@/components/profile/UpdateMobileDialog";
 
 import { PhrProfile as PhrProfileType } from "@/types/profile";
 
@@ -62,8 +64,20 @@ const Profile = () => {
   };
   const [showPhrProfileEditSheet, setShowPhrProfileEditSheet] = useState(false);
   const [showSwitchProfileDialog, setShowSwitchProfileDialog] = useState(false);
+  const [showSelectPreferredAbhaDialog, setShowSelectPreferredAbhaDialog] =
+    useState(false);
   const [showDownloadAbhaDialog, setShowDownloadAbhaDialog] = useState(false);
-  const [_, setShowAbhaUnlinkDialog] = useState(false);
+  const [showAbhaUnlinkDialog, setShowAbhaUnlinkDialog] = useState(false);
+  const [showUpdateMobileDialog, setShowUpdateMobileDialog] = useState(false);
+
+  const phrProfiles = [
+    "91316778610170@sbx",
+    "91316778610171@sbx",
+    "91316778610172@sbx",
+    "91316778610173@sbx",
+    "91316778610174@sbx",
+    "91316778610175@sbx",
+  ];
 
   if (!userData) {
     return null;
@@ -98,7 +112,6 @@ const Profile = () => {
 
   return (
     <Page title="Abha Profile" hideTitleOnPage>
-      {/* BANNER */}
       <div className="flex gap-2">
         <Avatar
           imageUrl="https://images.unsplash.com/photo-1543610892-0b1f7e6d8ac1?q=80&w=1856&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
@@ -154,7 +167,6 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* CONTENT */}
       <EditProfileSheet
         open={showPhrProfileEditSheet}
         setOpen={setShowPhrProfileEditSheet}
@@ -165,47 +177,48 @@ const Profile = () => {
         open={showSwitchProfileDialog}
         setOpen={setShowSwitchProfileDialog}
         currentAbhaAddress={userData.abhaAddress}
+        phrProfiles={phrProfiles}
         onSwitchProfileSuccess={() => {
           setShowSwitchProfileDialog(false);
         }}
       />
 
-      {/* <AbhaUnlinkDialog
-          show={showAbhaUnlinkDialog}
-          name={userData.username}
-          handleOk={() => {
-            setShowAbhaUnlinkDialog(false);
-            setShowDownloadAbhaDialog(true);
-          }}
-          handleCancel={() => {
-            setShowAbhaUnlinkDialog(false);
-          }}
-        /> */}
+      <SelectPreferredAbhaDialog
+        open={showSelectPreferredAbhaDialog}
+        setOpen={setShowSelectPreferredAbhaDialog}
+      />
 
       <DownloadAbhaDialog
         open={showDownloadAbhaDialog}
         setOpen={setShowDownloadAbhaDialog}
-        profiles={["Profile 1", "Profile 2", "Profile 3"]}
-        onSwitch={() => {
-          // Handle switch profile logic here
-        }}
+        abhaCardUrl={userData.profilePhoto!}
+      />
+
+      <UpdateMobileDialog
+        open={showUpdateMobileDialog}
+        setOpen={setShowUpdateMobileDialog}
+      />
+
+      <AbhaUnlinkDialog
+        open={showAbhaUnlinkDialog}
+        setOpen={setShowAbhaUnlinkDialog}
       />
 
       <div className="mt-10 flex flex-col gap-y-6">
         <div className="flex gap-4 self-end">
-          <PhrProfileActions
-            onSwitchProfile={() => setShowSwitchProfileDialog(true)}
-            onDownloadAbha={() => setShowDownloadAbhaDialog(true)}
-            onSelectPreferredAbha={() => {}}
-          />
           <Button
             variant="outline"
             className="w-fit"
             onClick={() => setShowPhrProfileEditSheet(true)}
           >
-            <Edit2Icon className="h-4 w-4 mr-2" />
+            <SquarePen />
             Edit User
           </Button>
+          <PhrProfileActions
+            onSwitchProfile={() => setShowSwitchProfileDialog(true)}
+            onSelectPreferredAbha={() => setShowSelectPreferredAbhaDialog(true)}
+            onDownloadAbha={() => setShowDownloadAbhaDialog(true)}
+          />
         </div>
 
         {/* <PhrProfileColumns
@@ -243,13 +256,6 @@ const Profile = () => {
           childProps={userData}
         />
 
-        {/* <PhrProfileColumns
-            heading={t("language_selection")}
-            note={t("set_your_local_language")}
-            Child={LanguageSelector}
-            childProps={userData}
-          /> */}
-
         <div className="mt-3 flex flex-col items-center gap-5 border-t-2 pt-5 sm:flex-row">
           <div className="sm:w-1/4">
             <div className="my-1 text-sm leading-5">
@@ -260,13 +266,12 @@ const Profile = () => {
               </p>
             </div>
           </div>
-          <div className="w-3/4">
+          <div className="w-full sm:w-3/4">
             <Button
               onClick={() => setShowAbhaUnlinkDialog(true)}
               variant="destructive"
               data-testid="user-delete-button"
               className="my-1 inline-flex"
-              // disabled={isDeleting}
             >
               <Link2Icon className="h-4 w-4 mr-2" />
               <span className="">Unlink ABHA</span>

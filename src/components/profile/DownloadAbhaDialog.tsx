@@ -1,94 +1,55 @@
-import { Dispatch, SetStateAction, useState } from "react";
-
-import { cn } from "@/lib/utils";
+import { Dispatch, SetStateAction } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
-type SwitchProfileProps = {
-  onSwitch: (profile: string) => void;
-  profiles: string[];
+type DownloadAbhaProps = {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
+  abhaCardUrl: string;
 };
 
-const DownloadAbha = ({
-  onSwitch,
-  profiles,
-  open,
-  setOpen,
-}: SwitchProfileProps) => {
-  const [selectedAddress, setSelectedAddress] = useState<string>(
-    profiles[0] || "",
-  );
+const DownloadAbha = ({ open, setOpen, abhaCardUrl }: DownloadAbhaProps) => {
+  const handleDownload = () => {
+    const link = document.createElement("a");
+    link.href = abhaCardUrl;
+    link.download = "abha-card.jpg";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setOpen(false);
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Switch Profile</DialogTitle>
+      <DialogContent className="w-full max-w-xl p-0 overflow-hidden">
+        <DialogHeader className="px-6 pt-6">
+          <DialogTitle>Download ABHA Card</DialogTitle>
           <DialogDescription>
-            Select the profile you want to switch to.
+            View and download your ABHA card below.
           </DialogDescription>
         </DialogHeader>
-        <div className="flex flex-col space-y-4">
-          <ScrollArea className="w-full rounded-md p-2">
-            <div className="max-h-48 space-y-4">
-              {profiles.map((abhaAddress) => {
-                const isSelected = abhaAddress === selectedAddress;
-                return (
-                  <div
-                    key={abhaAddress}
-                    className={cn(
-                      "relative cursor-pointer rounded-lg border p-3 text-sm shadow-sm transition-colors flex items-center",
-                      isSelected
-                        ? "border-primary bg-primary/10"
-                        : "hover:bg-primary/5",
-                    )}
-                    onClick={() => setSelectedAddress(abhaAddress)}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        setSelectedAddress(abhaAddress);
-                      }
-                    }}
-                  >
-                    <div className="flex items-center gap-2">
-                      <div
-                        className={cn(
-                          "h-4 w-4 rounded-full border border-gray-400 transition-colors",
-                          isSelected ? "border-primary bg-primary" : "bg-white",
-                        )}
-                      />
-                      <div>{abhaAddress}</div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </ScrollArea>
+
+        <div className="px-6 py-4">
+          <img
+            src={abhaCardUrl}
+            alt="ABHA Card"
+            className="w-full h-[50vh] object-contain rounded-md shadow-sm"
+          />
         </div>
-        <div className="mt-2">
-          <Button
-            className="w-full"
-            disabled={!selectedAddress}
-            onClick={() => {
-              onSwitch(selectedAddress);
-              setOpen(false);
-            }}
-          >
-            Switch Profile
+
+        <DialogFooter className="px-6 pb-6">
+          <Button className="w-full" onClick={handleDownload}>
+            Download
           </Button>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

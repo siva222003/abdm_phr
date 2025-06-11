@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
 import { Dispatch, SetStateAction, useState } from "react";
 
 import { cn } from "@/lib/utils";
@@ -8,6 +7,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -16,6 +16,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 type SwitchProfileProps = {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
+  phrProfiles: string[];
   currentAbhaAddress: string;
   onSwitchProfileSuccess: (profile: string) => void;
 };
@@ -24,33 +25,10 @@ const SwitchProfile = ({
   open,
   setOpen,
   currentAbhaAddress,
-  // onSwitchProfileSuccess,
+  phrProfiles,
 }: SwitchProfileProps) => {
   const [selectedAddress, setSelectedAddress] =
     useState<string>(currentAbhaAddress);
-
-  const { data: phrProfiles } = useQuery({
-    queryKey: ["phrProfiles"],
-    queryFn: async () => {
-      return new Promise<string[]>((resolve) => {
-        setTimeout(() => {
-          resolve([
-            "dora1sbx@sbx",
-            "91316778610170@sbx",
-            "91316778610171@sbx",
-            "91316778610173@sbx",
-            "91316778610174@sbx",
-            "91316778610175@sbx",
-            "91316778610176@sbx",
-            "91316778610177@sbx",
-            "91316778610178@sbx",
-            "91316778610179@sbx",
-          ]);
-        }, 4000);
-      });
-    },
-    refetchOnMount: false,
-  });
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -98,7 +76,7 @@ const SwitchProfile = ({
             })}
           </div>
         </ScrollArea>
-        <div className="mt-2">
+        <DialogFooter className="mt-2">
           <Button
             className="w-full"
             disabled={!selectedAddress}
@@ -108,7 +86,7 @@ const SwitchProfile = ({
           >
             Switch Profile
           </Button>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

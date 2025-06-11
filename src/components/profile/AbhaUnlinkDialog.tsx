@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -10,28 +10,33 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import AbhaNumberOtpFlow from "@/src/components/auth/AbhaNumberOtpFlow";
+import AbhaNumberOtpFlow from "@/components/auth/AbhaNumberOtpFlow";
+
 import { FormMemory } from "@/types/auth";
 
-interface ConfirmDialogProps {
-  name: string;
-  handleCancel: () => void;
-  handleOk: () => void;
-  show: boolean;
-}
+type AbhaUnlinkDialogProps = {
+  open: boolean;
+  setOpen: Dispatch<SetStateAction<boolean>>;
+};
 
-const AbhaUnlinkDialog = (props: ConfirmDialogProps) => {
+const AbhaUnlinkDialog = ({ open, setOpen }: AbhaUnlinkDialogProps) => {
   const [isConfirmed, setIsConfirmed] = useState(false);
 
-  const [_, setMemory] = useState<FormMemory>({
-    existingAbhaAddresses: [],
-    transactionId: "",
-    mode: "abha-number",
-  });
+  console.log({ isConfirmed });
 
+  const [memory, setMemory] = useState<FormMemory>({
+    mode: "mobile-number",
+    transactionId: "",
+  });
   return (
-    <Dialog open={props.show} onOpenChange={props.handleCancel}>
-      <DialogContent>
+    <Dialog
+      open={open}
+      onOpenChange={() => {
+        setOpen(false);
+        setIsConfirmed(false);
+      }}
+    >
+      <DialogContent className="sm:max-w-[425px]">
         {!isConfirmed ? (
           <>
             <DialogHeader>
@@ -49,9 +54,7 @@ const AbhaUnlinkDialog = (props: ConfirmDialogProps) => {
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <Button variant="outline" onClick={props.handleCancel}>
-                Cancel
-              </Button>
+              <Button variant="outline">Cancel</Button>
               <Button
                 variant="destructive"
                 onClick={() => {
@@ -64,20 +67,18 @@ const AbhaUnlinkDialog = (props: ConfirmDialogProps) => {
             </DialogFooter>
           </>
         ) : (
-          <>
-            <DialogHeader>
-              <DialogTitle>Unlink using ABHA number</DialogTitle>
-              <DialogDescription>
-                Select an Otp method to unlink your ABHA number.
-              </DialogDescription>
-            </DialogHeader>
+          <DialogHeader>
+            <DialogTitle>Unlink ABHA</DialogTitle>
+            <DialogDescription>
+              Select a method to verify otp for unlinking your ABHA number.
+            </DialogDescription>
             <AbhaNumberOtpFlow
-              flowType="login"
-              transactionId=""
-              setMemory={setMemory}
+              flowType="enrollment"
               goTo={() => {}}
+              setMemory={setMemory}
+              transactionId={memory.transactionId}
             />
-          </>
+          </DialogHeader>
         )}
       </DialogContent>
     </Dialog>

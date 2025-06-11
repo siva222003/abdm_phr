@@ -8,16 +8,19 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import MobileNumberOtpFlow from "@/components/auth/MobileNumberOtpFlow";
+import AbhaNumberOtpFlow from "@/components/auth/AbhaNumberOtpFlow";
 
 import { FormMemory } from "@/types/auth";
 
-type UpdateMobileDialogProps = {
+type SelectPreferredAbhaDialogProps = {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
 };
 
-const UpdateMobileDialog = ({ open, setOpen }: UpdateMobileDialogProps) => {
+const SelectPreferredAbhaDialog = ({
+  open,
+  setOpen,
+}: SelectPreferredAbhaDialogProps) => {
   const [memory, setMemory] = useState<FormMemory>({
     mode: "mobile-number",
     transactionId: "",
@@ -26,20 +29,23 @@ const UpdateMobileDialog = ({ open, setOpen }: UpdateMobileDialogProps) => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Update Mobile</DialogTitle>
+          <DialogTitle>Select Preferred ABHA Address</DialogTitle>
           <DialogDescription>
-            Enter your new mobile number to update your profile.
+            Select a method to verify otp for selecting your preferred ABHA
+            address.
           </DialogDescription>
-          <MobileNumberOtpFlow
-            flowType="enrollment"
-            goTo={() => {}}
-            setMemory={setMemory}
-            transactionId={memory.transactionId}
-          />
+          <div className="my-3">
+            <AbhaNumberOtpFlow
+              flowType="enrollment"
+              goTo={() => {}}
+              setMemory={setMemory}
+              transactionId={memory.transactionId}
+            />
+          </div>
         </DialogHeader>
       </DialogContent>
     </Dialog>
   );
 };
 
-export default UpdateMobileDialog;
+export default SelectPreferredAbhaDialog;
