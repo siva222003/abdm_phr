@@ -7,6 +7,7 @@ const routes = {
   login,
   profile,
   utility,
+  profile,
 } as const;
 
 export default routes;

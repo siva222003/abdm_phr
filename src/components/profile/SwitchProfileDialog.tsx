@@ -18,7 +18,6 @@ type SwitchProfileProps = {
   setOpen: Dispatch<SetStateAction<boolean>>;
   phrProfiles: string[];
   currentAbhaAddress: string;
-  onSwitchProfileSuccess: (profile: string) => void;
 };
 
 const SwitchProfile = ({

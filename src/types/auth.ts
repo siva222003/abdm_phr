@@ -12,6 +12,7 @@ export enum AuthModes {
 export enum AuthFlowTypes {
   ENROLLMENT = "enrollment",
   LOGIN = "login",
+  PROFILE_UPDATE = "profile-update",
 }
 
 export type AuthMethod = (typeof AUTH_METHODS)[number];

@@ -1,10 +1,11 @@
+import { useQuery } from "@tanstack/react-query";
 import {
   CircleAlertIcon,
   CircleCheckIcon,
   Link2Icon,
   SquarePen,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -32,7 +33,9 @@ import SelectPreferredAbhaDialog from "@/components/profile/SelectPreferredAbhaD
 import SwitchProfileDialog from "@/components/profile/SwitchProfileDialog";
 import UpdateMobileDialog from "@/components/profile/UpdateMobileDialog";
 
+import routes from "@/api";
 import { PhrProfile as PhrProfileType } from "@/types/profile";
+import { query } from "@/utils/request/request";
 
 const Profile = () => {
   const userData: PhrProfileType = {
@@ -69,6 +72,26 @@ const Profile = () => {
   const [showDownloadAbhaDialog, setShowDownloadAbhaDialog] = useState(false);
   const [showAbhaUnlinkDialog, setShowAbhaUnlinkDialog] = useState(false);
   const [showUpdateMobileDialog, setShowUpdateMobileDialog] = useState(false);
+  // const [showUpdateEmailDialog, setShowUpdateEmailDialog] = useState(false);
+
+  const [abhaCardUrl, setAbhaCardUrl] = useState("");
+
+  const { data: abhaCard } = useQuery({
+    queryKey: ["abhaCard"],
+    queryFn: query(routes.profile.abhaCard),
+  });
+
+  useEffect(() => {
+    if (abhaCard) {
+      setAbhaCardUrl(URL.createObjectURL(abhaCard));
+    }
+
+    return () => {
+      if (abhaCardUrl) {
+        URL.revokeObjectURL(abhaCardUrl);
+      }
+    };
+  }, [abhaCard]);
 
   const phrProfiles = [
     "91316778610170@sbx",
@@ -94,7 +117,11 @@ const Profile = () => {
   const renderContactInfo = () => {
     return (
       <div className="overflow-visible px-4 py-5 sm:px-6 rounded-lg shadow-sm sm:rounded-lg bg-white">
-        <ContactInfo user={userData} />
+        <ContactInfo
+          setShowUpdateMobile={setShowUpdateMobileDialog}
+          setShowUpdateEmail={() => {}}
+          user={userData}
+        />
       </div>
     );
   };
@@ -178,9 +205,6 @@ const Profile = () => {
         setOpen={setShowSwitchProfileDialog}
         currentAbhaAddress={userData.abhaAddress}
         phrProfiles={phrProfiles}
-        onSwitchProfileSuccess={() => {
-          setShowSwitchProfileDialog(false);
-        }}
       />
 
       <SelectPreferredAbhaDialog
@@ -191,7 +215,7 @@ const Profile = () => {
       <DownloadAbhaDialog
         open={showDownloadAbhaDialog}
         setOpen={setShowDownloadAbhaDialog}
-        abhaCardUrl={userData.profilePhoto!}
+        abhaCardUrl={abhaCardUrl}
       />
 
       <UpdateMobileDialog

@@ -1,4 +1,5 @@
 import { Ellipsis, Mail, Phone } from "lucide-react";
+import { Dispatch, SetStateAction } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -19,6 +20,8 @@ import { PhrProfile } from "@/types/profile";
 
 interface UserViewDetailsProps {
   user: PhrProfile;
+  setShowUpdateMobile?: Dispatch<SetStateAction<boolean>>;
+  setShowUpdateEmail?: Dispatch<SetStateAction<boolean>>;
 }
 
 const LabelValue = ({
@@ -103,7 +106,11 @@ export const BasicInfo = ({ user }: UserViewDetailsProps) => {
   );
 };
 
-export const ContactInfo = ({ user }: UserViewDetailsProps) => {
+export const ContactInfo = ({
+  user,
+  setShowUpdateMobile,
+  setShowUpdateEmail,
+}: UserViewDetailsProps) => {
   return (
     <div className="pt-2 pb-5">
       <div className="flex justify-between">
@@ -118,7 +125,7 @@ export const ContactInfo = ({ user }: UserViewDetailsProps) => {
             <DropdownMenuItem asChild>
               <Button
                 size="sm"
-                onClick={() => {}}
+                onClick={() => setShowUpdateEmail?.(true)}
                 variant="ghost"
                 className="w-full flex flex-row justify-stretch items-center"
               >
@@ -129,7 +136,7 @@ export const ContactInfo = ({ user }: UserViewDetailsProps) => {
             <DropdownMenuItem asChild>
               <Button
                 size="sm"
-                onClick={() => {}}
+                onClick={() => setShowUpdateMobile?.(true)}
                 variant="ghost"
                 className="w-full flex flex-row justify-stretch items-center"
               >

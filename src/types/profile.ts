@@ -5,8 +5,17 @@ export enum KycStatuses {
   PENDING = "PENDING",
 }
 
+export enum ProfileUpdateActions {
+  SELECT_PREFERRED_ABHA = "SELECT_PREFERRED_ABHA",
+  UPDATE_MOBILE = "UPDATE_MOBILE",
+  UPDATE_EMAIL = "UPDATE_EMAIL",
+  LINK = "LINK",
+  DE_LINK = "DE_LINK",
+}
+
 export type Gender = (typeof GENDERS)[number];
 export type BoolString = "true" | "false";
+export type ProfileUpdateAction = ProfileUpdateActions;
 
 export interface User {
   abhaAddress: string;
@@ -74,4 +83,49 @@ export interface PhrProfile {
   kycStatus: KycStatuses;
   preferredAbhaAddress?: string;
   status: string;
+}
+
+export interface ProfileSwitchResponse {
+  transaction_id: string;
+  users: User[];
+}
+
+export interface ProfileSwitchVerifyRequest {
+  abha_address: string;
+  transaction_id: string;
+}
+
+export interface ProfileUpdateRequest {
+  address: string;
+  first_name: string;
+  middle_name?: string;
+  last_name?: string;
+  gender: Gender;
+  day_of_birth?: string;
+  month_of_birth?: string;
+  year_of_birth: string;
+  state_code: string;
+  state_name: string;
+  district_code: string;
+  district_name: string;
+  pincode: string;
+  profile_photo?: string | null;
+}
+
+export interface PasswordUpdateRequest {
+  abha_address: string;
+  password: string;
+}
+
+export interface PasswordUpdateResponse {
+  detail: string;
+}
+
+export interface LogoutRequest {
+  access_token: string;
+  refresh_token: string;
+}
+
+export interface LogoutResponse {
+  detail: string;
 }
