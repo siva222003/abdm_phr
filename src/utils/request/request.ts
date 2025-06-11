@@ -3,7 +3,7 @@ import type { ApiCallOptions, ApiRoute } from "@/utils/request/types";
 import { getResponseBody, makeHeaders, makeUrl } from "@/utils/request/utils";
 
 const BASE_URL = import.meta.env.REACT_CARE_API_URL;
-const SUB_PATH = "/api/abdm/v3/phr";
+const SUB_PATH = "/api/abdm/v3";
 
 async function callApi<Route extends ApiRoute<unknown, unknown>>(
   { path, method, noAuth }: Route,

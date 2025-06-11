@@ -30,6 +30,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AbhaNumberOtpFlow from "@/components/auth/AbhaNumberOtpFlow";
 import HandleExistingAbhaAddress from "@/components/auth/HandleExistingAbha";
 import MobileNumberOtpFlow from "@/components/auth/MobileNumberOtpFlow";
+import ValidationHelper from "@/components/common/ValidationHelper";
 import {
   BasicDetailsSection,
   LocationDetailsSection,
@@ -39,7 +40,6 @@ import {
 import useMultiStepForm, { InjectedStepProps } from "@/hooks/useMultiStepForm";
 
 import { DOMAIN } from "@/common/constants";
-import ValidationHelper from "@/common/ui/validation-helper";
 
 import routes from "@/api";
 import { AuthMode, FormMemory } from "@/types/auth";

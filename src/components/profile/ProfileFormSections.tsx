@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
-import ValidationHelper from "@/common/ui/validation-helper";
+import ValidationHelper from "@/components/common/ValidationHelper";
 
 import routes from "@/api";
 import { query } from "@/utils/request/request";
