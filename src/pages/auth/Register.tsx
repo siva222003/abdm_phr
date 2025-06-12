@@ -42,7 +42,12 @@ import useMultiStepForm, { InjectedStepProps } from "@/hooks/useMultiStepForm";
 import { DOMAIN } from "@/common/constants";
 
 import routes from "@/api";
-import { AuthMode, FormMemory } from "@/types/auth";
+import {
+  AuthMode,
+  FormMemory,
+  SendOtpBody,
+  VerifyOtpResponse,
+} from "@/types/auth";
 import { mutate } from "@/utils/request/request";
 
 const RegisterAbha = () => {
@@ -117,6 +122,42 @@ type RegisterProps = InjectedStepProps<FormMemory>;
 const Register: FC<RegisterProps> = ({ memory, setMemory, goTo }) => {
   const navigate = useNavigate();
 
+  const onVerifyOtpSuccess = (
+    data: VerifyOtpResponse,
+    sendOtpContext?: SendOtpBody,
+  ) => {
+    let mobileNumber = data.abha_number?.mobile || "";
+
+    if (sendOtpContext?.type === "mobile-number" && sendOtpContext?.value) {
+      mobileNumber = sendOtpContext.value;
+    }
+
+    const dob = data.abha_number?.date_of_birth ?? "";
+    const [year, month, day] = dob.split("-");
+
+    setMemory((prev) => ({
+      ...prev,
+      transactionId: data.transaction_id,
+      existingAbhaAddresses: data.users,
+      phrProfile: {
+        ...prev.phrProfile!,
+        ...data.abha_number,
+        abha_address: data.abha_number?.health_id ?? "",
+        day_of_birth: day ?? "",
+        month_of_birth: month ?? "",
+        year_of_birth: year ?? "",
+        district_name: data.abha_number?.district ?? "",
+        state_name: data.abha_number?.state ?? "",
+        mobile: mobileNumber,
+        last_name: data.abha_number?.last_name ?? "",
+        middle_name: data.abha_number?.middle_name ?? "",
+        email: data.abha_number?.email ?? "",
+      },
+    }));
+
+    goTo("handle-existing-abha");
+  };
+
   return (
     <Card className="mx-4">
       <CardHeader className="space-y-1 px-4">
@@ -148,7 +189,7 @@ const Register: FC<RegisterProps> = ({ memory, setMemory, goTo }) => {
               flowType="enrollment"
               transactionId={memory?.transactionId}
               setMemory={setMemory}
-              goTo={goTo}
+              onVerifyOtpSuccess={onVerifyOtpSuccess}
             />
           </TabsContent>
 
@@ -157,7 +198,7 @@ const Register: FC<RegisterProps> = ({ memory, setMemory, goTo }) => {
               flowType="enrollment"
               transactionId={memory?.transactionId}
               setMemory={setMemory}
-              goTo={goTo}
+              onVerifyOtpSuccess={onVerifyOtpSuccess}
             />
           </TabsContent>
           <div className="mt-4 text-sm text-center text-gray-500">
@@ -371,9 +412,6 @@ export const ChooseAbhaAddress: FC<ChooseAbhaAddressProps> = ({
       setMemory((prev) => ({ ...prev, transactionId: transaction_id }));
       setSuggestions(abha_addresses.map((a) => a.replace(DOMAIN, "")));
     },
-    onError: () => {
-      toast.error("Failed to fetch ABHA address suggestions");
-    },
   });
 
   const checkAbhaAdressExistsMutationFn = mutate(
@@ -394,9 +432,6 @@ export const ChooseAbhaAddress: FC<ChooseAbhaAddressProps> = ({
         }));
         goTo("set-password");
       }
-    },
-    onError: () => {
-      toast.error("Failed to check ABHA address existence");
     },
   });
 
@@ -570,9 +605,6 @@ export const SetPassword: FC<SetPasswordProps> = ({ memory }) => {
     mutationFn: mutate(routes.register.enrolAbhaAddress),
     onSuccess: () => {
       toast.success("ABHA Address created successfully");
-    },
-    onError: () => {
-      toast.error("Error creating ABHA Address");
     },
   });
 

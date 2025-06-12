@@ -148,7 +148,7 @@ const HandleExistingAbhaAddress: FC<HandleExistingAbhaProps> = ({
     </div>
   );
 
-  return flowType === "enrollment" ? (
+  return (
     <Card className="mx-4 sm:w-full">
       <CardHeader className="space-y-1 px-4">
         <CardTitle className="text-2xl font-bold">
@@ -157,13 +157,12 @@ const HandleExistingAbhaAddress: FC<HandleExistingAbhaProps> = ({
         <CardDescription className="text-sm">
           We found {existingAbhaAddresses.length} ABHA address
           {existingAbhaAddresses.length > 1 && "es"} associated with your
-          account. Choose one to continue or create a new one.
+          account. Choose one to continue{" "}
+          {flowType === "enrollment" && "or create a new one"}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">{content}</CardContent>
     </Card>
-  ) : (
-    content
   );
 };
 

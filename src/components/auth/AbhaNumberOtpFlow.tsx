@@ -28,20 +28,23 @@ import { useOtpFlow } from "@/hooks/useOtpFlow";
 
 import { OTP_LENGTH } from "@/common/constants";
 
-import { FormMemory } from "@/types/auth";
+import { FormMemory, SendOtpBody, VerifyOtpResponse } from "@/types/auth";
 
 type AbhaNumberOtpFlowProps = {
   flowType: "login" | "enrollment";
   transactionId?: string;
   setMemory: Dispatch<SetStateAction<FormMemory>>;
-  goTo: (step: string) => void;
+  onVerifyOtpSuccess: (
+    data: VerifyOtpResponse,
+    sendOtpContext?: SendOtpBody,
+  ) => void;
 };
 
 const AbhaNumberOtpFlow: FC<AbhaNumberOtpFlowProps> = ({
   flowType,
   transactionId,
   setMemory,
-  goTo,
+  onVerifyOtpSuccess,
 }) => {
   const {
     otpSent,
@@ -51,7 +54,7 @@ const AbhaNumberOtpFlow: FC<AbhaNumberOtpFlowProps> = ({
     resetCountdown,
     sendOtpMutation,
     verifyOtpMutation,
-  } = useOtpFlow(flowType, setMemory, goTo);
+  } = useOtpFlow(flowType, setMemory, onVerifyOtpSuccess);
 
   const baseSchema = z.object({
     abha: z.string().regex(/^\d{2}-\d{4}-\d{4}-\d{4}$/, {

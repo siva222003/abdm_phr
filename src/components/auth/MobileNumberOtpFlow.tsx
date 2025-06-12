@@ -21,20 +21,23 @@ import { useOtpFlow } from "@/hooks/useOtpFlow";
 
 import { OTP_LENGTH } from "@/common/constants";
 
-import { FormMemory } from "@/types/auth";
+import { FormMemory, SendOtpBody, VerifyOtpResponse } from "@/types/auth";
 
 type MobileNumberOtpFlowProps = {
   flowType: "login" | "enrollment";
   transactionId?: string;
   setMemory: Dispatch<SetStateAction<FormMemory>>;
-  goTo: (step: string) => void;
+  onVerifyOtpSuccess: (
+    data: VerifyOtpResponse,
+    sendOtpContext?: SendOtpBody,
+  ) => void;
 };
 
 const MobileNumberOtpFlow: FC<MobileNumberOtpFlowProps> = ({
   flowType,
   transactionId,
   setMemory,
-  goTo,
+  onVerifyOtpSuccess,
 }) => {
   const {
     otpSent,
@@ -44,7 +47,7 @@ const MobileNumberOtpFlow: FC<MobileNumberOtpFlowProps> = ({
     resetCountdown,
     sendOtpMutation,
     verifyOtpMutation,
-  } = useOtpFlow(flowType, setMemory, goTo);
+  } = useOtpFlow(flowType, setMemory, onVerifyOtpSuccess);
 
   const baseSchema = z.object({
     mobile: z.string().regex(/^[1-9][0-9]{9}$/, {

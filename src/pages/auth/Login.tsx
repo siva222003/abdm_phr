@@ -18,7 +18,7 @@ import MobileNumberOtpFlow from "@/components/auth/MobileNumberOtpFlow";
 
 import useMultiStepForm, { InjectedStepProps } from "@/hooks/useMultiStepForm";
 
-import { AuthMode, FormMemory } from "@/types/auth";
+import { AuthMode, FormMemory, VerifyOtpResponse } from "@/types/auth";
 
 const LoginAbha = () => {
   const { currentStep } = useMultiStepForm<FormMemory>(
@@ -55,6 +55,17 @@ type LoginProps = InjectedStepProps<FormMemory>;
 
 const Login: FC<LoginProps> = ({ memory, setMemory, goTo }) => {
   const navigate = useNavigate();
+
+  const onVerifyOtpSuccess = (data: VerifyOtpResponse) => {
+    setMemory((prev) => ({
+      ...prev,
+      transactionId: data.transaction_id,
+      existingAbhaAddresses: data.users,
+    }));
+
+    goTo("handle-existing-abha");
+  };
+
   return (
     <Card className="mx-4">
       <CardHeader className="space-y-1 px-4">
@@ -89,7 +100,7 @@ const Login: FC<LoginProps> = ({ memory, setMemory, goTo }) => {
               flowType="login"
               transactionId={memory?.transactionId}
               setMemory={setMemory}
-              goTo={goTo}
+              onVerifyOtpSuccess={onVerifyOtpSuccess}
             />
           </TabsContent>
 
@@ -98,7 +109,7 @@ const Login: FC<LoginProps> = ({ memory, setMemory, goTo }) => {
               flowType="login"
               transactionId={memory?.transactionId}
               setMemory={setMemory}
-              goTo={goTo}
+              onVerifyOtpSuccess={onVerifyOtpSuccess}
             />
           </TabsContent>
 
@@ -107,7 +118,7 @@ const Login: FC<LoginProps> = ({ memory, setMemory, goTo }) => {
               flowType="login"
               transactionId={memory?.transactionId}
               setMemory={setMemory}
-              goTo={goTo}
+              onVerifyOtpSuccess={onVerifyOtpSuccess}
             />
           </TabsContent>
           <div className="mt-4 text-sm text-center text-gray-500">

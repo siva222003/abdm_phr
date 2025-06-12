@@ -30,20 +30,23 @@ import { useOtpFlow } from "@/hooks/useOtpFlow";
 
 import { DOMAIN, OTP_LENGTH } from "@/common/constants";
 
-import { FormMemory } from "@/types/auth";
+import { FormMemory, SendOtpBody, VerifyOtpResponse } from "@/types/auth";
 
 type AbhaAddressFlowProps = {
   flowType: "login" | "enrollment";
   transactionId?: string;
   setMemory: Dispatch<SetStateAction<FormMemory>>;
-  goTo: (step: string) => void;
+  onVerifyOtpSuccess: (
+    data: VerifyOtpResponse,
+    sendOtpContext?: SendOtpBody,
+  ) => void;
 };
 
 const AbhaAddressFlow: FC<AbhaAddressFlowProps> = ({
   flowType,
   transactionId,
   setMemory,
-  goTo,
+  onVerifyOtpSuccess,
 }) => {
   const {
     otpSent,
@@ -53,7 +56,7 @@ const AbhaAddressFlow: FC<AbhaAddressFlowProps> = ({
     resetCountdown,
     sendOtpMutation,
     verifyOtpMutation,
-  } = useOtpFlow(flowType, setMemory, goTo);
+  } = useOtpFlow(flowType, setMemory, onVerifyOtpSuccess);
 
   const { verifyPassword, isVerifyingPassword } = useAuthContext();
 
