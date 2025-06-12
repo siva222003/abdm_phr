@@ -31,6 +31,7 @@ import {
 import ResetPassword from "@/components/profile/ResetPassword";
 import SelectPreferredAbhaDialog from "@/components/profile/SelectPreferredAbhaDialog";
 import SwitchProfileDialog from "@/components/profile/SwitchProfileDialog";
+import UpdateEmailDialog from "@/components/profile/UpdateEmailDialog";
 import UpdateMobileDialog from "@/components/profile/UpdateMobileDialog";
 
 import routes from "@/api";
@@ -72,7 +73,7 @@ const Profile = () => {
   const [showDownloadAbhaDialog, setShowDownloadAbhaDialog] = useState(false);
   const [showAbhaUnlinkDialog, setShowAbhaUnlinkDialog] = useState(false);
   const [showUpdateMobileDialog, setShowUpdateMobileDialog] = useState(false);
-  // const [showUpdateEmailDialog, setShowUpdateEmailDialog] = useState(false);
+  const [showUpdateEmailDialog, setShowUpdateEmailDialog] = useState(false);
 
   const [abhaCardUrl, setAbhaCardUrl] = useState("");
 
@@ -119,7 +120,7 @@ const Profile = () => {
       <div className="overflow-visible px-4 py-5 sm:px-6 rounded-lg shadow-sm sm:rounded-lg bg-white">
         <ContactInfo
           setShowUpdateMobile={setShowUpdateMobileDialog}
-          setShowUpdateEmail={() => {}}
+          setShowUpdateEmail={setShowUpdateEmailDialog}
           user={userData}
         />
       </div>
@@ -207,20 +208,25 @@ const Profile = () => {
         phrProfiles={phrProfiles}
       />
 
-      <SelectPreferredAbhaDialog
-        open={showSelectPreferredAbhaDialog}
-        setOpen={setShowSelectPreferredAbhaDialog}
-      />
-
       <DownloadAbhaDialog
         open={showDownloadAbhaDialog}
         setOpen={setShowDownloadAbhaDialog}
         abhaCardUrl={abhaCardUrl}
       />
 
+      <SelectPreferredAbhaDialog
+        open={showSelectPreferredAbhaDialog}
+        setOpen={setShowSelectPreferredAbhaDialog}
+      />
+
       <UpdateMobileDialog
         open={showUpdateMobileDialog}
         setOpen={setShowUpdateMobileDialog}
+      />
+
+      <UpdateEmailDialog
+        open={showUpdateEmailDialog}
+        setOpen={setShowUpdateEmailDialog}
       />
 
       <AbhaUnlinkDialog

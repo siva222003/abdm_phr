@@ -73,7 +73,7 @@ const AbhaUnlinkDialog = ({ open, setOpen }: AbhaUnlinkDialogProps) => {
               Select a method to verify otp for unlinking your ABHA number.
             </DialogDescription>
             <AbhaNumberOtpFlow
-              flowType="enrollment"
+              flowType="profile-update"
               goTo={() => {}}
               setMemory={setMemory}
               transactionId={memory.transactionId}

@@ -31,7 +31,7 @@ const UpdateMobileDialog = ({ open, setOpen }: UpdateMobileDialogProps) => {
             Enter your new mobile number to update your profile.
           </DialogDescription>
           <MobileNumberOtpFlow
-            flowType="enrollment"
+            flowType="profile-update"
             goTo={() => {}}
             setMemory={setMemory}
             transactionId={memory.transactionId}

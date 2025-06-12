@@ -11,6 +11,7 @@ import {
   SendOtpRequest,
   VerifyOtpResponse,
 } from "@/types/auth";
+// import { ProfileUpdateAction } from "@/types/profile";
 import { mutate } from "@/utils/request/request";
 
 import { useAuthContext } from "./useAuth";
@@ -40,7 +41,9 @@ export const useOtpFlow = (
   const sendOtpMutationFn =
     flowType === AuthFlowTypes.ENROLLMENT
       ? mutate(routes.register.sendOtp)
-      : mutate(routes.login.sendOtp);
+      : flowType === "login"
+        ? mutate(routes.login.sendOtp)
+        : mutate(routes.profile.sendOtp);
 
   const sendOtpMutation = useMutation({
     mutationFn: sendOtpMutationFn,
@@ -57,7 +60,9 @@ export const useOtpFlow = (
   const verifyOtpMutationFn =
     flowType === AuthFlowTypes.ENROLLMENT
       ? mutate(routes.register.verifyOtp)
-      : mutate(routes.login.verifyOtp);
+      : flowType === "login"
+        ? mutate(routes.login.verifyOtp)
+        : mutate(routes.profile.verifyOtp);
 
   const verifyOtpMutation = useMutation({
     mutationFn: verifyOtpMutationFn,
