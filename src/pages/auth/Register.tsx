@@ -82,6 +82,7 @@ const RegisterAbha = () => {
     {
       transactionId: "mock-id",
       mode: "mobile-number",
+      verifySystem: "abdm",
       existingAbhaAddresses: [],
       phrProfile: {
         abha_address: "",
@@ -140,6 +141,7 @@ const Register = ({ memory, setMemory, goTo }: RegisterProps) => {
       ...prev,
       transactionId: data.transaction_id,
       existingAbhaAddresses: data.users,
+      verifySystem: sendOtpContext?.otp_system || "abdm",
       phrProfile: {
         ...prev.phrProfile!,
         ...data.abha_number,

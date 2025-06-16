@@ -51,11 +51,12 @@ const HandleExistingAbhaAddress = ({
     if (!selectedAddress || !memory?.transactionId) {
       return;
     }
+
     verifyUser({
       abha_address: selectedAddress,
       transaction_id: memory.transactionId,
       type: memory.mode,
-      verify_system: "abdm", //TODO: Update this based on flow type
+      verify_system: memory.verifySystem,
     });
   };
 

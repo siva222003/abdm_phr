@@ -17,7 +17,12 @@ import MobileNumberOtpFlow from "@/components/auth/MobileNumberOtpFlow";
 
 import useMultiStepForm, { InjectedStepProps } from "@/hooks/useMultiStepForm";
 
-import { AuthMode, FormMemory, VerifyOtpResponse } from "@/types/auth";
+import {
+  AuthMode,
+  FormMemory,
+  SendOtpBody,
+  VerifyOtpResponse,
+} from "@/types/auth";
 
 const LoginAbha = () => {
   const { currentStep } = useMultiStepForm<FormMemory>(
@@ -34,6 +39,7 @@ const LoginAbha = () => {
     {
       transactionId: "mock-id",
       mode: "mobile-number",
+      verifySystem: "abdm",
       existingAbhaAddresses: [],
     },
   );
@@ -55,9 +61,13 @@ type LoginProps = InjectedStepProps<FormMemory>;
 const Login = ({ memory, setMemory, goTo }: LoginProps) => {
   const navigate = useNavigate();
 
-  const onVerifyOtpSuccess = (data: VerifyOtpResponse) => {
+  const onVerifyOtpSuccess = (
+    data: VerifyOtpResponse,
+    sendOtpContext?: SendOtpBody,
+  ) => {
     setMemory((prev) => ({
       ...prev,
+      verifySystem: sendOtpContext?.verify_system || "abdm",
       transactionId: data.transaction_id,
       existingAbhaAddresses: data.users,
     }));

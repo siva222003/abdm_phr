@@ -92,7 +92,7 @@ export type CheckAuthMethodsResponse = {
 };
 
 export type RefreshAccessTokenBody = {
-  refresh_token: string;
+  refresh: string;
 };
 
 export type RefreshAccessTokenResponse = Omit<
@@ -132,6 +132,7 @@ export type EnrolAddressBody = {
 export type FormMemory = {
   transactionId: string;
   mode: AuthMode;
+  verifySystem: VerifySystem;
   existingAbhaAddresses?: User[];
   phrProfile?: PhrAddressDetails;
 };

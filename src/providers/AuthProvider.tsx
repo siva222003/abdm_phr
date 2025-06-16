@@ -38,7 +38,7 @@ export default function AuthUserProvider({
   const tokenRefreshQuery = useQuery({
     queryKey: ["refresh-token"],
     queryFn: query(routes.login.refreshAccessToken, {
-      body: { refresh_token: refreshToken || "" },
+      body: { refresh: refreshToken || "" },
     }),
     refetchIntervalInBackground: true,
     refetchInterval: REFRESH_TOKEN_REFRESH_INTERVAL,
