@@ -91,6 +91,15 @@ export type CheckAuthMethodsResponse = {
   abha_number: string;
 };
 
+export type RefreshAccessTokenBody = {
+  refresh_token: string;
+};
+
+export type RefreshAccessTokenResponse = Omit<
+  VerifyAuthResponse,
+  "abha_number" | "switchProfileEnabled"
+>;
+
 // Enrolment specific types
 export type AbhaAddressSuggestionsBody = {
   transaction_id: string;

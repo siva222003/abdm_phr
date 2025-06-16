@@ -1,15 +1,20 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "raviger";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { AuthContext } from "@/hooks/useAuth";
 
-import { LocalStorageKeys } from "@/common/constants";
+import {
+  LocalStorageKeys,
+  REFRESH_TOKEN_REFRESH_INTERVAL,
+} from "@/common/constants";
+import GlobalLoader from "@/common/loaders/GlobalLoader";
 
 import routes from "@/api";
 import { VerifyAuthResponse } from "@/types/auth";
-import { mutate } from "@/utils/request/request";
+import { TokenStorage } from "@/utils";
+import { mutate, query } from "@/utils/request/request";
 
 interface Props {
   publicRouter: React.ReactNode;
@@ -21,24 +26,58 @@ export default function AuthUserProvider({
   privateRouter,
 }: Props) {
   const navigate = useNavigate();
-  const [user, setUser] = useState<any>(null);
+  const queryClient = useQueryClient();
 
-  const onAuthSuccess = (data: VerifyAuthResponse) => {
-    localStorage.setItem(LocalStorageKeys.accessToken, data.access_token);
-    localStorage.setItem(LocalStorageKeys.refreshToken, data.refresh_token);
+  const refreshToken = TokenStorage.getRefreshToken();
+  const [switchProfileEnabled, setSwitchProfileEnabled] = useState(false);
 
-    setUser("TESTUSER");
+  const { data: user, isLoading } = useQuery({
+    queryKey: ["user"],
+    queryFn: query(routes.profile.getProfile, { silent: true }),
+    retry: false,
+    enabled: !!localStorage.getItem(LocalStorageKeys.accessToken),
+  });
+
+  const tokenRefreshQuery = useQuery({
+    queryKey: ["refresh-token"],
+    queryFn: query(routes.login.refreshAccessToken, {
+      body: { refresh_token: refreshToken || "" },
+    }),
+    refetchIntervalInBackground: true,
+    refetchInterval: REFRESH_TOKEN_REFRESH_INTERVAL,
+    enabled: !!refreshToken && !!user,
+  });
+
+  useEffect(() => {
+    if (tokenRefreshQuery.isError) {
+      TokenStorage.clear();
+      return;
+    }
+
+    if (tokenRefreshQuery.data) {
+      const { access_token, refresh_token } = tokenRefreshQuery.data;
+      TokenStorage.setTokens(access_token, refresh_token);
+    }
+  }, [tokenRefreshQuery.data, tokenRefreshQuery.isError]);
+
+  const handleAuthSuccess = useCallback(async (data: VerifyAuthResponse) => {
+    const { access_token, refresh_token } = data;
+    TokenStorage.setTokens(access_token, refresh_token);
+
+    setSwitchProfileEnabled(data.switchProfileEnabled);
+
+    await queryClient.invalidateQueries({ queryKey: ["user"] });
+
     navigate("/");
-  };
+  }, []);
 
   const verifyUserMutationFn = mutate(routes.login.verifyUser);
   const { mutate: verifyUser, isPending: isVerifyingUser } = useMutation({
     mutationFn: verifyUserMutationFn,
     onSuccess: (data) => {
       toast.success("Verified User successfully!");
-      onAuthSuccess(data);
+      handleAuthSuccess(data);
     },
-    onError: () => toast.error("Session expired. Please try again."),
   });
 
   const verifyPasswordMutationFn = mutate(routes.login.verifyPassword);
@@ -47,19 +86,24 @@ export default function AuthUserProvider({
       mutationFn: verifyPasswordMutationFn,
       onSuccess: (data) => {
         toast.success("Password verified successfully!");
-        onAuthSuccess(data);
+        handleAuthSuccess(data);
       },
-      onError: () => toast.error("Failed to verify password."),
     });
+
+  if (isLoading) {
+    return <GlobalLoader />;
+  }
 
   return (
     <AuthContext.Provider
       value={{
         user,
+        switchProfileEnabled,
         verifyUser,
         isVerifyingUser,
         verifyPassword,
         isVerifyingPassword,
+        handleAuthSuccess,
       }}
     >
       {user ? privateRouter : publicRouter}

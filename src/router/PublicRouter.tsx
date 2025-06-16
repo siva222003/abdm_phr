@@ -5,7 +5,7 @@ import RegisterAbha from "@/pages/auth/Register";
 
 import { AppRoutes } from "./types";
 
-const Routes: AppRoutes = {
+export const Routes: AppRoutes = {
   "/login": () => <LoginAbha />,
   "/register": () => <RegisterAbha />,
 };

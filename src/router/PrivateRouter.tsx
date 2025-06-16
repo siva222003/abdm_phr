@@ -1,4 +1,4 @@
-import { useRoutes } from "raviger";
+import { Link, Redirect, useRoutes } from "raviger";
 
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -14,6 +14,9 @@ import { AppRoutes } from "./types";
 
 const Routes: AppRoutes = {
   "/": () => <HomePage />,
+
+  "/login": () => <Redirect to="/" />,
+  "/register": () => <Redirect to="/" />,
 };
 
 export default function PrivateRouter() {
@@ -33,12 +36,12 @@ export default function PrivateRouter() {
           <div className="flex items-center">
             <SidebarTrigger />
           </div>
-          <a
+          <Link
             href="/"
             className="flex items-center w-full h-full px-4 md:hidden"
           >
             <img className="w-auto h-8" alt="abdm phr logo" />
-          </a>
+          </Link>
         </div>
         <div className="p-3 mt-4" data-cui-page>
           <ErrorBoundary

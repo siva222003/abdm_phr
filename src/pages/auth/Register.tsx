@@ -37,6 +37,7 @@ import {
   SetPasswordSection,
 } from "@/components/profile/ProfileFormSections";
 
+import { useAuthContext } from "@/hooks/useAuth";
 import useMultiStepForm, { InjectedStepProps } from "@/hooks/useMultiStepForm";
 
 import { DOMAIN } from "@/common/constants";
@@ -575,6 +576,8 @@ export const ChooseAbhaAddress: FC<ChooseAbhaAddressProps> = ({
 type SetPasswordProps = InjectedStepProps<FormMemory>;
 
 export const SetPassword: FC<SetPasswordProps> = ({ memory }) => {
+  const { handleAuthSuccess } = useAuthContext();
+
   const passwordRegex =
     /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$^-])[A-Za-z\d!@#$%^&*-]{8,}$/;
 
@@ -601,10 +604,12 @@ export const SetPassword: FC<SetPasswordProps> = ({ memory }) => {
     },
   });
 
+  const enrolAbhaAddressMutationFn = mutate(routes.register.enrolAbhaAddress);
   const enrollAbhaAddressMutation = useMutation({
-    mutationFn: mutate(routes.register.enrolAbhaAddress),
-    onSuccess: () => {
+    mutationFn: enrolAbhaAddressMutationFn,
+    onSuccess: (data) => {
       toast.success("ABHA Address created successfully");
+      handleAuthSuccess(data);
     },
   });
 

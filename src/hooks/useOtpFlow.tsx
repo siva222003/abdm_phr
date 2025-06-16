@@ -11,6 +11,8 @@ import {
 } from "@/types/auth";
 import { mutate } from "@/utils/request/request";
 
+import { useAuthContext } from "./useAuth";
+
 const RESEND_OTP_DURATION = 60;
 
 export const useOtpFlow = (
@@ -24,6 +26,8 @@ export const useOtpFlow = (
   const [otpSent, setOtpSent] = useState(false);
   const [isOtpValid, setIsOtpValid] = useState(true);
   const [resendCountdown, setResendCountdown] = useState(RESEND_OTP_DURATION);
+
+  const { handleAuthSuccess } = useAuthContext();
 
   const resetCountdown = () => setResendCountdown(RESEND_OTP_DURATION);
 
@@ -58,10 +62,13 @@ export const useOtpFlow = (
   const verifyOtpMutation = useMutation({
     mutationFn: verifyOtpMutationFn,
     onSuccess: (data) => {
-      if ("users" in data) {
-        toast.success(data.detail);
-        onVerifyOtpSuccess(data, sendOtpMutation.variables);
+      if ("access_token" in data && "refresh_token" in data) {
+        toast.success("Otp verified successfully");
+        handleAuthSuccess(data);
+        return;
       }
+      toast.success(data.detail);
+      onVerifyOtpSuccess(data, sendOtpMutation.variables);
     },
     onError: () => {
       setIsOtpValid(false);

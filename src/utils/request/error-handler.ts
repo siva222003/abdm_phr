@@ -68,6 +68,11 @@ function isStructuredError(err: HTTPError["cause"]): err is StructuredError {
 }
 
 function handleStructuredErrors(cause: StructuredError) {
+  if ("detail" in cause && typeof cause.detail === "string") {
+    toast.error(cause.detail);
+    return;
+  }
+
   for (const value of Object.values(cause)) {
     if (Array.isArray(value)) {
       value.forEach((err) => toast.error(err));
