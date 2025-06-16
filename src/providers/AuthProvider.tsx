@@ -5,10 +5,7 @@ import { toast } from "sonner";
 
 import { AuthContext } from "@/hooks/useAuth";
 
-import {
-  LocalStorageKeys,
-  REFRESH_TOKEN_REFRESH_INTERVAL,
-} from "@/common/constants";
+import { REFRESH_TOKEN_REFRESH_INTERVAL } from "@/common/constants";
 import GlobalLoader from "@/common/loaders/GlobalLoader";
 
 import routes from "@/api";
@@ -35,7 +32,7 @@ export default function AuthUserProvider({
     queryKey: ["user"],
     queryFn: query(routes.profile.getProfile, { silent: true }),
     retry: false,
-    enabled: !!localStorage.getItem(LocalStorageKeys.accessToken),
+    enabled: !!TokenStorage.getAccessToken(),
   });
 
   const tokenRefreshQuery = useQuery({
@@ -75,7 +72,7 @@ export default function AuthUserProvider({
   const { mutate: verifyUser, isPending: isVerifyingUser } = useMutation({
     mutationFn: verifyUserMutationFn,
     onSuccess: (data) => {
-      toast.success("Verified User successfully!");
+      toast.success("User Verified successfully!");
       handleAuthSuccess(data);
     },
   });
