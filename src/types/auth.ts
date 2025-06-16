@@ -8,6 +8,7 @@ export type AuthMethod =
   | "EMAIL_OTP"
   | "AADHAAR_OTP";
 
+export type FlowType = "enrollment" | "login";
 export type User = {
   abhaAddress: string;
   fullName: string;
@@ -74,8 +75,11 @@ export type VerifyUserBody = {
   verify_system: VerifySystem;
 };
 
-export type VerifyUserResponse = {
+export type VerifyAuthResponse = {
   abha_number: PhrProfilePartial;
+  switchProfileEnabled: boolean;
+  access_token: string;
+  refresh_token: string;
 };
 
 export type CheckAuthMethodsBody = {

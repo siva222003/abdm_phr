@@ -3,13 +3,18 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import routes from "@/api";
-import { FormMemory, SendOtpBody, VerifyOtpResponse } from "@/types/auth";
+import {
+  FlowType,
+  FormMemory,
+  SendOtpBody,
+  VerifyOtpResponse,
+} from "@/types/auth";
 import { mutate } from "@/utils/request/request";
 
 const RESEND_OTP_DURATION = 60;
 
 export const useOtpFlow = (
-  flowType: "login" | "enrollment",
+  flowType: FlowType,
   setMemory: Dispatch<SetStateAction<FormMemory>>,
   onVerifyOtpSuccess: (
     data: VerifyOtpResponse,
@@ -53,8 +58,10 @@ export const useOtpFlow = (
   const verifyOtpMutation = useMutation({
     mutationFn: verifyOtpMutationFn,
     onSuccess: (data) => {
-      toast.success(data.detail);
-      onVerifyOtpSuccess(data, sendOtpMutation.variables);
+      if ("users" in data) {
+        toast.success(data.detail);
+        onVerifyOtpSuccess(data, sendOtpMutation.variables);
+      }
     },
     onError: () => {
       setIsOtpValid(false);

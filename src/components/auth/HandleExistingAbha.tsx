@@ -15,10 +15,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { useAuthContext } from "@/hooks/useAuth";
 
-import { FormMemory } from "@/types/auth";
+import { FlowType, FormMemory } from "@/types/auth";
 
 interface HandleExistingAbhaProps {
-  flowType: "enrollment" | "login";
+  flowType: FlowType;
   memory: FormMemory | null;
   goTo: (step: string) => void;
 }

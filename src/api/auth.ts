@@ -8,11 +8,11 @@ import {
   EnrolAddressBody,
   SendOtpBody,
   SendOtpResponse,
+  VerifyAuthResponse,
   VerifyOtpBody,
   VerifyOtpResponse,
   VerifyPasswordBody,
   VerifyUserBody,
-  VerifyUserResponse,
 } from "@/types/auth";
 import { API } from "@/utils/request/api";
 
@@ -31,7 +31,7 @@ export const register = {
   checkAbhaExists: API<AbhaAddressExistsResponse, AbhaAddressExistsBody>(
     "POST /phr/health_id/create/abha_address_exists/",
   ),
-  enrolAbhaAddress: API<VerifyUserResponse, EnrolAddressBody>(
+  enrolAbhaAddress: API<VerifyAuthResponse, EnrolAddressBody>(
     "POST /phr/health_id/create/enrol_abha_address/",
   ),
 };
@@ -41,13 +41,13 @@ export const login = {
   sendOtp: API<SendOtpResponse, SendOtpBody>(
     "POST /phr/health_id/login/send_otp/",
   ),
-  verifyOtp: API<VerifyOtpResponse, VerifyOtpBody>(
+  verifyOtp: API<VerifyOtpResponse | VerifyAuthResponse, VerifyOtpBody>(
     "POST /phr/health_id/login/verify/",
   ),
-  verifyPassword: API<VerifyOtpResponse, VerifyPasswordBody>(
+  verifyPassword: API<VerifyAuthResponse, VerifyPasswordBody>(
     "POST /phr/health_id/login/verify/",
   ),
-  verifyUser: API<VerifyUserResponse, VerifyUserBody>(
+  verifyUser: API<VerifyAuthResponse, VerifyUserBody>(
     "POST /phr/health_id/login/verify_user/",
   ),
   chechAuthMethods: API<CheckAuthMethodsResponse, CheckAuthMethodsBody>(

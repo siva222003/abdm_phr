@@ -30,10 +30,15 @@ import { useOtpFlow } from "@/hooks/useOtpFlow";
 
 import { DOMAIN, OTP_LENGTH } from "@/common/constants";
 
-import { FormMemory, SendOtpBody, VerifyOtpResponse } from "@/types/auth";
+import {
+  FlowType,
+  FormMemory,
+  SendOtpBody,
+  VerifyOtpResponse,
+} from "@/types/auth";
 
 type AbhaAddressFlowProps = {
-  flowType: "login" | "enrollment";
+  flowType: FlowType;
   transactionId?: string;
   setMemory: Dispatch<SetStateAction<FormMemory>>;
   onVerifyOtpSuccess: (

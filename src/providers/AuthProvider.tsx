@@ -1,10 +1,14 @@
 import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "raviger";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import { AuthContext } from "@/hooks/useAuth";
 
+import { LocalStorageKeys } from "@/common/constants";
+
 import routes from "@/api";
+import { VerifyAuthResponse } from "@/types/auth";
 import { mutate } from "@/utils/request/request";
 
 interface Props {
@@ -16,23 +20,34 @@ export default function AuthUserProvider({
   publicRouter,
   privateRouter,
 }: Props) {
-  const [user, _] = useState<any>(null);
+  const navigate = useNavigate();
+  const [user, setUser] = useState<any>(null);
 
+  const onAuthSuccess = (data: VerifyAuthResponse) => {
+    localStorage.setItem(LocalStorageKeys.accessToken, data.access_token);
+    localStorage.setItem(LocalStorageKeys.refreshToken, data.refresh_token);
+
+    setUser("TESTUSER");
+    navigate("/");
+  };
+
+  const verifyUserMutationFn = mutate(routes.login.verifyUser);
   const { mutate: verifyUser, isPending: isVerifyingUser } = useMutation({
-    mutationFn: mutate(routes.login.verifyUser),
-    onSuccess: () => {
+    mutationFn: verifyUserMutationFn,
+    onSuccess: (data) => {
       toast.success("Verified User successfully!");
-      //TODO: Save the token and redirect to the home page
+      onAuthSuccess(data);
     },
     onError: () => toast.error("Session expired. Please try again."),
   });
 
+  const verifyPasswordMutationFn = mutate(routes.login.verifyPassword);
   const { mutate: verifyPassword, isPending: isVerifyingPassword } =
     useMutation({
-      mutationFn: mutate(routes.login.verifyPassword),
-      onSuccess: () => {
+      mutationFn: verifyPasswordMutationFn,
+      onSuccess: (data) => {
         toast.success("Password verified successfully!");
-        //TODO: Save the token and redirect to the home page
+        onAuthSuccess(data);
       },
       onError: () => toast.error("Failed to verify password."),
     });
