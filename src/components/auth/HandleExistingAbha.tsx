@@ -1,5 +1,5 @@
 import { Loader2Icon } from "lucide-react";
-import { FC, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -23,11 +23,11 @@ interface HandleExistingAbhaProps {
   goTo: (step: string) => void;
 }
 
-const HandleExistingAbhaAddress: FC<HandleExistingAbhaProps> = ({
+const HandleExistingAbhaAddress = ({
   memory,
   goTo,
   flowType,
-}) => {
+}: HandleExistingAbhaProps) => {
   const { verifyUser, isVerifyingUser } = useAuthContext();
 
   const { existingAbhaAddresses = [] } = memory || {};

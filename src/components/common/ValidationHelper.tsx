@@ -1,5 +1,5 @@
 import { CircleCheckIcon, CircleIcon, CircleXIcon } from "lucide-react";
-import React, { JSX } from "react";
+import { JSX } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -9,11 +9,11 @@ interface ValidationRuleProps {
   isInitialState?: boolean;
 }
 
-const ValidationRule: React.FC<ValidationRuleProps> = ({
+const ValidationRule = ({
   condition,
   content,
   isInitialState = false,
-}) => {
+}: ValidationRuleProps) => {
   return (
     <div className="flex items-center gap-1">
       <span>

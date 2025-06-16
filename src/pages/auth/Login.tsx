@@ -1,5 +1,4 @@
 import { useNavigate } from "raviger";
-import { FC } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -53,7 +52,7 @@ export default LoginAbha;
 
 type LoginProps = InjectedStepProps<FormMemory>;
 
-const Login: FC<LoginProps> = ({ memory, setMemory, goTo }) => {
+const Login = ({ memory, setMemory, goTo }: LoginProps) => {
   const navigate = useNavigate();
 
   const onVerifyOtpSuccess = (data: VerifyOtpResponse) => {
@@ -139,7 +138,7 @@ const Login: FC<LoginProps> = ({ memory, setMemory, goTo }) => {
 
 type HandleExistingAbhaProps = InjectedStepProps<FormMemory>;
 
-const HandleExistingAbha: FC<HandleExistingAbhaProps> = ({ memory, goTo }) => {
+const HandleExistingAbha = ({ memory, goTo }: HandleExistingAbhaProps) => {
   return (
     <HandleExistingAbhaAddress flowType="login" memory={memory} goTo={goTo} />
   );

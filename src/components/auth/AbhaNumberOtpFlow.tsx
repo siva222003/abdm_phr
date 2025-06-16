@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
-import { Dispatch, FC, SetStateAction } from "react";
+import { Dispatch, SetStateAction } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -45,12 +45,12 @@ type AbhaNumberOtpFlowProps = {
   ) => void;
 };
 
-const AbhaNumberOtpFlow: FC<AbhaNumberOtpFlowProps> = ({
+const AbhaNumberOtpFlow = ({
   flowType,
   transactionId,
   setMemory,
   onVerifyOtpSuccess,
-}) => {
+}: AbhaNumberOtpFlowProps) => {
   const {
     otpSent,
     isOtpValid,

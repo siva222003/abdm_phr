@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
 import { useNavigate } from "raviger";
-import { FC, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -120,7 +120,7 @@ export default RegisterAbha;
 
 type RegisterProps = InjectedStepProps<FormMemory>;
 
-const Register: FC<RegisterProps> = ({ memory, setMemory, goTo }) => {
+const Register = ({ memory, setMemory, goTo }: RegisterProps) => {
   const navigate = useNavigate();
 
   const onVerifyOtpSuccess = (
@@ -220,7 +220,7 @@ const Register: FC<RegisterProps> = ({ memory, setMemory, goTo }) => {
 
 type HandleExistingAbhaProps = InjectedStepProps<FormMemory>;
 
-const HandleExistingAbha: FC<HandleExistingAbhaProps> = ({ memory, goTo }) => {
+const HandleExistingAbha = ({ memory, goTo }: HandleExistingAbhaProps) => {
   return (
     <HandleExistingAbhaAddress
       flowType="enrollment"
@@ -232,11 +232,7 @@ const HandleExistingAbha: FC<HandleExistingAbhaProps> = ({ memory, goTo }) => {
 
 type AddBasicDetailsProps = InjectedStepProps<FormMemory>;
 
-const AddBasicDetails: FC<AddBasicDetailsProps> = ({
-  memory,
-  setMemory,
-  goTo,
-}) => {
+const AddBasicDetails = ({ memory, setMemory, goTo }: AddBasicDetailsProps) => {
   const schema = z.object({
     first_name: z.string().nonempty({
       message: "First name is required",
@@ -319,10 +315,7 @@ const AddBasicDetails: FC<AddBasicDetailsProps> = ({
 
 type AddLocationDetailsProps = InjectedStepProps<FormMemory>;
 
-const AddLocationDetails: FC<AddLocationDetailsProps> = ({
-  setMemory,
-  goTo,
-}) => {
+const AddLocationDetails = ({ setMemory, goTo }: AddLocationDetailsProps) => {
   const schema = z.object({
     state_code: z.number({ required_error: "State is required" }),
     state_name: z.string(),
@@ -384,11 +377,11 @@ const AddLocationDetails: FC<AddLocationDetailsProps> = ({
 
 type ChooseAbhaAddressProps = InjectedStepProps<FormMemory>;
 
-export const ChooseAbhaAddress: FC<ChooseAbhaAddressProps> = ({
+export const ChooseAbhaAddress = ({
   memory,
   setMemory,
   goTo,
-}) => {
+}: ChooseAbhaAddressProps) => {
   const [suggestions, setSuggestions] = useState<string[]>([]);
 
   const schema = z.object({
@@ -575,7 +568,7 @@ export const ChooseAbhaAddress: FC<ChooseAbhaAddressProps> = ({
 
 type SetPasswordProps = InjectedStepProps<FormMemory>;
 
-export const SetPassword: FC<SetPasswordProps> = ({ memory }) => {
+export const SetPassword = ({ memory }: SetPasswordProps) => {
   const { handleAuthSuccess } = useAuthContext();
 
   const passwordRegex =
