@@ -5,9 +5,10 @@ import {
   VerifyPasswordBody,
   VerifyUserBody,
 } from "@/types/auth";
+import { PhrProfile } from "@/types/profile";
 
 interface AuthContextType {
-  user: any;
+  user: PhrProfile | undefined;
   switchProfileEnabled: boolean;
   verifyUser: (payload: VerifyUserBody) => void;
   isVerifyingUser: boolean;

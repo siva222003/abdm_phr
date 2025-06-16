@@ -25,7 +25,6 @@ export default function AuthUserProvider({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const refreshToken = TokenStorage.getRefreshToken();
   const [switchProfileEnabled, setSwitchProfileEnabled] = useState(false);
 
   const { data: user, isLoading } = useQuery({
@@ -37,12 +36,15 @@ export default function AuthUserProvider({
 
   const tokenRefreshQuery = useQuery({
     queryKey: ["refresh-token"],
-    queryFn: query(routes.login.refreshAccessToken, {
-      body: { refresh: refreshToken || "" },
-    }),
+    queryFn: ({ signal }) => {
+      const refreshToken = TokenStorage.getRefreshToken();
+      return query(routes.login.refreshAccessToken, {
+        body: { refresh: refreshToken || "" },
+      })({ signal });
+    },
     refetchIntervalInBackground: true,
     refetchInterval: REFRESH_TOKEN_REFRESH_INTERVAL,
-    enabled: !!refreshToken && !!user,
+    enabled: !!TokenStorage.getRefreshToken() && !!user,
   });
 
   useEffect(() => {
