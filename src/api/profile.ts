@@ -10,11 +10,9 @@ import { API } from "@/utils/request/api";
 
 export const profile = {
   getProfile: API<PhrProfile>("GET /phr/profile/get_profile"),
-  sendOtp: API<SendOtpResponse, SendOtpBody>(
-    "POST /phr/health_id/profile/request_otp/",
-  ),
+  sendOtp: API<SendOtpResponse, SendOtpBody>("POST /phr/profile/request_otp/"),
   verifyOtp: API<VerifyOtpResponse, VerifyOtpBody>(
-    "POST /phr/health_id/profile/verify_otp/",
+    "POST /phr/profile/verify_otp/",
   ),
-  abhaCard: API<Blob>("GET /phr/health_id/profile/phr_card/"),
+  abhaCard: API<Blob>("GET /phr/profile/phr_card/"),
 };

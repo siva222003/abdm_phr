@@ -55,7 +55,7 @@ export default function EditProfileForm({
       middle_name: userData.middleName || "",
       last_name: userData.lastName || "",
       gender: userData.gender,
-      date_of_birth: userData.dateOfBirth,
+      date_of_birth: userData.dateOfBirth.split("-").reverse().join("-"),
       state_code: Number(userData.stateCode),
       district_code: Number(userData.districtCode),
       state_name: userData.stateName,

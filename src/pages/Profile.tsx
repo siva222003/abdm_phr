@@ -34,38 +34,13 @@ import SwitchProfileDialog from "@/components/profile/SwitchProfileDialog";
 import UpdateEmailDialog from "@/components/profile/UpdateEmailDialog";
 import UpdateMobileDialog from "@/components/profile/UpdateMobileDialog";
 
+import { useAuthContext } from "@/hooks/useAuth";
+
 import routes from "@/api";
-import { PhrProfile as PhrProfileType } from "@/types/profile";
 import { query } from "@/utils/request/request";
 
 const Profile = () => {
-  const userData: PhrProfileType = {
-    abhaAddress: "91316778610170@sbx",
-    abhaNumber: "91-3167-7861-0170",
-    address: "123 Adventure Lane",
-    dateOfBirth: "2000-05-15",
-    dayOfBirth: "15",
-    districtCode: "1",
-    districtName: "Explorer District",
-    email: "dora@example.com",
-    emailVerified: "true" as "true" | "false",
-    firstName: "Dora",
-    fullName: "Dora Explorer",
-    gender: "F" as "M" | "F" | "O",
-    kycStatus: "VERIFIED" as "VERIFIED" | "PENDING",
-    lastName: "Explorer",
-    middleName: null,
-    mobile: "+919876543210",
-    mobileVerified: "true" as "true" | "false",
-    monthOfBirth: "05",
-    pinCode: "400001",
-    profilePhoto:
-      "https://images.unsplash.com/photo-1543610892-0b1f7e6d8ac1?q=80&w=1856&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    stateCode: "1",
-    stateName: "Maharashtra",
-    status: "ACTIVE",
-    yearOfBirth: "2000",
-  };
+  const { user: userData } = useAuthContext();
   const [showPhrProfileEditSheet, setShowPhrProfileEditSheet] = useState(false);
   const [showSwitchProfileDialog, setShowSwitchProfileDialog] = useState(false);
   const [showSelectPreferredAbhaDialog, setShowSelectPreferredAbhaDialog] =
@@ -142,10 +117,11 @@ const Profile = () => {
     <Page title="Abha Profile" hideTitleOnPage>
       <div className="flex gap-2">
         <Avatar
-          imageUrl="https://images.unsplash.com/photo-1543610892-0b1f7e6d8ac1?q=80&w=1856&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          imageUrl={`data:image/jpeg;base64,${userData.profilePhoto}`}
           name={userData.abhaAddress}
           className="size-20 md:mr-2"
         />
+
         <div className="grid grid-cols-1 self-center">
           <div className="flex items-center gap-3">
             <Tooltip>
