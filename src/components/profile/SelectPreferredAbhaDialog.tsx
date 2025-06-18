@@ -24,7 +24,15 @@ const SelectPreferredAbhaDialog = ({
   const [memory, setMemory] = useState<FormMemory>({
     mode: "mobile-number",
     transactionId: "",
+    verifySystem: "abdm",
   });
+
+  const onVerifyOtpSuccess = (data: any) => {
+    console.log("OTP verified successfully", data);
+    // Handle success logic here, e.g., show a success message or update state
+    setOpen(false); // Close the dialog on successful verification
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[425px]">
@@ -36,10 +44,10 @@ const SelectPreferredAbhaDialog = ({
           </DialogDescription>
           <div className="my-3">
             <AbhaNumberOtpFlow
-              flowType="enrollment"
-              goTo={() => {}}
+              flowType="profile-update"
               setMemory={setMemory}
               transactionId={memory.transactionId}
+              onVerifyOtpSuccess={onVerifyOtpSuccess}
             />
           </div>
         </DialogHeader>

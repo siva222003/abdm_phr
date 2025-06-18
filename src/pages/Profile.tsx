@@ -69,18 +69,12 @@ const Profile = () => {
     };
   }, [abhaCard]);
 
-  const phrProfiles = [
-    "91316778610170@sbx",
-    "91316778610171@sbx",
-    "91316778610172@sbx",
-    "91316778610173@sbx",
-    "91316778610174@sbx",
-    "91316778610175@sbx",
-  ];
-
   if (!userData) {
     return null;
   }
+
+  const isKYCVerified =
+    !!userData.abhaNumber && userData?.kycStatus === "VERIFIED";
 
   const renderBasicInfo = () => {
     return (
@@ -110,67 +104,72 @@ const Profile = () => {
     );
   };
 
-  const isKYCVerified =
-    userData.abhaNumber && userData?.kycStatus === "VERIFIED";
+  const kycStatusBadge = (isVerified: boolean) => {
+    if (isVerified) {
+      return (
+        <Badge
+          variant="outline"
+          className="bg-green-100 text-green-700 flex items-center whitespace-nowrap"
+        >
+          <CircleCheckIcon className="h-3 w-3 mr-2" aria-hidden="true" />
+          <span>KYC Verified</span>
+        </Badge>
+      );
+    }
+    return (
+      <Badge
+        variant="outline"
+        className="bg-yellow-100 text-yellow-700 flex items-center whitespace-nowrap"
+      >
+        <CircleAlertIcon className="h-3 w-3 mr-2" aria-hidden="true" />
+        <span>Self Declared</span>
+      </Badge>
+    );
+  };
+  const { profilePhoto, abhaAddress, abhaNumber } = userData;
+
+  const imageUrl = profilePhoto
+    ? `data:image/jpeg;base64,${profilePhoto}`
+    : undefined;
 
   return (
     <Page title="Abha Profile" hideTitleOnPage>
-      <div className="flex gap-2">
+      <div className="flex gap-2 items-start">
         <Avatar
-          imageUrl={`data:image/jpeg;base64,${userData.profilePhoto}`}
-          name={userData.abhaAddress}
-          className="size-20 md:mr-2"
+          imageUrl={imageUrl}
+          name={abhaAddress}
+          className="size-20 shrink-0 md:mr-2"
         />
 
-        <div className="grid grid-cols-1 self-center">
+        <div className="grid grid-cols-1 self-center min-w-0">
+          {" "}
           <div className="flex items-center gap-3">
             <Tooltip>
               <TooltipTrigger asChild>
-                <h1 className="text-xl font-bold truncate">
-                  {userData.abhaAddress}
-                </h1>
+                <div className="text-xl font-bold truncate">{abhaAddress}</div>
               </TooltipTrigger>
-              <TooltipContent side="top">{userData.abhaAddress}</TooltipContent>
+              <TooltipContent side="top">{abhaAddress}</TooltipContent>
             </Tooltip>
-            <div className="text-sm text-secondary-600">
-              {isKYCVerified ? (
-                <Badge
-                  variant="outline"
-                  className="bg-green-100 text-green-700 flex items-center whitespace-nowrap"
-                >
-                  <CircleCheckIcon className="h-3 w-3 mr-2" />
-                  <span>KYC Verified</span>
-                </Badge>
-              ) : (
-                <Badge
-                  variant="outline"
-                  className="bg-yellow-100 text-yellow-700 flex items-center whitespace-nowrap"
-                >
-                  <CircleAlertIcon className="h-3 w-3 mr-2" />
-                  <span>Self Declared</span>
-                </Badge>
-              )}
+            <div className="text-sm shrink-0">
+              {kycStatusBadge(isKYCVerified)}
             </div>
           </div>
-          {isKYCVerified ? (
+          {isKYCVerified && abhaNumber ? (
             <Tooltip>
               <TooltipTrigger asChild>
                 <p className="text-left text-sm font-light leading-relaxed text-secondary-600 truncate">
-                  {userData.abhaNumber}
+                  {abhaNumber}
                 </p>
               </TooltipTrigger>
-              <TooltipContent side="bottom">
-                {userData.abhaNumber}
-              </TooltipContent>
+              <TooltipContent side="bottom">{abhaNumber}</TooltipContent>
             </Tooltip>
           ) : (
-            <p className="text-sm leading-relaxed truncate">
+            <p className="text-sm leading-relaxed text-secondary-600 truncate">
               No ABHA Number Linked
             </p>
           )}
         </div>
       </div>
-
       <EditProfileSheet
         open={showPhrProfileEditSheet}
         setOpen={setShowPhrProfileEditSheet}
@@ -181,7 +180,6 @@ const Profile = () => {
         open={showSwitchProfileDialog}
         setOpen={setShowSwitchProfileDialog}
         currentAbhaAddress={userData.abhaAddress}
-        phrProfiles={phrProfiles}
       />
 
       <DownloadAbhaDialog

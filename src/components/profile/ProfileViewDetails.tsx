@@ -28,16 +28,21 @@ const LabelValue = ({
   label,
   value,
   id,
+  className = "",
 }: {
   label: string;
   value?: string | null;
   id?: string;
+  className?: string;
 }) => (
   <div className="flex flex-col gap-1">
     <p className="text-sm text-gray-500">{label}</p>
     <Tooltip>
       <TooltipTrigger asChild>
-        <span id={`view-${id}`} className="text-sm truncate w-fit">
+        <span
+          id={`view-${id}`}
+          className={cn("text-sm truncate max-w-fit", className)}
+        >
           {value || "-"}
         </span>
       </TooltipTrigger>
@@ -160,7 +165,12 @@ export const LocationInfo = ({ user }: UserViewDetailsProps) => {
     <div className="pt-2 pb-5">
       <Badge text="Location" />
       <div className="space-y-4">
-        <LabelValue id="address" label="Address" value={user.address} />
+        <LabelValue
+          id="address"
+          label="Address"
+          value={user.address}
+          className="break-words whitespace-normal"
+        />
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <LabelValue

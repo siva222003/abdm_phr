@@ -21,7 +21,14 @@ const UpdateMobileDialog = ({ open, setOpen }: UpdateMobileDialogProps) => {
   const [memory, setMemory] = useState<FormMemory>({
     mode: "mobile-number",
     transactionId: "",
+    verifySystem: "abdm",
   });
+
+  const onVerifyOtpSuccess = (data: any) => {
+    // Handle success logic here, e.g., show a success message or update state
+    console.log(data);
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[425px]">
@@ -32,9 +39,9 @@ const UpdateMobileDialog = ({ open, setOpen }: UpdateMobileDialogProps) => {
           </DialogDescription>
           <MobileNumberOtpFlow
             flowType="profile-update"
-            goTo={() => {}}
             setMemory={setMemory}
             transactionId={memory.transactionId}
+            onVerifyOtpSuccess={onVerifyOtpSuccess}
           />
         </DialogHeader>
       </DialogContent>

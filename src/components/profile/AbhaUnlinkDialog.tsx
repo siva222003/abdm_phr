@@ -22,12 +22,17 @@ type AbhaUnlinkDialogProps = {
 const AbhaUnlinkDialog = ({ open, setOpen }: AbhaUnlinkDialogProps) => {
   const [isConfirmed, setIsConfirmed] = useState(false);
 
-  console.log({ isConfirmed });
-
   const [memory, setMemory] = useState<FormMemory>({
     mode: "mobile-number",
     transactionId: "",
+    verifySystem: "abdm",
   });
+
+  const onVerifyOtpSuccess = (data: any) => {
+    console.log("OTP verified successfully", data);
+    // Handle success logic here, e.g., show a success message or update state
+  };
+
   return (
     <Dialog
       open={open}
@@ -74,9 +79,9 @@ const AbhaUnlinkDialog = ({ open, setOpen }: AbhaUnlinkDialogProps) => {
             </DialogDescription>
             <AbhaNumberOtpFlow
               flowType="profile-update"
-              goTo={() => {}}
               setMemory={setMemory}
               transactionId={memory.transactionId}
+              onVerifyOtpSuccess={onVerifyOtpSuccess}
             />
           </DialogHeader>
         )}

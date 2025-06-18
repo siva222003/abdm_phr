@@ -21,7 +21,14 @@ const UpdateEmailDialog = ({ open, setOpen }: UpdateEmailDialogProps) => {
   const [memory, setMemory] = useState<FormMemory>({
     mode: "mobile-number",
     transactionId: "",
+    verifySystem: "abdm",
   });
+
+  const onVerifyOtpSuccess = (data: any) => {
+    console.log("OTP verified successfully", data);
+    setOpen(false);
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[425px]">
@@ -32,9 +39,9 @@ const UpdateEmailDialog = ({ open, setOpen }: UpdateEmailDialogProps) => {
           </DialogDescription>
           <EmailOtpFlow
             flowType="profile-update"
-            goTo={() => {}}
             setMemory={setMemory}
             transactionId={memory.transactionId}
+            onVerifyOtpSuccess={onVerifyOtpSuccess}
           />
         </DialogHeader>
       </DialogContent>

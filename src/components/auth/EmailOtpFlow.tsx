@@ -21,20 +21,28 @@ import { useOtpFlow } from "@/hooks/useOtpFlow";
 
 import { OTP_LENGTH } from "@/common/constants";
 
-import { FlowType, FormMemory } from "@/types/auth";
+import {
+  FlowType,
+  FormMemory,
+  SendOtpBody,
+  VerifyOtpResponse,
+} from "@/types/auth";
 
 type EmailOtpFlowProps = {
   flowType: FlowType;
   transactionId?: string;
   setMemory: Dispatch<SetStateAction<FormMemory>>;
-  goTo: (step: string) => void;
+  onVerifyOtpSuccess: (
+    data: VerifyOtpResponse,
+    sendOtpContext?: SendOtpBody,
+  ) => void;
 };
 
 const EmailOtpFlow: FC<EmailOtpFlowProps> = ({
   flowType,
   transactionId,
   setMemory,
-  goTo,
+  onVerifyOtpSuccess,
 }) => {
   const {
     otpSent,
@@ -44,13 +52,12 @@ const EmailOtpFlow: FC<EmailOtpFlowProps> = ({
     resetCountdown,
     sendOtpMutation,
     verifyOtpMutation,
-  } = useOtpFlow(flowType, setMemory, goTo);
+  } = useOtpFlow(flowType, setMemory, onVerifyOtpSuccess);
 
   const baseSchema = z.object({
     email: z.string().email({
       message: "Invalid email address",
     }),
-
     otp: z.string().optional(),
   });
 
