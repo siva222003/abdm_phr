@@ -2,23 +2,36 @@ export type Gender = "M" | "F" | "O";
 export type KycStatus = "VERIFIED" | "PENDING";
 export type BoolString = "true" | "false";
 
-export type PhrProfilePartial = {
+type BasicProfileFields = {
+  address: string;
+  first_name: string;
+  middle_name?: string | null;
+  last_name?: string | null;
+  gender: Gender;
+  mobile: string;
+  pincode: string;
+  email?: string | null;
+  district_code: string;
+  state_code: string;
+  profile_photo?: string | null;
+};
+
+export type PhrEnrolDetails = BasicProfileFields & {
+  abha_address: string;
+  day_of_birth?: string;
+  month_of_birth?: string;
+  year_of_birth: string;
+  district_name: string;
+  state_name: string;
+  password: string;
+};
+
+export type PhrProfilePartial = BasicProfileFields & {
   health_id: string | null;
   name: string;
-  first_name: string;
-  middle_name: string | null;
-  last_name: string | null;
-  gender: Gender;
   date_of_birth: string;
-  address: string;
   district: string;
-  district_code: string;
   state: string;
-  state_code: string;
-  pincode: string;
-  mobile: string;
-  email: string | null;
-  profile_photo: string | null;
 };
 
 export type PhrProfile = {

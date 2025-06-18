@@ -56,7 +56,7 @@ const OtpInput = ({
       <Button
         variant="link"
         type="button"
-        className="h-auto p-0 mr-auto"
+        className="h-auto p-0 mr-auto text-gray-900"
         onClick={onResend}
         disabled={disabled}
       >

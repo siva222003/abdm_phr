@@ -134,7 +134,7 @@ const Login = ({ memory, setMemory, goTo }: LoginProps) => {
             <span>Don't have an account? </span>
             <Button
               variant="link"
-              className="h-auto p-0 text-primary-600"
+              className="h-auto p-0"
               onClick={() => navigate("/register")}
             >
               Register

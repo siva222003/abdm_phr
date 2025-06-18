@@ -1,5 +1,6 @@
-import { Gender, KycStatus, PhrProfilePartial } from "./profile";
+import { KycStatus, PhrEnrolDetails, PhrProfilePartial } from "./profile";
 
+// Common types for authentication and verification
 export type AuthMode = "abha-number" | "mobile-number" | "abha-address";
 export type VerifySystem = "abdm" | "aadhaar";
 export type AuthMethod =
@@ -15,27 +16,6 @@ export type User = {
   abhaNumber: string;
   status: string;
   kycStatus: KycStatus;
-};
-
-export type PhrAddressDetails = {
-  abha_address: string;
-  address: string;
-  day_of_birth?: string;
-  month_of_birth?: string;
-  year_of_birth: string;
-  first_name: string;
-  last_name?: string;
-  middle_name?: string;
-  gender: Gender;
-  district_code: string;
-  district_name: string;
-  state_code: string;
-  state_name: string;
-  pincode: string;
-  mobile: string;
-  email?: string;
-  profile_photo?: string | null;
-  password: string;
 };
 
 // Verification specific types
@@ -82,6 +62,7 @@ export type VerifyAuthResponse = {
   refresh_token: string;
 };
 
+// Login specific types
 export type CheckAuthMethodsBody = {
   abha_address: string;
 };
@@ -125,7 +106,7 @@ export type AbhaAddressExistsResponse = {
 
 export type EnrolAddressBody = {
   transaction_id: string;
-  phr_details: PhrAddressDetails;
+  phr_details: PhrEnrolDetails;
 };
 
 // Form memory type to store state during the auth flow
@@ -134,5 +115,5 @@ export type FormMemory = {
   mode: AuthMode;
   verifySystem: VerifySystem;
   existingAbhaAddresses?: User[];
-  phrProfile?: PhrAddressDetails;
+  phrProfile?: PhrEnrolDetails;
 };
