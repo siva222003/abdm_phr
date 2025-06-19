@@ -68,10 +68,6 @@ const RegisterAbha = () => {
   const { currentStep } = useMultiStepForm<FormMemory>(
     [
       {
-        id: "set-password",
-        element: <SetPassword {...({} as SetPasswordProps)} />,
-      },
-      {
         id: "register",
         element: <Register {...({} as RegisterProps)} />,
       },
@@ -664,24 +660,27 @@ export const SetPassword = ({ memory }: InjectedStepProps<FormMemory>) => {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <SetPasswordSection form={form} />
 
-            <div className="flex flex-wrap sm:flex-nowrap items-start gap-3 p-4 rounded-lg bg-gray-50 border border-gray-200">
+            <div className="flex items-start gap-3 p-4 rounded-lg bg-gray-50 border border-gray-200">
               <Checkbox
                 id="terms"
                 checked={hasAgreedToTerms}
                 onCheckedChange={(checked) =>
                   setHasAgreedToTerms(Boolean(checked))
                 }
-                className="mt-1.5"
+                className="mt-1"
               />
               <div className="flex-1 space-y-1">
                 <Label
                   htmlFor="terms"
-                  className="text-sm font-medium leading-snug"
+                  className="text-sm font-medium block leading-snug"
                 >
                   I agree to the{" "}
                   <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger asChild>
-                      <Button variant="link" className="p-0 h-auto">
+                      <Button
+                        variant="link"
+                        className="p-0 h-auto align-baseline"
+                      >
                         Terms and Conditions
                       </Button>
                     </DialogTrigger>
