@@ -1,3 +1,5 @@
+import { FormMemory } from "@/types/auth";
+
 const DOMAIN = "@sbx";
 const OTP_LENGTH = 6;
 
@@ -7,6 +9,33 @@ const LocalStorageKeys = {
   switchProfileEnabled: "switch_profile_enabled",
 } as const;
 
+const InitialAuthFormValues: FormMemory = {
+  transactionId: "mock-id",
+  mode: "mobile-number",
+  verifySystem: "abdm",
+  existingAbhaAddresses: [],
+  phrProfile: {
+    abha_address: "",
+    first_name: "",
+    middle_name: "",
+    last_name: "",
+    gender: "O",
+    day_of_birth: "",
+    month_of_birth: "",
+    year_of_birth: "",
+    address: "",
+    state_name: "",
+    state_code: "",
+    district_name: "",
+    district_code: "",
+    pincode: "",
+    mobile: "",
+    email: "",
+    profile_photo: "",
+    password: "",
+  },
+};
+
 export const REFRESH_TOKEN_REFETCH_INTERVAL = 1000 * 60 * 5;
 
-export { DOMAIN, OTP_LENGTH, LocalStorageKeys };
+export { DOMAIN, OTP_LENGTH, LocalStorageKeys, InitialAuthFormValues };

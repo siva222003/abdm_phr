@@ -52,7 +52,7 @@ import {
 import { useAuthContext } from "@/hooks/useAuth";
 import useMultiStepForm, { InjectedStepProps } from "@/hooks/useMultiStepForm";
 
-import { DOMAIN } from "@/common/constants";
+import { DOMAIN, InitialAuthFormValues } from "@/common/constants";
 
 import routes from "@/api";
 import {
@@ -92,32 +92,7 @@ const RegisterAbha = () => {
         element: <SetPassword {...({} as SetPasswordProps)} />,
       },
     ],
-    {
-      transactionId: "mock-id",
-      mode: "mobile-number",
-      verifySystem: "abdm",
-      existingAbhaAddresses: [],
-      phrProfile: {
-        abha_address: "",
-        first_name: "",
-        middle_name: "",
-        last_name: "",
-        gender: "O",
-        day_of_birth: "",
-        month_of_birth: "",
-        year_of_birth: "",
-        address: "",
-        state_name: "",
-        state_code: "",
-        district_name: "",
-        district_code: "",
-        pincode: "",
-        mobile: "",
-        email: "",
-        profile_photo: "",
-        password: "",
-      },
-    },
+    InitialAuthFormValues,
   );
 
   return (

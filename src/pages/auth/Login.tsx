@@ -18,6 +18,8 @@ import MobileNumberOtpFlow from "@/components/auth/MobileNumberOtpFlow";
 
 import useMultiStepForm, { InjectedStepProps } from "@/hooks/useMultiStepForm";
 
+import { InitialAuthFormValues } from "@/common/constants";
+
 import {
   AuthMode,
   FormMemory,
@@ -37,12 +39,7 @@ const LoginAbha = () => {
         element: <HandleExistingAbha {...({} as HandleExistingAbhaProps)} />,
       },
     ],
-    {
-      transactionId: "mock-id",
-      mode: "mobile-number",
-      verifySystem: "abdm",
-      existingAbhaAddresses: [],
-    },
+    InitialAuthFormValues,
   );
 
   return (
