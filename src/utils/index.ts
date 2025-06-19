@@ -3,6 +3,8 @@ import { LocalStorageKeys } from "@/common/constants";
 export const TokenStorage = {
   getAccessToken: () => localStorage.getItem(LocalStorageKeys.accessToken),
   getRefreshToken: () => localStorage.getItem(LocalStorageKeys.refreshToken),
+  getSwitchProfileEnabled: () =>
+    localStorage.getItem(LocalStorageKeys.switchProfileEnabled) === "true",
   setTokens: (access: string, refresh: string) => {
     localStorage.setItem(LocalStorageKeys.accessToken, access);
     localStorage.setItem(LocalStorageKeys.refreshToken, refresh);
@@ -10,6 +12,13 @@ export const TokenStorage = {
   clear: () => {
     localStorage.removeItem(LocalStorageKeys.accessToken);
     localStorage.removeItem(LocalStorageKeys.refreshToken);
+    localStorage.removeItem(LocalStorageKeys.switchProfileEnabled);
+  },
+  setSwitchProfileEnabled: (enabled: boolean) => {
+    localStorage.setItem(
+      LocalStorageKeys.switchProfileEnabled,
+      String(enabled),
+    );
   },
 };
 

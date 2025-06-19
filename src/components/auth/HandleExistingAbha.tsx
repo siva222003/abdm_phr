@@ -23,12 +23,36 @@ interface HandleExistingAbhaProps {
   goTo: (step: string) => void;
 }
 
+function AuthEmptyState() {
+  const navigate = useNavigate();
+
+  return (
+    <div className="flex flex-col items-center justify-center pb-6 pt-4 text-muted-foreground">
+      <UserSearch className="w-10 h-10 mb-2 text-gray-400" />
+      <p className="text-md font-medium">No addresses found</p>
+      <p className="text-sm text-center max-w-xs">
+        <span>
+          You don't have any ABHA address linked yet. To get started, you
+          can{" "}
+        </span>
+        <Button
+          variant="link"
+          className="h-auto p-0 inline"
+          onClick={() => navigate("/register")}
+        >
+          create one here
+        </Button>
+        .
+      </p>
+    </div>
+  );
+}
+
 const HandleExistingAbhaAddress = ({
   memory,
   goTo,
   flowType,
 }: HandleExistingAbhaProps) => {
-  const navigate = useNavigate();
   const { verifyUser, isVerifyingUser } = useAuthContext();
   const { existingAbhaAddresses = [] } = memory || {};
 
@@ -56,27 +80,6 @@ const HandleExistingAbhaAddress = ({
     }
   }, [existingAbhaAddresses.length, flowType, handleCreateNew]);
 
-  const emptyState = (
-    <div className="flex flex-col items-center justify-center pb-6 pt-4 text-muted-foreground">
-      <UserSearch className="w-10 h-10 mb-2 text-gray-400" />
-      <p className="text-md font-medium">No addresses found</p>
-      <p className="text-sm text-center max-w-xs">
-        <span>
-          You don't have any ABHA address linked yet. To get started, you
-          can{" "}
-        </span>
-        <Button
-          variant="link"
-          className="h-auto p-0 inline"
-          onClick={() => navigate("/register")}
-        >
-          create one here
-        </Button>
-        .
-      </p>
-    </div>
-  );
-
   return (
     <Card className="mx-4 sm:w-full">
       <CardHeader className="space-y-1 px-4">
@@ -99,7 +102,7 @@ const HandleExistingAbhaAddress = ({
           onContinue={handleSelectExisting}
           showCreateNew={flowType === "enrollment"}
           onCreateNew={handleCreateNew}
-          emptyState={emptyState}
+          emptyState={<AuthEmptyState />}
         />
       </CardContent>
     </Card>

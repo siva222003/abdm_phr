@@ -1,5 +1,5 @@
 import { Loader2Icon, UserSearch } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -25,12 +25,55 @@ interface AbhaAddressSelectorProps {
   emptyState?: React.ReactNode;
 }
 
-const DefaultEmptyState = () => (
-  <div className="flex flex-col items-center justify-center pb-6 pt-4 text-muted-foreground">
-    <UserSearch className="w-10 h-10 mb-2 text-gray-400" />
-    <p className="text-md font-medium">No addresses found</p>
-  </div>
-);
+function DefaultEmptyState() {
+  return (
+    <div className="flex flex-col items-center justify-center pb-6 pt-4 text-muted-foreground">
+      <UserSearch className="w-10 h-10 mb-2 text-gray-400" />
+      <p className="text-md font-medium">No addresses found</p>
+    </div>
+  );
+}
+
+function AddressItem({
+  address,
+  selected,
+  onSelect,
+}: {
+  address: string;
+  selected: boolean;
+  onSelect: (address: string) => void;
+}) {
+  return (
+    <div
+      key={address}
+      className={cn(
+        "relative cursor-pointer rounded-lg border p-3 text-sm shadow-sm transition-colors flex items-center",
+        selected ? "border-primary bg-primary/10" : "hover:bg-primary/5",
+      )}
+      onClick={() => onSelect(address)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onSelect(address);
+        }
+      }}
+      role="button"
+      tabIndex={0}
+      aria-pressed={selected}
+    >
+      <div className="flex items-center gap-2">
+        <div
+          className={cn(
+            "h-4 w-4 rounded-full border border-gray-400 transition-colors",
+            selected ? "border-primary bg-primary" : "bg-white",
+          )}
+          aria-hidden="true"
+        />
+        <div className="font-mono">{address}</div>
+      </div>
+    </div>
+  );
+}
 
 export default function AbhaAddressSelector({
   addresses,
@@ -45,7 +88,7 @@ export default function AbhaAddressSelector({
   emptyState,
 }: AbhaAddressSelectorProps) {
   const [selectedAddress, setSelectedAddress] = useState<string | null>(
-    defaultSelectedAddress || null,
+    defaultSelectedAddress ?? null,
   );
 
   useEffect(() => {
@@ -54,9 +97,9 @@ export default function AbhaAddressSelector({
     }
   }, [addresses, defaultSelectedAddress]);
 
-  const renderContent = () => {
+  const content = useMemo(() => {
     if (isListLoading) {
-      return Array.from({ length: 3 }).map((_, idx) => (
+      return Array.from({ length: 3 }, (_, idx) => (
         <Skeleton key={idx} className="h-12 w-full rounded-lg" />
       ));
     }
@@ -65,54 +108,30 @@ export default function AbhaAddressSelector({
       return emptyState || <DefaultEmptyState />;
     }
 
-    return addresses.map(({ abhaAddress }) => {
-      const isSelected = abhaAddress === selectedAddress;
-      return (
-        <div
-          key={abhaAddress}
-          className={cn(
-            "relative cursor-pointer rounded-lg border p-3 text-sm shadow-sm transition-colors flex items-center",
-            isSelected ? "border-primary bg-primary/10" : "hover:bg-primary/5",
-          )}
-          onClick={() => setSelectedAddress(abhaAddress)}
-          role="button"
-          tabIndex={0}
-          aria-pressed={isSelected}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              setSelectedAddress(abhaAddress);
-            }
-          }}
-        >
-          <div className="flex items-center gap-2">
-            <div
-              className={cn(
-                "h-4 w-4 rounded-full border border-gray-400 transition-colors",
-                isSelected ? "border-primary bg-primary" : "bg-white",
-              )}
-              aria-hidden="true"
-            />
-            <div className="font-mono">{abhaAddress}</div>
-          </div>
-        </div>
-      );
-    });
-  };
+    return addresses.map(({ abhaAddress }) => (
+      <AddressItem
+        key={abhaAddress}
+        address={abhaAddress}
+        selected={abhaAddress === selectedAddress}
+        onSelect={setSelectedAddress}
+      />
+    ));
+  }, [addresses, selectedAddress, isListLoading, emptyState]);
+
+  const isContinueDisabled =
+    !selectedAddress || isActionLoading || continueButtonDisabled;
 
   return (
     <div className="flex flex-col h-full">
       <ScrollArea className="w-full rounded-md p-1">
-        <div className="max-h-48 space-y-2">{renderContent()}</div>
+        <div className="max-h-48 space-y-2">{content}</div>
       </ScrollArea>
 
       <div className="mt-2 pt-4 space-y-4">
         <Button
           className="w-full"
-          disabled={
-            !selectedAddress || isActionLoading || continueButtonDisabled
-          }
-          onClick={() => onContinue(selectedAddress!)}
+          disabled={isContinueDisabled}
+          onClick={() => selectedAddress && onContinue(selectedAddress)}
         >
           {isActionLoading ? (
             <Loader2Icon className="text-white animate-spin scale-150" />

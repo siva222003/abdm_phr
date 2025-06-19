@@ -25,7 +25,9 @@ export default function AuthUserProvider({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const [switchProfileEnabled, setSwitchProfileEnabled] = useState(false);
+  const [switchProfileEnabled, setSwitchProfileEnabled] = useState(
+    TokenStorage.getSwitchProfileEnabled(),
+  );
 
   const { data: user, isLoading } = useQuery({
     queryKey: ["user"],
@@ -63,6 +65,7 @@ export default function AuthUserProvider({
     async (data: VerifyAuthResponse) => {
       const { access_token, refresh_token } = data;
       TokenStorage.setTokens(access_token, refresh_token);
+      TokenStorage.setSwitchProfileEnabled(data.switchProfileEnabled);
 
       setSwitchProfileEnabled(data.switchProfileEnabled);
 

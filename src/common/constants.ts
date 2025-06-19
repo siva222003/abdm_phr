@@ -4,6 +4,7 @@ const OTP_LENGTH = 6;
 const LocalStorageKeys = {
   accessToken: "access_token",
   refreshToken: "refresh_token",
+  switchProfileEnabled: "switch_profile_enabled",
 } as const;
 
 export const REFRESH_TOKEN_REFETCH_INTERVAL = 1000 * 60 * 5;
