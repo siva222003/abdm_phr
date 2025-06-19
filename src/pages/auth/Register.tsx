@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
 import { useNavigate } from "raviger";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -15,6 +15,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -24,6 +35,7 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -46,14 +58,19 @@ import routes from "@/api";
 import {
   AuthMode,
   FormMemory,
-  SendOtpBody,
+  SendOtpRequest,
   VerifyOtpResponse,
 } from "@/types/auth";
+import { formatDate } from "@/utils";
 import { mutate } from "@/utils/request/request";
 
 const RegisterAbha = () => {
   const { currentStep } = useMultiStepForm<FormMemory>(
     [
+      {
+        id: "set-password",
+        element: <SetPassword {...({} as SetPasswordProps)} />,
+      },
       {
         id: "register",
         element: <Register {...({} as RegisterProps)} />,
@@ -124,42 +141,41 @@ type RegisterProps = InjectedStepProps<FormMemory>;
 const Register = ({ memory, setMemory, goTo }: RegisterProps) => {
   const navigate = useNavigate();
 
-  const onVerifyOtpSuccess = (
-    data: VerifyOtpResponse,
-    sendOtpContext?: SendOtpBody,
-  ) => {
-    let mobileNumber = data.abha_number?.mobile || "";
+  const onVerifyOtpSuccess = useCallback(
+    (data: VerifyOtpResponse, sendOtpContext?: SendOtpRequest) => {
+      let mobileNumber = data.abha_number?.mobile || "";
 
-    if (sendOtpContext?.type === "mobile-number" && sendOtpContext?.value) {
-      mobileNumber = sendOtpContext.value;
-    }
+      if (sendOtpContext?.type === "mobile-number" && sendOtpContext?.value) {
+        mobileNumber = sendOtpContext.value;
+      }
 
-    const dob = data.abha_number?.date_of_birth ?? "";
-    const [year, month, day] = dob.split("-");
+      const [year, month, day] = formatDate(data.abha_number?.date_of_birth);
 
-    setMemory((prev) => ({
-      ...prev,
-      transactionId: data.transaction_id,
-      existingAbhaAddresses: data.users,
-      verifySystem: sendOtpContext?.otp_system || "abdm",
-      phrProfile: {
-        ...prev.phrProfile!,
-        ...data.abha_number,
-        abha_address: data.abha_number?.health_id ?? "",
-        day_of_birth: day ?? "",
-        month_of_birth: month ?? "",
-        year_of_birth: year ?? "",
-        district_name: data.abha_number?.district ?? "",
-        state_name: data.abha_number?.state ?? "",
-        mobile: mobileNumber,
-        last_name: data.abha_number?.last_name ?? "",
-        middle_name: data.abha_number?.middle_name ?? "",
-        email: data.abha_number?.email ?? "",
-      },
-    }));
+      setMemory((prev) => ({
+        ...prev,
+        transactionId: data.transaction_id,
+        existingAbhaAddresses: data.users,
+        verifySystem: sendOtpContext?.otp_system || "abdm",
+        phrProfile: {
+          ...prev.phrProfile!,
+          ...data.abha_number,
+          abha_address: data.abha_number?.health_id ?? "",
+          day_of_birth: day ?? "",
+          month_of_birth: month ?? "",
+          year_of_birth: year ?? "",
+          district_name: data.abha_number?.district ?? "",
+          state_name: data.abha_number?.state ?? "",
+          mobile: mobileNumber,
+          last_name: data.abha_number?.last_name ?? "",
+          middle_name: data.abha_number?.middle_name ?? "",
+          email: data.abha_number?.email ?? "",
+        },
+      }));
 
-    goTo("handle-existing-abha");
-  };
+      goTo("handle-existing-abha");
+    },
+    [setMemory, goTo],
+  );
 
   return (
     <Card className="mx-4">
@@ -570,28 +586,44 @@ export const ChooseAbhaAddress = ({
 
 type SetPasswordProps = InjectedStepProps<FormMemory>;
 
-export const SetPassword = ({ memory }: SetPasswordProps) => {
+export const SetPassword = ({ memory }: InjectedStepProps<FormMemory>) => {
   const { handleAuthSuccess } = useAuthContext();
+
+  const [open, setOpen] = useState(false);
+  const [hasAgreedToTerms, setHasAgreedToTerms] = useState(false);
+  const [clickedAction, setClickedAction] = useState<"set" | "skip" | null>(
+    null,
+  );
 
   const passwordRegex =
     /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$^-])[A-Za-z\d!@#$%^&*-]{8,}$/;
 
   const schema = z
     .object({
-      password: z.string().regex(passwordRegex, {
-        message:
-          "Password must be 8+ characters, 1 uppercase, 1 number, 1 special char",
-      }),
-      confirmPassword: z.string().nonempty({
-        message: "Confirm Password is required",
-      }),
+      password: z.string().optional(),
+      confirmPassword: z.string().optional(),
     })
-    .refine((data) => data.password === data.confirmPassword, {
-      path: ["confirmPassword"],
-      message: "Passwords do not match",
+    .superRefine((data, ctx) => {
+      if (data.password) {
+        if (!passwordRegex.test(data.password)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["password"],
+            message:
+              "Password must be 8+ chars, 1 uppercase, 1 number, 1 special char",
+          });
+        }
+        if (data.password !== data.confirmPassword) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["confirmPassword"],
+            message: "Passwords do not match",
+          });
+        }
+      }
     });
 
-  const form = useForm({
+  const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
       password: "",
@@ -600,7 +632,7 @@ export const SetPassword = ({ memory }: SetPasswordProps) => {
   });
 
   const enrolAbhaAddressMutationFn = mutate(routes.register.enrolAbhaAddress);
-  const enrollAbhaAddressMutation = useMutation({
+  const enrolAbhaAddressMutation = useMutation({
     mutationFn: enrolAbhaAddressMutationFn,
     onSuccess: (data) => {
       toast.success("ABHA Address created successfully");
@@ -608,13 +640,13 @@ export const SetPassword = ({ memory }: SetPasswordProps) => {
     },
   });
 
-  const onSubmit = () => {
+  const onSubmit = (values: z.infer<typeof schema>) => {
     if (!memory?.transactionId || !memory?.phrProfile) return;
-    enrollAbhaAddressMutation.mutate({
+    enrolAbhaAddressMutation.mutate({
       transaction_id: memory.transactionId,
       phr_details: {
         ...memory.phrProfile,
-        password: form.getValues("password"),
+        password: values.password || "",
       },
     });
   };
@@ -622,28 +654,119 @@ export const SetPassword = ({ memory }: SetPasswordProps) => {
   return (
     <Card className="mx-4 sm:w-full">
       <CardHeader className="space-y-1 px-4">
-        <CardTitle className="text-2xl font-bold">Set Password</CardTitle>
+        <CardTitle className="text-2xl font-bold">Final Step</CardTitle>
         <CardDescription className="text-sm">
-          Set a password for your ABHA address.
+          Set a password for extra security (optional), and create your account.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <SetPasswordSection form={form} />
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={
-                !form.formState.isDirty || enrollAbhaAddressMutation.isPending
-              }
-            >
-              {enrollAbhaAddressMutation.isPending ? (
-                <Loader2Icon className="text-white animate-spin scale-150" />
-              ) : (
-                "Create ABHA Address"
-              )}
-            </Button>
+
+            <div className="flex flex-wrap sm:flex-nowrap items-start gap-3 p-4 rounded-lg bg-gray-50 border border-gray-200">
+              <Checkbox
+                id="terms"
+                checked={hasAgreedToTerms}
+                onCheckedChange={(checked) =>
+                  setHasAgreedToTerms(Boolean(checked))
+                }
+                className="mt-1.5"
+              />
+              <div className="flex-1 space-y-1">
+                <Label
+                  htmlFor="terms"
+                  className="text-sm font-medium leading-snug"
+                >
+                  I agree to the{" "}
+                  <Dialog open={open} onOpenChange={setOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="link" className="p-0 h-auto">
+                        Terms and Conditions
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Terms & Conditions</DialogTitle>
+                        <DialogDescription asChild>
+                          <div className="text-sm text-muted-foreground space-y-2 max-h-60 overflow-y-auto pr-4">
+                            <p>
+                              1. You agree to link your health records securely
+                              with your ABHA address.
+                            </p>
+                            <p>
+                              2. You consent to share your health data with
+                              verified providers on approval.
+                            </p>
+                            <p>
+                              3. Your data is protected under ABDM and won't be
+                              shared without consent.
+                            </p>
+                          </div>
+                        </DialogDescription>
+                      </DialogHeader>
+                      <DialogFooter>
+                        <DialogClose asChild>
+                          <Button variant="outline">Close</Button>
+                        </DialogClose>
+                        <Button
+                          onClick={() => {
+                            setHasAgreedToTerms(true);
+                            setOpen(false);
+                          }}
+                        >
+                          Agree
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </Label>
+                <p className="text-xs text-gray-500">
+                  By checking this box, you confirm that you’ve read and
+                  understood our terms.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-col space-y-2 pt-2">
+              <Button
+                type="submit"
+                className="w-full"
+                onClick={() => setClickedAction("set")}
+                disabled={
+                  !form.formState.isDirty ||
+                  !hasAgreedToTerms ||
+                  enrolAbhaAddressMutation.isPending
+                }
+              >
+                {enrolAbhaAddressMutation.isPending &&
+                clickedAction === "set" ? (
+                  <Loader2Icon className="text-white animate-spin scale-150" />
+                ) : (
+                  "Set Password"
+                )}
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={() => {
+                  setClickedAction("skip");
+                  form.handleSubmit(onSubmit)();
+                }}
+                disabled={
+                  !hasAgreedToTerms || enrolAbhaAddressMutation.isPending
+                }
+              >
+                {enrolAbhaAddressMutation.isPending &&
+                clickedAction === "skip" ? (
+                  <Loader2Icon className="text-white animate-spin scale-150" />
+                ) : (
+                  "Skip and Create Account"
+                )}
+              </Button>
+            </div>
           </form>
         </Form>
       </CardContent>

@@ -1,6 +1,6 @@
 import { UserSearch } from "lucide-react";
 import { useNavigate } from "raviger";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -32,26 +32,29 @@ const HandleExistingAbhaAddress = ({
   const { verifyUser, isVerifyingUser } = useAuthContext();
   const { existingAbhaAddresses = [] } = memory || {};
 
-  const handleCreateNew = () => {
+  const handleCreateNew = useCallback(() => {
     if (memory?.mode === "abha-number") goTo("choose-abha-address");
     else goTo("add-demographic-details");
-  };
+  }, [memory?.mode, goTo]);
+
+  const handleSelectExisting = useCallback(
+    (selectedAddress: string) => {
+      if (!selectedAddress || !memory?.transactionId) return;
+      verifyUser({
+        abha_address: selectedAddress,
+        transaction_id: memory.transactionId,
+        type: memory.mode,
+        verify_system: memory.verifySystem,
+      });
+    },
+    [verifyUser, memory],
+  );
 
   useEffect(() => {
     if (!existingAbhaAddresses.length && flowType === "enrollment") {
       handleCreateNew();
     }
   }, [existingAbhaAddresses.length, flowType, handleCreateNew]);
-
-  const handleSelectExisting = (selectedAddress: string) => {
-    if (!selectedAddress || !memory?.transactionId) return;
-    verifyUser({
-      abha_address: selectedAddress,
-      transaction_id: memory.transactionId,
-      type: memory.mode,
-      verify_system: memory.verifySystem,
-    });
-  };
 
   const emptyState = (
     <div className="flex flex-col items-center justify-center pb-6 pt-4 text-muted-foreground">

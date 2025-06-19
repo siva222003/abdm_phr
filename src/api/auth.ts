@@ -1,71 +1,69 @@
 import {
-  AbhaAddressExistsBody,
+  AbhaAddressEnrolRequest,
+  AbhaAddressExistsRequest,
   AbhaAddressExistsResponse,
-  AbhaAddressSuggestionsBody,
+  AbhaAddressSuggestionsRequest,
   AbhaAddressSuggestionsResponse,
-  CheckAuthMethodsBody,
+  CheckAuthMethodsRequest,
   CheckAuthMethodsResponse,
-  EnrolAddressBody,
-  RefreshAccessTokenBody,
+  RefreshAccessTokenRequest,
   RefreshAccessTokenResponse,
-  SendOtpBody,
+  SendOtpRequest,
   SendOtpResponse,
   VerifyAuthResponse,
-  VerifyOtpBody,
+  VerifyOtpRequest,
   VerifyOtpResponse,
-  VerifyPasswordBody,
-  VerifyUserBody,
+  VerifyPasswordRequest,
+  VerifyUserRequest,
 } from "@/types/auth";
 import { API } from "@/utils/request/api";
 
-// Register API routes
 export const register = {
-  sendOtp: API<SendOtpResponse, SendOtpBody>(
+  sendOtp: API<SendOtpResponse, SendOtpRequest>(
     "POST /phr/health_id/create/send_otp/",
     true,
   ),
-  verifyOtp: API<VerifyOtpResponse, VerifyOtpBody>(
+  verifyOtp: API<VerifyOtpResponse, VerifyOtpRequest>(
     "POST /phr/health_id/create/verify_otp/",
     true,
   ),
   abhaAddressSuggestions: API<
     AbhaAddressSuggestionsResponse,
-    AbhaAddressSuggestionsBody
+    AbhaAddressSuggestionsRequest
   >("POST /phr/health_id/create/abha_address_suggestion/", true),
-  checkAbhaExists: API<AbhaAddressExistsResponse, AbhaAddressExistsBody>(
+  checkAbhaExists: API<AbhaAddressExistsResponse, AbhaAddressExistsRequest>(
     "POST /phr/health_id/create/abha_address_exists/",
     true,
   ),
-  enrolAbhaAddress: API<VerifyAuthResponse, EnrolAddressBody>(
+  enrolAbhaAddress: API<VerifyAuthResponse, AbhaAddressEnrolRequest>(
     "POST /phr/health_id/create/enrol_abha_address/",
     true,
   ),
 };
 
-// Login API routes
 export const login = {
-  sendOtp: API<SendOtpResponse, SendOtpBody>(
+  sendOtp: API<SendOtpResponse, SendOtpRequest>(
     "POST /phr/health_id/login/send_otp/",
     true,
   ),
-  verifyOtp: API<VerifyOtpResponse | VerifyAuthResponse, VerifyOtpBody>(
+  verifyOtp: API<VerifyOtpResponse | VerifyAuthResponse, VerifyOtpRequest>(
     "POST /phr/health_id/login/verify/",
     true,
   ),
-  verifyPassword: API<VerifyAuthResponse, VerifyPasswordBody>(
+  verifyPassword: API<VerifyAuthResponse, VerifyPasswordRequest>(
     "POST /phr/health_id/login/verify/",
     true,
   ),
-  verifyUser: API<VerifyAuthResponse, VerifyUserBody>(
+  verifyUser: API<VerifyAuthResponse, VerifyUserRequest>(
     "POST /phr/health_id/login/verify_user/",
     true,
   ),
-  chechAuthMethods: API<CheckAuthMethodsResponse, CheckAuthMethodsBody>(
+  chechAuthMethods: API<CheckAuthMethodsResponse, CheckAuthMethodsRequest>(
     "POST /phr/health_id/login/check_auth_methods/",
     true,
   ),
-  refreshAccessToken: API<RefreshAccessTokenResponse, RefreshAccessTokenBody>(
-    "POST /phr/health_id/refresh_token/",
-    true,
-  ),
+  refreshAccessToken: API<
+    RefreshAccessTokenResponse,
+    RefreshAccessTokenRequest
+  >("POST /phr/health_id/refresh_token/", true),
 };

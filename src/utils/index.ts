@@ -12,3 +12,18 @@ export const TokenStorage = {
     localStorage.removeItem(LocalStorageKeys.refreshToken);
   },
 };
+
+export const formatDate = (date: string | undefined) => {
+  if (!date) return ["", "", ""];
+
+  const parts = date.split("--");
+  if (parts.length !== 3) return ["", "", ""];
+
+  const [a, b, c] = parts;
+
+  if (a.length === 4) {
+    return [a, b, c];
+  }
+
+  return [c, b, a];
+};

@@ -19,7 +19,7 @@ export type User = {
 };
 
 // Verification specific types
-export type SendOtpBody = {
+export type SendOtpRequest = {
   value: string;
   type: AuthMode;
   otp_system?: VerifySystem;
@@ -31,24 +31,24 @@ export type SendOtpResponse = {
   detail: string;
 };
 
-export type VerifyOtpBody = {
+export type VerifyOtpRequest = {
   otp: string;
   transaction_id: string;
-} & Omit<SendOtpBody, "value">;
+} & Omit<SendOtpRequest, "value">;
 
 export type VerifyOtpResponse = SendOtpResponse & {
   users: User[];
   abha_number?: PhrProfilePartial;
 };
 
-export type VerifyPasswordBody = {
+export type VerifyPasswordRequest = {
   password: string;
   abha_address: string;
   type: "abha-address";
   verify_system: "password";
 };
 
-export type VerifyUserBody = {
+export type VerifyUserRequest = {
   abha_address: string;
   transaction_id: string;
   type: AuthMode;
@@ -63,7 +63,7 @@ export type VerifyAuthResponse = {
 };
 
 // Login specific types
-export type CheckAuthMethodsBody = {
+export type CheckAuthMethodsRequest = {
   abha_address: string;
 };
 
@@ -72,7 +72,7 @@ export type CheckAuthMethodsResponse = {
   abha_number: string;
 };
 
-export type RefreshAccessTokenBody = {
+export type RefreshAccessTokenRequest = {
   refresh: string;
 };
 
@@ -82,7 +82,7 @@ export type RefreshAccessTokenResponse = Omit<
 >;
 
 // Enrolment specific types
-export type AbhaAddressSuggestionsBody = {
+export type AbhaAddressSuggestionsRequest = {
   transaction_id: string;
   first_name: string;
   year_of_birth: string;
@@ -96,7 +96,7 @@ export type AbhaAddressSuggestionsResponse = {
   transaction_id: string;
 };
 
-export type AbhaAddressExistsBody = {
+export type AbhaAddressExistsRequest = {
   abha_address: string;
 };
 
@@ -104,7 +104,7 @@ export type AbhaAddressExistsResponse = {
   exists: boolean;
 };
 
-export type EnrolAddressBody = {
+export type AbhaAddressEnrolRequest = {
   transaction_id: string;
   phr_details: PhrEnrolDetails;
 };

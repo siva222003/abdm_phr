@@ -1,4 +1,5 @@
 import { useNavigate } from "raviger";
+import { useCallback } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,7 +21,7 @@ import useMultiStepForm, { InjectedStepProps } from "@/hooks/useMultiStepForm";
 import {
   AuthMode,
   FormMemory,
-  SendOtpBody,
+  SendOtpRequest,
   VerifyOtpResponse,
 } from "@/types/auth";
 
@@ -61,19 +62,19 @@ type LoginProps = InjectedStepProps<FormMemory>;
 const Login = ({ memory, setMemory, goTo }: LoginProps) => {
   const navigate = useNavigate();
 
-  const onVerifyOtpSuccess = (
-    data: VerifyOtpResponse,
-    sendOtpContext?: SendOtpBody,
-  ) => {
-    setMemory((prev) => ({
-      ...prev,
-      verifySystem: sendOtpContext?.verify_system || "abdm",
-      transactionId: data.transaction_id,
-      existingAbhaAddresses: data.users,
-    }));
+  const onVerifyOtpSuccess = useCallback(
+    (data: VerifyOtpResponse, sendOtpContext?: SendOtpRequest) => {
+      setMemory((prev) => ({
+        ...prev,
+        verifySystem: sendOtpContext?.verify_system || "abdm",
+        transactionId: data.transaction_id,
+        existingAbhaAddresses: data.users,
+      }));
 
-    goTo("handle-existing-abha");
-  };
+      goTo("handle-existing-abha");
+    },
+    [setMemory, goTo],
+  );
 
   return (
     <Card className="mx-4">

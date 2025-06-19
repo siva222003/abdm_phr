@@ -6,7 +6,7 @@ import routes from "@/api";
 import {
   FlowType,
   FormMemory,
-  SendOtpBody,
+  SendOtpRequest,
   VerifyOtpResponse,
 } from "@/types/auth";
 import { mutate } from "@/utils/request/request";
@@ -20,7 +20,7 @@ export const useOtpFlow = (
   setMemory: Dispatch<SetStateAction<FormMemory>>,
   onVerifyOtpSuccess: (
     data: VerifyOtpResponse,
-    sendOtpContext?: SendOtpBody,
+    sendOtpContext?: SendOtpRequest,
   ) => void,
 ) => {
   const [otpSent, setOtpSent] = useState(false);

@@ -2,17 +2,17 @@ import { createContext, useContext } from "react";
 
 import {
   VerifyAuthResponse,
-  VerifyPasswordBody,
-  VerifyUserBody,
+  VerifyPasswordRequest,
+  VerifyUserRequest,
 } from "@/types/auth";
 import { PhrProfile } from "@/types/profile";
 
 interface AuthContextType {
   user: PhrProfile | undefined;
   switchProfileEnabled: boolean;
-  verifyUser: (payload: VerifyUserBody) => void;
+  verifyUser: (payload: VerifyUserRequest) => void;
   isVerifyingUser: boolean;
-  verifyPassword: (payload: VerifyPasswordBody) => void;
+  verifyPassword: (payload: VerifyPasswordRequest) => void;
   isVerifyingPassword: boolean;
   handleAuthSuccess: (data: VerifyAuthResponse) => void;
 }

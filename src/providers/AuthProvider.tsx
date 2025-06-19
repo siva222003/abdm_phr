@@ -5,7 +5,7 @@ import { toast } from "sonner";
 
 import { AuthContext } from "@/hooks/useAuth";
 
-import { REFRESH_TOKEN_REFRESH_INTERVAL } from "@/common/constants";
+import { REFRESH_TOKEN_REFETCH_INTERVAL } from "@/common/constants";
 import GlobalLoader from "@/common/loaders/GlobalLoader";
 
 import routes from "@/api";
@@ -43,7 +43,7 @@ export default function AuthUserProvider({
       })({ signal });
     },
     refetchIntervalInBackground: true,
-    refetchInterval: REFRESH_TOKEN_REFRESH_INTERVAL,
+    refetchInterval: REFRESH_TOKEN_REFETCH_INTERVAL,
     enabled: !!TokenStorage.getRefreshToken() && !!user,
   });
 
@@ -59,16 +59,19 @@ export default function AuthUserProvider({
     }
   }, [tokenRefreshQuery.data, tokenRefreshQuery.isError]);
 
-  const handleAuthSuccess = useCallback(async (data: VerifyAuthResponse) => {
-    const { access_token, refresh_token } = data;
-    TokenStorage.setTokens(access_token, refresh_token);
+  const handleAuthSuccess = useCallback(
+    async (data: VerifyAuthResponse) => {
+      const { access_token, refresh_token } = data;
+      TokenStorage.setTokens(access_token, refresh_token);
 
-    setSwitchProfileEnabled(data.switchProfileEnabled);
+      setSwitchProfileEnabled(data.switchProfileEnabled);
 
-    await queryClient.invalidateQueries({ queryKey: ["user"] });
+      await queryClient.invalidateQueries({ queryKey: ["user"] });
 
-    navigate("/");
-  }, []);
+      navigate("/");
+    },
+    [setSwitchProfileEnabled, queryClient, navigate],
+  );
 
   const verifyUserMutationFn = mutate(routes.login.verifyUser);
   const { mutate: verifyUser, isPending: isVerifyingUser } = useMutation({
