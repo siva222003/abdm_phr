@@ -115,7 +115,6 @@ export default function AbhaAddressSelector({
   onContinue,
   onCreateNew,
   continueLabel = "Continue",
-  continueButtonDisabled = false,
   showCreateNew = false,
   emptyState,
 }: AbhaAddressSelectorProps) {

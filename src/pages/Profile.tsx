@@ -40,7 +40,7 @@ import routes from "@/api";
 import { query } from "@/utils/request/request";
 
 const Profile = () => {
-  const { user: userData } = useAuthContext();
+  const { user: userData, switchProfileEnabled } = useAuthContext();
   const [showPhrProfileEditSheet, setShowPhrProfileEditSheet] = useState(false);
   const [showSwitchProfileDialog, setShowSwitchProfileDialog] = useState(false);
   const [showSelectPreferredAbhaDialog, setShowSelectPreferredAbhaDialog] =
@@ -222,6 +222,10 @@ const Profile = () => {
             onSwitchProfile={() => setShowSwitchProfileDialog(true)}
             onSelectPreferredAbha={() => setShowSelectPreferredAbhaDialog(true)}
             onDownloadAbha={() => setShowDownloadAbhaDialog(true)}
+            isPreferredAddress={
+              userData.preferredAbhaAddress === userData.abhaAddress
+            }
+            switchProfileEnabled={switchProfileEnabled}
           />
         </div>
 

@@ -12,12 +12,16 @@ type ProfileActionsProps = {
   onSwitchProfile: () => void;
   onSelectPreferredAbha: () => void;
   onDownloadAbha: () => void;
+  isPreferredAddress: boolean;
+  switchProfileEnabled: boolean;
 };
 
 const ProfileActions = ({
   onSwitchProfile,
   onSelectPreferredAbha,
   onDownloadAbha,
+  isPreferredAddress,
+  switchProfileEnabled,
 }: ProfileActionsProps) => {
   return (
     <DropdownMenu>
@@ -30,27 +34,31 @@ const ProfileActions = ({
         align="end"
         className="w-[calc(100vw-2.5rem)] sm:w-full"
       >
-        <DropdownMenuItem asChild>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => onSwitchProfile()}
-            className="flex flex-row justify-stretch items-center w-full "
-          >
-            <Users className="h-4 w-4 mr-2" />
-            <span>Switch Profile</span>
-          </Button>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => onSelectPreferredAbha()}
-            className="flex flex-row justify-stretch items-center w-full "
-          >
-            <span>Selct this as preferred abha</span>
-          </Button>
-        </DropdownMenuItem>
+        {switchProfileEnabled && (
+          <DropdownMenuItem asChild>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => onSwitchProfile()}
+              className="flex flex-row justify-stretch items-center w-full "
+            >
+              <Users className="h-4 w-4 mr-2" />
+              <span>Switch Profile</span>
+            </Button>
+          </DropdownMenuItem>
+        )}
+        {!isPreferredAddress && (
+          <DropdownMenuItem asChild>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => onSelectPreferredAbha()}
+              className="flex flex-row justify-stretch items-center w-full "
+            >
+              <span>Selct this as preferred abha</span>
+            </Button>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem asChild>
           <Button
             size="sm"
