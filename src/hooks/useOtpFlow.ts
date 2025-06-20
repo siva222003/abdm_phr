@@ -11,7 +11,6 @@ import {
   SendOtpRequest,
   VerifyOtpResponse,
 } from "@/types/auth";
-// import { ProfileUpdateAction } from "@/types/profile";
 import { mutate } from "@/utils/request/request";
 
 import { useAuthContext } from "./useAuth";
