@@ -1,6 +1,6 @@
 import { PhrProfile } from "@/types/profile";
 
-export default function PhrProfileColumns({
+export default function ProfileColumns({
   heading,
   note,
   Child,

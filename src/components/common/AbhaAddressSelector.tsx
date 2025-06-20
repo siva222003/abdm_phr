@@ -157,7 +157,9 @@ export default function AbhaAddressSelector({
   };
 
   const isContinueDisabled =
-    !selectedAddress || isActionLoading || continueButtonDisabled;
+    !selectedAddress ||
+    isActionLoading ||
+    defaultSelectedAddress === selectedAddress;
 
   return (
     <div className="flex flex-col h-full">

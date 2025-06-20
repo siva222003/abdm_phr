@@ -10,7 +10,7 @@ import {
 
 import AbhaNumberOtpFlow from "@/components/auth/AbhaNumberOtpFlow";
 
-import { FormMemory } from "@/types/auth";
+import { InitialAuthFormValues } from "@/common/constants";
 
 type SelectPreferredAbhaDialogProps = {
   open: boolean;
@@ -21,11 +21,7 @@ const SelectPreferredAbhaDialog = ({
   open,
   setOpen,
 }: SelectPreferredAbhaDialogProps) => {
-  const [memory, setMemory] = useState<FormMemory>({
-    mode: "mobile-number",
-    transactionId: "",
-    verifySystem: "abdm",
-  });
+  const [memory, setMemory] = useState(InitialAuthFormValues);
 
   const onVerifyOtpSuccess = (data: any) => {
     console.log("OTP verified successfully", data);

@@ -1,4 +1,5 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { Dispatch, SetStateAction, useCallback, useState } from "react";
 
 import {
   Dialog,
@@ -10,7 +11,7 @@ import {
 
 import EmailOtpFlow from "@/components/auth/EmailOtpFlow";
 
-import { FormMemory } from "@/types/auth";
+import { InitialAuthFormValues } from "@/common/constants";
 
 type UpdateEmailDialogProps = {
   open: boolean;
@@ -18,16 +19,13 @@ type UpdateEmailDialogProps = {
 };
 
 const UpdateEmailDialog = ({ open, setOpen }: UpdateEmailDialogProps) => {
-  const [memory, setMemory] = useState<FormMemory>({
-    mode: "mobile-number",
-    transactionId: "",
-    verifySystem: "abdm",
-  });
+  const [memory, setMemory] = useState(InitialAuthFormValues);
+  const queryClient = useQueryClient();
 
-  const onVerifyOtpSuccess = (data: any) => {
-    console.log("OTP verified successfully", data);
+  const handleOtpSuccess = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ["user"] });
     setOpen(false);
-  };
+  }, [queryClient, setOpen]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -37,13 +35,14 @@ const UpdateEmailDialog = ({ open, setOpen }: UpdateEmailDialogProps) => {
           <DialogDescription>
             Enter your new email address to update your profile.
           </DialogDescription>
-          <EmailOtpFlow
-            flowType="profile-update"
-            setMemory={setMemory}
-            transactionId={memory.transactionId}
-            onVerifyOtpSuccess={onVerifyOtpSuccess}
-          />
         </DialogHeader>
+
+        <EmailOtpFlow
+          flowType="profile-update"
+          setMemory={setMemory}
+          transactionId={memory.transactionId}
+          onVerifyOtpSuccess={handleOtpSuccess}
+        />
       </DialogContent>
     </Dialog>
   );

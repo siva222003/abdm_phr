@@ -1,4 +1,5 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { Dispatch, SetStateAction, useCallback, useState } from "react";
 
 import {
   Dialog,
@@ -10,7 +11,7 @@ import {
 
 import MobileNumberOtpFlow from "@/components/auth/MobileNumberOtpFlow";
 
-import { FormMemory } from "@/types/auth";
+import { InitialAuthFormValues } from "@/common/constants";
 
 type UpdateMobileDialogProps = {
   open: boolean;
@@ -18,16 +19,13 @@ type UpdateMobileDialogProps = {
 };
 
 const UpdateMobileDialog = ({ open, setOpen }: UpdateMobileDialogProps) => {
-  const [memory, setMemory] = useState<FormMemory>({
-    mode: "mobile-number",
-    transactionId: "",
-    verifySystem: "abdm",
-  });
+  const [memory, setMemory] = useState(InitialAuthFormValues);
+  const queryClient = useQueryClient();
 
-  const onVerifyOtpSuccess = (data: any) => {
-    // Handle success logic here, e.g., show a success message or update state
-    console.log(data);
-  };
+  const handleOtpSuccess = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ["user"] });
+    setOpen(false);
+  }, [queryClient, setOpen]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -37,13 +35,14 @@ const UpdateMobileDialog = ({ open, setOpen }: UpdateMobileDialogProps) => {
           <DialogDescription>
             Enter your new mobile number to update your profile.
           </DialogDescription>
-          <MobileNumberOtpFlow
-            flowType="profile-update"
-            setMemory={setMemory}
-            transactionId={memory.transactionId}
-            onVerifyOtpSuccess={onVerifyOtpSuccess}
-          />
         </DialogHeader>
+
+        <MobileNumberOtpFlow
+          flowType="profile-update"
+          setMemory={setMemory}
+          transactionId={memory.transactionId}
+          onVerifyOtpSuccess={handleOtpSuccess}
+        />
       </DialogContent>
     </Dialog>
   );

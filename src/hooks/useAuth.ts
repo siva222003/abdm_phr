@@ -15,6 +15,7 @@ interface AuthContextType {
   verifyPassword: (payload: VerifyPasswordRequest) => void;
   isVerifyingPassword: boolean;
   handleAuthSuccess: (data: VerifyAuthResponse) => void;
+  logout: () => void;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);

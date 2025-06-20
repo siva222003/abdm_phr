@@ -12,7 +12,7 @@ import {
 
 import AbhaNumberOtpFlow from "@/components/auth/AbhaNumberOtpFlow";
 
-import { FormMemory } from "@/types/auth";
+import { InitialAuthFormValues } from "@/common/constants";
 
 type AbhaUnlinkDialogProps = {
   open: boolean;
@@ -22,11 +22,7 @@ type AbhaUnlinkDialogProps = {
 const AbhaUnlinkDialog = ({ open, setOpen }: AbhaUnlinkDialogProps) => {
   const [isConfirmed, setIsConfirmed] = useState(false);
 
-  const [memory, setMemory] = useState<FormMemory>({
-    mode: "mobile-number",
-    transactionId: "",
-    verifySystem: "abdm",
-  });
+  const [memory, setMemory] = useState(InitialAuthFormValues);
 
   const onVerifyOtpSuccess = (data: any) => {
     console.log("OTP verified successfully", data);

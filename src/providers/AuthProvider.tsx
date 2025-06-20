@@ -95,6 +95,40 @@ export default function AuthUserProvider({
       },
     });
 
+  const logout = useCallback(async () => {
+    try {
+      const accessToken = TokenStorage.getAccessToken();
+      const refreshToken = TokenStorage.getRefreshToken();
+
+      if (accessToken && refreshToken) {
+        const response = await mutate(routes.profile.logout)({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
+        toast.success(response.detail);
+      }
+    } catch (error) {
+      console.log("Logout error:", error);
+    }
+    TokenStorage.clear();
+    await queryClient.resetQueries({ queryKey: ["user"] });
+    navigate("/login");
+  }, [queryClient, navigate, mutate]);
+
+  useEffect(() => {
+    const handleInvalidToken = (e: StorageEvent) => {
+      if (e.key === "access_token" && e.oldValue && !e.newValue) {
+        logout();
+      }
+    };
+
+    window.addEventListener("storage", handleInvalidToken);
+
+    return function cleanup() {
+      window.removeEventListener("storage", handleInvalidToken);
+    };
+  }, [logout]);
+
   if (isLoading) {
     return <GlobalLoader />;
   }
@@ -109,6 +143,7 @@ export default function AuthUserProvider({
         verifyPassword,
         isVerifyingPassword,
         handleAuthSuccess,
+        logout,
       }}
     >
       {user ? privateRouter : publicRouter}

@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { UserSearch } from "lucide-react";
 import { useNavigate } from "raviger";
-import { Dispatch, SetStateAction, useCallback } from "react";
+import { Dispatch, SetStateAction, useCallback, useMemo } from "react";
 import { toast } from "sonner";
 
 import {
@@ -16,6 +17,7 @@ import AbhaAddressSelector from "@/components/common/AbhaAddressSelector";
 import { useAuthContext } from "@/hooks/useAuth";
 
 import routes from "@/api";
+import { User } from "@/types/auth";
 import { mutate, query } from "@/utils/request/request";
 
 type SwitchProfileProps = {
@@ -23,6 +25,19 @@ type SwitchProfileProps = {
   setOpen: Dispatch<SetStateAction<boolean>>;
   currentAbhaAddress: string;
 };
+
+function AuthEmptyState() {
+  return (
+    <div className="flex flex-col items-center justify-center pb-6 pt-4 text-muted-foreground">
+      <UserSearch className="w-10 h-10 mb-2 text-gray-400" />
+      <p className="text-md font-medium">No addresses found</p>
+      <p className="text-sm text-center max-w-xs">
+        You dont have any ABHA address linked yet to switch to. You can add a
+        new ABHA address by creating a new profile.
+      </p>
+    </div>
+  );
+}
 
 const SwitchProfile = ({
   open,
@@ -39,9 +54,24 @@ const SwitchProfile = ({
     queryFn: query(routes.profile.phrProfiles),
   });
 
-  const switchProfileMutationFn = mutate(routes.profile.switchProfileVerify);
+  const sortedProfiles = useMemo(() => {
+    if (!data?.users) return [];
+
+    const [current, others] = data.users.reduce<[User | null, User[]]>(
+      ([curr, rest], user) => {
+        return user.abhaAddress === currentAbhaAddress
+          ? [user, rest]
+          : [curr, [...rest, user]];
+      },
+      [null, []],
+    );
+
+    return current ? [current, ...others] : data.users;
+  }, [data?.users, currentAbhaAddress]);
+
+  const mutationFn = mutate(routes.profile.switchProfileVerify);
   const swithProfileVerifyMutation = useMutation({
-    mutationFn: switchProfileMutationFn,
+    mutationFn,
     onSuccess: (data) => {
       toast.success("Profile switched successfully!");
       setOpen(false);
@@ -70,17 +100,20 @@ const SwitchProfile = ({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Switch Profile</DialogTitle>
-          <DialogDescription>
-            Select the profile you want to switch to.
-          </DialogDescription>
+          {data?.users && data.users.length > 0 && (
+            <DialogDescription>
+              Select the profile you want to switch to.
+            </DialogDescription>
+          )}
         </DialogHeader>
         <AbhaAddressSelector
-          addresses={data?.users || []}
+          addresses={sortedProfiles}
           isListLoading={isLoading}
           isActionLoading={swithProfileVerifyMutation.isPending}
           defaultSelectedAddress={currentAbhaAddress}
           onContinue={handleSwitchProfile}
           continueLabel="Switch Profile"
+          emptyState={<AuthEmptyState />}
         />
       </DialogContent>
     </Dialog>

@@ -20,8 +20,8 @@ import Page from "@/components/common/Page";
 import AbhaUnlinkDialog from "@/components/profile/AbhaUnlinkDialog";
 import DownloadAbhaDialog from "@/components/profile/DownloadAbhaDialog";
 import EditProfileSheet from "@/components/profile/EditProfileSheet";
-import PhrProfileColumns from "@/components/profile/PhrProfileColumns";
 import PhrProfileActions from "@/components/profile/ProfileActions";
+import ProfileColumns from "@/components/profile/ProfileColumns";
 // import UserAvatar from "@/components/profile/UserAvatar";
 import {
   BasicInfo,
@@ -229,7 +229,7 @@ const Profile = () => {
           />
         </div>
 
-        {/* <PhrProfileColumns
+        {/* <ProfileColumns
             heading="Edit Avatar"
             note={
               "You can change your avatar here. This will be visible to other users."
@@ -238,26 +238,26 @@ const Profile = () => {
             childProps={userData}
           /> */}
 
-        <PhrProfileColumns
+        <ProfileColumns
           heading="Basic Information"
           note="This section contains your personal information."
           Child={renderBasicInfo}
           childProps={userData}
         />
-        <PhrProfileColumns
+        <ProfileColumns
           heading="Contact Information"
           note="This section contains your contact details."
           Child={renderContactInfo}
           childProps={userData}
         />
-        <PhrProfileColumns
+        <ProfileColumns
           heading="Location Information"
           note="Your location details are important for service delivery."
           Child={renderLocationInfo}
           childProps={userData}
         />
 
-        <PhrProfileColumns
+        <ProfileColumns
           heading="Reset Password"
           note="Change your password to keep your account secure."
           Child={ResetPassword}

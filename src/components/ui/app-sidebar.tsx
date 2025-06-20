@@ -13,6 +13,8 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 
+import { useAuthContext } from "@/hooks/useAuth";
+
 const items = [
   {
     title: "Home",
@@ -27,6 +29,7 @@ const items = [
 ];
 
 export function AppSidebar() {
+  const { logout } = useAuthContext();
   return (
     <Sidebar
       collapsible="icon"
@@ -58,6 +61,21 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  tooltip="Logout"
+                  className="text-gray-600 transition font-normal hover:bg-gray-200 hover:text-red-700"
+                >
+                  <button onClick={logout}>Logout</button>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
