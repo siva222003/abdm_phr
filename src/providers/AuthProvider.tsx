@@ -110,8 +110,11 @@ export default function AuthUserProvider({
     } catch (error) {
       console.log("Logout error:", error);
     }
+
     TokenStorage.clear();
+
     await queryClient.resetQueries({ queryKey: ["user"] });
+
     navigate("/login");
   }, [queryClient, navigate, mutate]);
 

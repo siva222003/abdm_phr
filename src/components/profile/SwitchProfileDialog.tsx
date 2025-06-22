@@ -52,6 +52,8 @@ const SwitchProfile = ({
   const { data, isLoading } = useQuery({
     queryKey: ["phrProfiles"],
     queryFn: query(routes.profile.phrProfiles),
+    enabled: open,
+    staleTime: 5 * 60 * 1000,
   });
 
   const sortedProfiles = useMemo(() => {

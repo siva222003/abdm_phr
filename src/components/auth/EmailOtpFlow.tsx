@@ -24,7 +24,7 @@ import { OTP_LENGTH } from "@/common/constants";
 import {
   FlowType,
   FormMemory,
-  SendOtpBody,
+  SendOtpRequest,
   VerifyOtpResponse,
 } from "@/types/auth";
 
@@ -34,7 +34,7 @@ type EmailOtpFlowProps = {
   setMemory: Dispatch<SetStateAction<FormMemory>>;
   onVerifyOtpSuccess: (
     data: VerifyOtpResponse,
-    sendOtpContext?: SendOtpBody,
+    sendOtpContext?: SendOtpRequest,
   ) => void;
 };
 

@@ -136,7 +136,7 @@ export default function AbhaAddressSelector({
 
   const content = () => {
     if (isListLoading) {
-      return Array.from({ length: 3 }, (_, idx) => (
+      return Array.from({ length: 4 }, (_, idx) => (
         <Skeleton key={idx} className="h-12 w-full rounded-lg" />
       ));
     }

@@ -15,11 +15,13 @@ import { InitialAuthFormValues } from "@/common/constants";
 type SelectPreferredAbhaDialogProps = {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
+  existingAbhaNumber: string;
 };
 
 const SelectPreferredAbhaDialog = ({
   open,
   setOpen,
+  existingAbhaNumber,
 }: SelectPreferredAbhaDialogProps) => {
   const [memory, setMemory] = useState(InitialAuthFormValues);
 
@@ -44,6 +46,7 @@ const SelectPreferredAbhaDialog = ({
               setMemory={setMemory}
               transactionId={memory.transactionId}
               onVerifyOtpSuccess={onVerifyOtpSuccess}
+              existingAbhaNumber={existingAbhaNumber}
             />
           </div>
         </DialogHeader>

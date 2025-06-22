@@ -51,6 +51,7 @@ type AbhaNumberOtpFlowProps = {
     data: VerifyOtpResponse,
     sendOtpContext?: SendOtpRequest,
   ) => void;
+  existingAbhaNumber?: string;
 };
 
 const AbhaNumberOtpFlow = ({
@@ -58,6 +59,7 @@ const AbhaNumberOtpFlow = ({
   transactionId,
   setMemory,
   onVerifyOtpSuccess,
+  existingAbhaNumber,
 }: AbhaNumberOtpFlowProps) => {
   const schema = z.object({
     abha: z.string().regex(ABHA_NUMBER_REGEX, {

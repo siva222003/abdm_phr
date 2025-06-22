@@ -1,11 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
 import {
   CircleAlertIcon,
   CircleCheckIcon,
   Link2Icon,
   SquarePen,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -36,9 +35,6 @@ import UpdateMobileDialog from "@/components/profile/UpdateMobileDialog";
 
 import { useAuthContext } from "@/hooks/useAuth";
 
-import routes from "@/api";
-import { query } from "@/utils/request/request";
-
 const Profile = () => {
   const { user: userData, switchProfileEnabled } = useAuthContext();
   const [showPhrProfileEditSheet, setShowPhrProfileEditSheet] = useState(false);
@@ -49,25 +45,6 @@ const Profile = () => {
   const [showAbhaUnlinkDialog, setShowAbhaUnlinkDialog] = useState(false);
   const [showUpdateMobileDialog, setShowUpdateMobileDialog] = useState(false);
   const [showUpdateEmailDialog, setShowUpdateEmailDialog] = useState(false);
-
-  const [abhaCardUrl, setAbhaCardUrl] = useState("");
-
-  const { data: abhaCard } = useQuery({
-    queryKey: ["abhaCard"],
-    queryFn: query(routes.profile.abhaCard),
-  });
-
-  useEffect(() => {
-    if (abhaCard) {
-      setAbhaCardUrl(URL.createObjectURL(abhaCard));
-    }
-
-    return () => {
-      if (abhaCardUrl) {
-        URL.revokeObjectURL(abhaCardUrl);
-      }
-    };
-  }, [abhaCard]);
 
   if (!userData) {
     return null;
@@ -185,12 +162,6 @@ const Profile = () => {
       <DownloadAbhaDialog
         open={showDownloadAbhaDialog}
         setOpen={setShowDownloadAbhaDialog}
-        abhaCardUrl={abhaCardUrl}
-      />
-
-      <SelectPreferredAbhaDialog
-        open={showSelectPreferredAbhaDialog}
-        setOpen={setShowSelectPreferredAbhaDialog}
       />
 
       <UpdateMobileDialog
@@ -201,6 +172,12 @@ const Profile = () => {
       <UpdateEmailDialog
         open={showUpdateEmailDialog}
         setOpen={setShowUpdateEmailDialog}
+      />
+
+      <SelectPreferredAbhaDialog
+        open={showSelectPreferredAbhaDialog}
+        setOpen={setShowSelectPreferredAbhaDialog}
+        existingAbhaNumber={abhaNumber || ""}
       />
 
       <AbhaUnlinkDialog
