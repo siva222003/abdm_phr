@@ -87,17 +87,15 @@ export default function AbhaAddressSelector({
   showCreateNew = false,
   emptyState,
 }: AbhaAddressSelectorProps) {
-  const [selectedAddress, setSelectedAddress] = useState<string | null>(
-    defaultSelectedAddress ?? null,
-  );
+  const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
 
   useEffect(() => {
     if (defaultSelectedAddress) {
       setSelectedAddress(defaultSelectedAddress);
-    } else if (!selectedAddress && addresses.length > 0) {
+    } else if (addresses.length > 0) {
       setSelectedAddress(addresses[0].abhaAddress);
     }
-  }, [addresses, defaultSelectedAddress, selectedAddress]);
+  }, [defaultSelectedAddress, addresses]);
 
   const handleContinue = () => {
     if (selectedAddress) {
