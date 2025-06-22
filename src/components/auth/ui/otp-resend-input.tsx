@@ -17,7 +17,6 @@ interface OtpInputProps {
   resendCountdown: number;
   onResend: () => void;
   disabled?: boolean;
-  errorComponent?: React.ReactNode;
 }
 
 const OtpInput = ({

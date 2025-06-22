@@ -73,6 +73,13 @@ const Login = ({ memory, setMemory, goTo }: LoginProps) => {
     [setMemory, goTo],
   );
 
+  const handleTabChange = (value: string) => {
+    setMemory((prev) => ({
+      ...prev,
+      mode: value as AuthMode,
+    }));
+  };
+
   return (
     <Card className="mx-4">
       <CardHeader className="space-y-1 px-4">
@@ -83,12 +90,7 @@ const Login = ({ memory, setMemory, goTo }: LoginProps) => {
         <Tabs
           defaultValue="mobile-number"
           value={memory?.mode ?? "mobile-number"}
-          onValueChange={(value) => {
-            setMemory((prev) => ({
-              ...prev,
-              mode: value as AuthMode,
-            }));
-          }}
+          onValueChange={handleTabChange}
         >
           <TabsList className="flex w-full">
             <TabsTrigger className="flex-1" value="mobile-number">
@@ -128,6 +130,7 @@ const Login = ({ memory, setMemory, goTo }: LoginProps) => {
               onVerifyOtpSuccess={onVerifyOtpSuccess}
             />
           </TabsContent>
+
           <div className="mt-4 text-sm text-center text-gray-500">
             <span>Don't have an account? </span>
             <Button

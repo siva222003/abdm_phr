@@ -47,28 +47,22 @@ type AbhaAddressFlowProps = {
   ) => void;
 };
 
+const OTP_METHODS = [
+  { id: "abdm", label: "Mobile OTP" },
+  { id: "aadhaar", label: "Aadhaar OTP" },
+  { id: "password", label: "Password" },
+] as const;
+
 const AbhaAddressFlow = ({
   flowType,
   transactionId,
   setMemory,
   onVerifyOtpSuccess,
 }: AbhaAddressFlowProps) => {
-  const {
-    otpSent,
-    isOtpValid,
-    setIsOtpValid,
-    resendCountdown,
-    resetCountdown,
-    sendOtpMutation,
-    verifyOtpMutation,
-  } = useOtpFlow(flowType, setMemory, onVerifyOtpSuccess);
-
-  const { verifyPassword, isVerifyingPassword } = useAuthContext();
-
   const passwordRegex =
     /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$^-])[A-Za-z\d!@#$%^&*-]{8,}$/;
 
-  const baseSchema = z
+  const schema = z
     .object({
       abhaAddress: z.string().regex(/^(?![\d.])[a-zA-Z0-9._]{4,}(?<!\.)$/, {
         message: "Enter a valid ABHA address",
@@ -90,19 +84,41 @@ const AbhaAddressFlow = ({
       },
     );
 
+  const {
+    otpSent,
+    isOtpValid,
+    setIsOtpValid,
+    resendCountdown,
+    resetCountdown,
+    sendOtpMutation,
+    verifyOtpMutation,
+  } = useOtpFlow(flowType, setMemory, onVerifyOtpSuccess);
+
+  const { verifyPassword, isVerifyingPassword } = useAuthContext();
+
   const form = useForm({
-    resolver: zodResolver(baseSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       abhaAddress: "",
       otpMethod: undefined,
       otp: "",
+      password: "",
     },
   });
 
-  const onSubmit = (values: z.infer<typeof baseSchema>) => {
+  const handleResendOtp = () => {
+    sendOtpMutation.mutate({
+      value: form.getValues("abhaAddress"),
+      type: "abha-address",
+      otp_system: form.getValues("otpMethod") as "abdm" | "aadhaar",
+    });
+    resetCountdown();
+  };
+
+  const onSubmit = (values: z.infer<typeof schema>) => {
     if (values.otpMethod === "password") {
-      //TODO: CHECK AUTH METHODS
       if (!values.password) return;
+
       verifyPassword({
         password: values.password,
         abha_address: values.abhaAddress,
@@ -122,7 +138,7 @@ const AbhaAddressFlow = ({
       return;
     }
 
-    if (!(values.otp?.length === OTP_LENGTH && !!transactionId)) return;
+    if (!(values.otp?.length === OTP_LENGTH && transactionId)) return;
 
     setIsOtpValid(true);
     verifyOtpMutation.mutate({
@@ -137,7 +153,20 @@ const AbhaAddressFlow = ({
     sendOtpMutation.isPending ||
     verifyOtpMutation.isPending ||
     isVerifyingPassword;
+
   const otpValue = form.watch("otp");
+  const selectedOtpMethod = form.watch("otpMethod");
+
+  const getButtonText = () => {
+    if (isSubmitting) {
+      if (selectedOtpMethod === "password") return "Verifying...";
+      return otpSent ? "Verifying..." : "Sending...";
+    }
+
+    if (otpSent) return "Verify OTP";
+    if (selectedOtpMethod === "password") return "Verify Password";
+    return "Send OTP";
+  };
 
   return (
     <Form {...form}>
@@ -145,28 +174,27 @@ const AbhaAddressFlow = ({
         <FormField
           control={form.control}
           name="abhaAddress"
-          render={({ field }) => {
-            return (
-              <FormItem>
-                <FormLabel>Abha Address</FormLabel>
-                <div className="relative">
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="Enter your ABHA Address"
-                      className="pr-16"
-                      disabled={otpSent}
-                    />
-                  </FormControl>
-                  <span className="absolute inset-y-0 right-3 flex items-center text-sm text-muted-foreground pointer-events-none">
-                    {DOMAIN}
-                  </span>
-                </div>
-                <FormMessage />
-              </FormItem>
-            );
-          }}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>ABHA Address</FormLabel>
+              <div className="relative">
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="Enter your ABHA Address"
+                    className="pr-16"
+                    disabled={otpSent}
+                  />
+                </FormControl>
+                <span className="absolute inset-y-0 right-3 flex items-center text-sm text-muted-foreground pointer-events-none">
+                  {DOMAIN}
+                </span>
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
         />
+
         <FormField
           control={form.control}
           name="otpMethod"
@@ -176,22 +204,16 @@ const AbhaAddressFlow = ({
               <FormControl>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  value={field.value}
                   disabled={otpSent}
                 >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a method" />
-                    </SelectTrigger>
-                  </FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a method" />
+                  </SelectTrigger>
                   <SelectContent>
-                    {[
-                      { id: "abdm", label: "Mobile OTP" },
-                      { id: "aadhaar", label: "Aadhaar OTP" },
-                      { id: "password", label: "Password" },
-                    ].map((otpMethod) => (
-                      <SelectItem key={otpMethod.id} value={otpMethod.id}>
-                        {otpMethod.label}
+                    {OTP_METHODS.map((method) => (
+                      <SelectItem key={method.id} value={method.id}>
+                        {method.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -201,6 +223,7 @@ const AbhaAddressFlow = ({
             </FormItem>
           )}
         />
+
         {otpSent && (
           <FormField
             control={form.control}
@@ -218,24 +241,17 @@ const AbhaAddressFlow = ({
                       setIsOtpValid(true);
                     }}
                     resendCountdown={resendCountdown}
-                    onResend={() => {
-                      sendOtpMutation.mutate({
-                        value: form.watch("abhaAddress"),
-                        type: "abha-address",
-                        otp_system: form.watch("otpMethod") as
-                          | "abdm"
-                          | "aadhaar",
-                      });
-                      resetCountdown();
-                    }}
+                    onResend={handleResendOtp}
                     disabled={isSubmitting}
                   />
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
         )}
-        {form.watch("otpMethod") === "password" && (
+
+        {selectedOtpMethod === "password" && (
           <FormField
             control={form.control}
             name="password"
@@ -254,6 +270,7 @@ const AbhaAddressFlow = ({
             )}
           />
         )}
+
         <Button
           type="submit"
           className="w-full"
@@ -264,13 +281,12 @@ const AbhaAddressFlow = ({
           }
         >
           {isSubmitting ? (
-            <Loader2Icon className="text-white animate-spin scale-150" />
-          ) : otpSent ? (
-            "Verify OTP"
-          ) : form.watch("otpMethod") === "password" ? (
-            "Verify Password"
+            <>
+              <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+              {getButtonText()}
+            </>
           ) : (
-            "Send OTP"
+            getButtonText()
           )}
         </Button>
       </form>

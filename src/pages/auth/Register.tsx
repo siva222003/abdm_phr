@@ -148,6 +148,13 @@ const Register = ({ memory, setMemory, goTo }: RegisterProps) => {
     [setMemory, goTo],
   );
 
+  const handleTabChange = (value: string) => {
+    setMemory((prev) => ({
+      ...prev,
+      mode: value as AuthMode,
+    }));
+  };
+
   return (
     <Card className="mx-4">
       <CardHeader className="space-y-1 px-4">
@@ -156,14 +163,9 @@ const Register = ({ memory, setMemory, goTo }: RegisterProps) => {
       </CardHeader>
       <CardContent>
         <Tabs
-          defaultValue="staff"
+          defaultValue="mobile-number"
           value={memory?.mode ?? "mobile-number"}
-          onValueChange={(value) => {
-            setMemory((prev) => ({
-              ...prev,
-              mode: value as AuthMode,
-            }));
-          }}
+          onValueChange={handleTabChange}
         >
           <TabsList className="flex w-full">
             <TabsTrigger className="flex-1" value="mobile-number">
@@ -191,6 +193,7 @@ const Register = ({ memory, setMemory, goTo }: RegisterProps) => {
               onVerifyOtpSuccess={onVerifyOtpSuccess}
             />
           </TabsContent>
+
           <div className="mt-4 text-sm text-center text-gray-500">
             <span>Already have an account? </span>
             <Button
@@ -223,9 +226,7 @@ type AddBasicDetailsProps = InjectedStepProps<FormMemory>;
 
 const AddBasicDetails = ({ memory, setMemory, goTo }: AddBasicDetailsProps) => {
   const schema = z.object({
-    first_name: z.string().nonempty({
-      message: "First name is required",
-    }),
+    first_name: z.string().min(1, "First name is required"),
     middle_name: z.string().optional(),
     last_name: z.string().optional(),
     gender: z.enum(["M", "F", "O"], {
@@ -238,12 +239,7 @@ const AddBasicDetails = ({ memory, setMemory, goTo }: AddBasicDetailsProps) => {
       .regex(/^\d{4}-\d{2}-\d{2}$/, {
         message: "Date of birth must be in YYYY-MM-DD format",
       }),
-    email: z
-      .string()
-      .email({
-        message: "Invalid email address",
-      })
-      .optional(),
+    email: z.string().email("Invalid email address").optional(),
     profile_photo: z.string().optional(),
   });
 
@@ -253,7 +249,7 @@ const AddBasicDetails = ({ memory, setMemory, goTo }: AddBasicDetailsProps) => {
       first_name: "",
       middle_name: "",
       last_name: "",
-      gender: undefined,
+      gender: undefined as "M" | "F" | "O" | undefined,
       date_of_birth: "",
       email: "",
     },
@@ -310,7 +306,7 @@ const AddLocationDetails = ({ setMemory, goTo }: AddLocationDetailsProps) => {
     state_name: z.string(),
     district_code: z.number({ required_error: "District is required" }),
     district_name: z.string(),
-    address: z.string().min(1, { message: "Address is required" }),
+    address: z.string().min(1, "Address is required"),
     pincode: z
       .string()
       .regex(/^\d{6}$/, { message: "Pin code must be exactly 6 digits" }),
@@ -320,7 +316,9 @@ const AddLocationDetails = ({ setMemory, goTo }: AddLocationDetailsProps) => {
     resolver: zodResolver(schema),
     defaultValues: {
       state_code: undefined,
+      state_name: "",
       district_code: undefined,
+      district_name: "",
       address: "",
       pincode: "",
     },
@@ -376,8 +374,6 @@ export const ChooseAbhaAddress = ({
   const schema = z.object({
     abhaAddress: z.string().regex(/^(?![\d.])[a-zA-Z0-9._]{4,}(?<!\.)$/),
   });
-
-  type FormValues = z.infer<typeof schema>;
 
   const form = useForm({
     resolver: zodResolver(schema),
@@ -435,9 +431,14 @@ export const ChooseAbhaAddress = ({
       month_of_birth: memory.phrProfile.month_of_birth ?? "",
       day_of_birth: memory.phrProfile.day_of_birth ?? "",
     });
-  }, [memory?.transactionId, memory?.phrProfile, suggestions]);
+  }, [
+    memory?.transactionId,
+    memory?.phrProfile,
+    suggestions.length,
+    fetchSuggestionsMutation,
+  ]);
 
-  const onSubmit = (values: FormValues) => {
+  const onSubmit = (values: z.infer<typeof schema>) => {
     const fullAddress = `${values.abhaAddress}${DOMAIN}`;
     checkAbhaAddressExistsMutation.mutate({
       abha_address: fullAddress,
@@ -525,7 +526,7 @@ export const ChooseAbhaAddress = ({
                                 shouldDirty: true,
                               })
                             }
-                            className="cursor-pointer rounded-md bg-primary px-2.5 py-1 text-xs text-white"
+                            className="cursor-pointer rounded-md bg-primary px-2.5 py-1 text-xs text-white hover:bg-primary/90 transition-colors"
                           >
                             {s}
                           </button>
@@ -543,7 +544,10 @@ export const ChooseAbhaAddress = ({
               }
             >
               {checkAbhaAddressExistsMutation.isPending ? (
-                <Loader2Icon className="text-white animate-spin scale-150" />
+                <>
+                  <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                  Checking...
+                </>
               ) : (
                 "Continue"
               )}
@@ -557,7 +561,7 @@ export const ChooseAbhaAddress = ({
 
 type SetPasswordProps = InjectedStepProps<FormMemory>;
 
-export const SetPassword = ({ memory }: InjectedStepProps<FormMemory>) => {
+export const SetPassword = ({ memory }: SetPasswordProps) => {
   const { handleAuthSuccess } = useAuthContext();
 
   const [open, setOpen] = useState(false);
@@ -622,6 +626,21 @@ export const SetPassword = ({ memory }: InjectedStepProps<FormMemory>) => {
     });
   };
 
+  const handleSetPassword = () => {
+    setClickedAction("set");
+    form.handleSubmit(onSubmit)();
+  };
+
+  const handleSkipPassword = () => {
+    setClickedAction("skip");
+    form.handleSubmit(onSubmit)();
+  };
+
+  const handleAgreeToTerms = () => {
+    setHasAgreedToTerms(true);
+    setOpen(false);
+  };
+
   return (
     <Card className="mx-4 sm:w-full">
       <CardHeader className="space-y-1 px-4">
@@ -632,7 +651,7 @@ export const SetPassword = ({ memory }: InjectedStepProps<FormMemory>) => {
       </CardHeader>
       <CardContent className="space-y-6">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form className="space-y-4">
             <SetPasswordSection form={form} />
 
             <div className="flex items-start gap-3 p-4 rounded-lg bg-gray-50 border border-gray-200">
@@ -683,20 +702,13 @@ export const SetPassword = ({ memory }: InjectedStepProps<FormMemory>) => {
                         <DialogClose asChild>
                           <Button variant="outline">Close</Button>
                         </DialogClose>
-                        <Button
-                          onClick={() => {
-                            setHasAgreedToTerms(true);
-                            setOpen(false);
-                          }}
-                        >
-                          Agree
-                        </Button>
+                        <Button onClick={handleAgreeToTerms}>Agree</Button>
                       </DialogFooter>
                     </DialogContent>
                   </Dialog>
                 </Label>
                 <p className="text-xs text-gray-500">
-                  By checking this box, you confirm that you’ve read and
+                  By checking this box, you confirm that you've read and
                   understood our terms.
                 </p>
               </div>
@@ -704,9 +716,9 @@ export const SetPassword = ({ memory }: InjectedStepProps<FormMemory>) => {
 
             <div className="flex flex-col space-y-2 pt-2">
               <Button
-                type="submit"
+                type="button"
                 className="w-full"
-                onClick={() => setClickedAction("set")}
+                onClick={handleSetPassword}
                 disabled={
                   !form.formState.isDirty ||
                   !hasAgreedToTerms ||
@@ -715,7 +727,10 @@ export const SetPassword = ({ memory }: InjectedStepProps<FormMemory>) => {
               >
                 {enrolAbhaAddressMutation.isPending &&
                 clickedAction === "set" ? (
-                  <Loader2Icon className="text-white animate-spin scale-150" />
+                  <>
+                    <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                    Creating Account...
+                  </>
                 ) : (
                   "Set Password"
                 )}
@@ -725,17 +740,17 @@ export const SetPassword = ({ memory }: InjectedStepProps<FormMemory>) => {
                 type="button"
                 variant="outline"
                 className="w-full"
-                onClick={() => {
-                  setClickedAction("skip");
-                  form.handleSubmit(onSubmit)();
-                }}
+                onClick={handleSkipPassword}
                 disabled={
                   !hasAgreedToTerms || enrolAbhaAddressMutation.isPending
                 }
               >
                 {enrolAbhaAddressMutation.isPending &&
                 clickedAction === "skip" ? (
-                  <Loader2Icon className="text-white animate-spin scale-150" />
+                  <>
+                    <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                    Creating Account...
+                  </>
                 ) : (
                   "Skip and Create Account"
                 )}

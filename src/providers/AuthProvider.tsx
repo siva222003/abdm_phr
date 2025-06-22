@@ -40,6 +40,9 @@ export default function AuthUserProvider({
     queryKey: ["refresh-token"],
     queryFn: ({ signal }) => {
       const refreshToken = TokenStorage.getRefreshToken();
+      if (!refreshToken) {
+        return;
+      }
       return query(routes.login.refreshAccessToken, {
         body: { refresh: refreshToken || "" },
       })({ signal });

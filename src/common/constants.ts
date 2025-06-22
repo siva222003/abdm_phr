@@ -9,6 +9,8 @@ const LocalStorageKeys = {
   switchProfileEnabled: "switch_profile_enabled",
 } as const;
 
+export const REFRESH_TOKEN_REFETCH_INTERVAL = 1000 * 60 * 5;
+
 const InitialAuthFormValues: FormMemory = {
   transactionId: "mock-id",
   mode: "mobile-number",
@@ -35,7 +37,5 @@ const InitialAuthFormValues: FormMemory = {
     password: "",
   },
 };
-
-export const REFRESH_TOKEN_REFETCH_INTERVAL = 1000 * 60 * 5;
 
 export { DOMAIN, OTP_LENGTH, LocalStorageKeys, InitialAuthFormValues };

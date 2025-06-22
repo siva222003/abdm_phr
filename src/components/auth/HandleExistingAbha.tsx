@@ -32,7 +32,7 @@ function AuthEmptyState() {
       <p className="text-md font-medium">No addresses found</p>
       <p className="text-sm text-center max-w-xs">
         <span>
-          You don't have any ABHA address linked yet. To get started, you
+          You don&apos;t have any ABHA address linked yet. To get started, you
           can{" "}
         </span>
         <Button
@@ -54,16 +54,28 @@ const HandleExistingAbhaAddress = ({
   flowType,
 }: HandleExistingAbhaProps) => {
   const { verifyUser, isVerifyingUser } = useAuthContext();
-  const { existingAbhaAddresses = [] } = memory || {};
+
+  const existingAbhaAddresses = memory?.existingAbhaAddresses ?? [];
+  const hasAddresses = existingAbhaAddresses.length > 0;
 
   const handleCreateNew = useCallback(() => {
-    if (memory?.mode === "abha-number") goTo("choose-abha-address");
-    else goTo("add-demographic-details");
-  }, [memory?.mode, goTo]);
+    if (!memory) {
+      return;
+    }
+
+    if (memory.mode === "abha-number") {
+      goTo("choose-abha-address");
+    } else {
+      goTo("add-demographic-details");
+    }
+  }, [memory, goTo]);
 
   const handleSelectExisting = useCallback(
     (selectedAddress: string) => {
-      if (!selectedAddress || !memory?.transactionId) return;
+      if (!selectedAddress || !memory) {
+        return;
+      }
+
       verifyUser({
         abha_address: selectedAddress,
         transaction_id: memory.transactionId,
@@ -75,10 +87,21 @@ const HandleExistingAbhaAddress = ({
   );
 
   useEffect(() => {
-    if (!existingAbhaAddresses.length && flowType === "enrollment") {
+    if (!hasAddresses && flowType === "enrollment" && memory) {
       handleCreateNew();
     }
-  }, [existingAbhaAddresses.length, flowType, handleCreateNew]);
+  }, [hasAddresses, flowType, memory, handleCreateNew]);
+
+  const getCardDescription = () => {
+    if (!hasAddresses) return null;
+
+    const addressCount = existingAbhaAddresses.length;
+    const plural = addressCount > 1 ? "es" : "";
+    const createNewText =
+      flowType === "enrollment" ? " or create a new one" : "";
+
+    return `We found ${addressCount} ABHA address${plural} associated with your account. Choose one to continue${createNewText}.`;
+  };
 
   return (
     <Card className="mx-4 sm:w-full">
@@ -86,15 +109,13 @@ const HandleExistingAbhaAddress = ({
         <CardTitle className="text-2xl font-bold">
           Existing ABHA Addresses
         </CardTitle>
-        {existingAbhaAddresses.length > 0 && (
+        {hasAddresses && (
           <CardDescription className="text-sm">
-            We found {existingAbhaAddresses.length} ABHA address
-            {existingAbhaAddresses.length > 1 && "es"} associated with your
-            account. Choose one to continue{" "}
-            {flowType === "enrollment" && "or create a new one"}.
+            {getCardDescription()}
           </CardDescription>
         )}
       </CardHeader>
+
       <CardContent>
         <AbhaAddressSelector
           addresses={existingAbhaAddresses}

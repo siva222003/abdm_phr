@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { Dispatch, SetStateAction } from "react";
-import { useForm } from "react-hook-form";
+import { ControllerRenderProps, useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -34,6 +34,7 @@ import {
   SendOtpRequest,
   VerifyOtpResponse,
 } from "@/types/auth";
+import { calculateCursorPosition } from "@/utils";
 
 type AbhaNumberOtpFlowProps = {
   flowType: FlowType;
@@ -45,12 +46,27 @@ type AbhaNumberOtpFlowProps = {
   ) => void;
 };
 
+const OTP_METHODS = [
+  { id: "abdm", label: "Mobile OTP" },
+  { id: "aadhaar", label: "Aadhaar OTP" },
+] as const;
+
 const AbhaNumberOtpFlow = ({
   flowType,
   transactionId,
   setMemory,
   onVerifyOtpSuccess,
 }: AbhaNumberOtpFlowProps) => {
+  const schema = z.object({
+    abha: z.string().regex(/^\d{2}-\d{4}-\d{4}-\d{4}$/, {
+      message: "Enter a valid 14 digit ABHA number",
+    }),
+    otpMethod: z.enum(["abdm", "aadhaar"], {
+      errorMap: () => ({ message: "Please select an OTP method" }),
+    }),
+    otp: z.string().optional(),
+  });
+
   const {
     otpSent,
     isOtpValid,
@@ -61,18 +77,8 @@ const AbhaNumberOtpFlow = ({
     verifyOtpMutation,
   } = useOtpFlow(flowType, setMemory, onVerifyOtpSuccess);
 
-  const baseSchema = z.object({
-    abha: z.string().regex(/^\d{2}-\d{4}-\d{4}-\d{4}$/, {
-      message: "Enter a valid 14 digit ABHA number",
-    }),
-    otpMethod: z.enum(["abdm", "aadhaar"], {
-      errorMap: () => ({ message: "Please select an OTP method" }),
-    }),
-    otp: z.string().optional(),
-  });
-
   const form = useForm({
-    resolver: zodResolver(baseSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       abha: "",
       otpMethod: undefined,
@@ -80,27 +86,67 @@ const AbhaNumberOtpFlow = ({
     },
   });
 
-  const onSubmit = (values: z.infer<typeof baseSchema>) => {
+  const formatAbhaNumber = (digits: string): string => {
+    const parts = [
+      digits.slice(0, 2),
+      digits.slice(2, 6),
+      digits.slice(6, 10),
+      digits.slice(10, 14),
+    ].filter(Boolean);
+    return parts.join("-");
+  };
+
+  const handleAbhaInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: ControllerRenderProps<z.infer<typeof schema>, "abha">,
+  ) => {
+    const input = e.target;
+    const raw = input.value.replace(/\D/g, "").slice(0, 14);
+    const formatted = formatAbhaNumber(raw);
+
+    const cursorPos = calculateCursorPosition(
+      input.value,
+      input.selectionStart ?? 0,
+      formatted,
+    );
+
+    field.onChange(formatted);
+
+    setTimeout(() => {
+      input.setSelectionRange(cursorPos, cursorPos);
+    }, 0);
+  };
+
+  const handleResendOtp = () => {
+    sendOtpMutation.mutate({
+      value: form.getValues("abha"),
+      type: "abha-number",
+      otp_system: form.getValues("otpMethod"),
+    });
+    resetCountdown();
+  };
+
+  const onSubmit = (values: z.infer<typeof schema>) => {
     if (!otpSent) {
       sendOtpMutation.mutate({
         value: values.abha,
         type: "abha-number",
-        otp_system: values.otpMethod,
+        otp_system: values.otpMethod!,
       });
       resetCountdown();
       return;
     }
 
-    if (!(values.otp?.length === OTP_LENGTH && !!transactionId)) return;
+    if (!(values.otp?.length === OTP_LENGTH && transactionId)) return;
 
-    const systemKey =
-      flowType === "enrollment" ? "otp_system" : "verify_system";
     setIsOtpValid(true);
+
     verifyOtpMutation.mutate({
       transaction_id: transactionId,
       otp: values.otp,
       type: "abha-number",
-      [systemKey]: values.otpMethod,
+      [flowType === "enrollment" ? "otp_system" : "verify_system"]:
+        values.otpMethod,
     });
   };
 
@@ -113,51 +159,21 @@ const AbhaNumberOtpFlow = ({
         <FormField
           control={form.control}
           name="abha"
-          render={({ field }) => {
-            const formatWithHyphens = (digits: string) => {
-              const parts = [
-                digits.slice(0, 2),
-                digits.slice(2, 6),
-                digits.slice(6, 10),
-                digits.slice(10, 14),
-              ].filter(Boolean);
-              return parts.join("-");
-            };
-
-            return (
-              <FormItem>
-                <FormLabel>Abha Number</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="Enter 14 digit abha number"
-                    maxLength={17}
-                    disabled={otpSent}
-                    onChange={(e) => {
-                      const input = e.target;
-                      const raw = input.value.replace(/\D/g, "").slice(0, 14);
-                      const formatted = formatWithHyphens(raw);
-
-                      const digitIndex = input.value
-                        .slice(0, input.selectionStart ?? 0)
-                        .replace(/\D/g, "").length;
-
-                      field.onChange(formatted);
-
-                      requestAnimationFrame(() => {
-                        let pos = 0,
-                          count = 0;
-                        while (count < digitIndex && pos < formatted.length)
-                          if (/\d/.test(formatted[pos++])) count++;
-                        input.setSelectionRange(pos, pos);
-                      });
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            );
-          }}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>ABHA Number</FormLabel>
+              <FormControl>
+                <Input
+                  {...field}
+                  placeholder="Enter 14 digit ABHA number"
+                  maxLength={17}
+                  disabled={otpSent}
+                  onChange={(e) => handleAbhaInputChange(e, field)}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
 
         <FormField
@@ -169,21 +185,16 @@ const AbhaNumberOtpFlow = ({
               <FormControl>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  value={field.value}
                   disabled={otpSent}
                 >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a method" />
-                    </SelectTrigger>
-                  </FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a method" />
+                  </SelectTrigger>
                   <SelectContent>
-                    {[
-                      { id: "abdm", label: "Mobile OTP" },
-                      { id: "aadhaar", label: "Aadhaar OTP" },
-                    ].map((otpMethod) => (
-                      <SelectItem key={otpMethod.id} value={otpMethod.id}>
-                        {otpMethod.label}
+                    {OTP_METHODS.map((method) => (
+                      <SelectItem key={method.id} value={method.id}>
+                        {method.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -211,17 +222,11 @@ const AbhaNumberOtpFlow = ({
                       setIsOtpValid(true);
                     }}
                     resendCountdown={resendCountdown}
-                    onResend={() => {
-                      sendOtpMutation.mutate({
-                        value: form.watch("abha"),
-                        type: "abha-number",
-                        otp_system: form.watch("otpMethod"),
-                      });
-                      resetCountdown();
-                    }}
+                    onResend={handleResendOtp}
                     disabled={isSubmitting}
                   />
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -237,7 +242,10 @@ const AbhaNumberOtpFlow = ({
           }
         >
           {isSubmitting ? (
-            <Loader2Icon className="text-white animate-spin scale-150" />
+            <>
+              <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+              {otpSent ? "Verifying..." : "Sending..."}
+            </>
           ) : otpSent ? (
             "Verify OTP"
           ) : (

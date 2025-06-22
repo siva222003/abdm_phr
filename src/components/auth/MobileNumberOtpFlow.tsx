@@ -44,6 +44,13 @@ const MobileNumberOtpFlow = ({
   setMemory,
   onVerifyOtpSuccess,
 }: MobileNumberOtpFlowProps) => {
+  const schema = z.object({
+    mobile: z.string().regex(/^[1-9][0-9]{9}$/, {
+      message: "Enter a valid 10 digit mobile number",
+    }),
+    otp: z.string().optional(),
+  });
+
   const {
     otpSent,
     isOtpValid,
@@ -54,23 +61,24 @@ const MobileNumberOtpFlow = ({
     verifyOtpMutation,
   } = useOtpFlow(flowType, setMemory, onVerifyOtpSuccess);
 
-  const baseSchema = z.object({
-    mobile: z.string().regex(/^[1-9][0-9]{9}$/, {
-      message: "Enter a valid 10 digit mobile number",
-    }),
-
-    otp: z.string().optional(),
-  });
-
   const form = useForm({
-    resolver: zodResolver(baseSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       mobile: "",
       otp: "",
     },
   });
 
-  const onSubmit = (values: z.infer<typeof baseSchema>) => {
+  const handleResendOtp = () => {
+    sendOtpMutation.mutate({
+      value: form.getValues("mobile"),
+      otp_system: "abdm",
+      type: "mobile-number",
+    });
+    resetCountdown();
+  };
+
+  const onSubmit = (values: z.infer<typeof schema>) => {
     if (!otpSent) {
       sendOtpMutation.mutate({
         value: values.mobile,
@@ -81,16 +89,14 @@ const MobileNumberOtpFlow = ({
       return;
     }
 
-    if (!(values.otp?.length === OTP_LENGTH && !!transactionId)) return;
+    if (!(values.otp?.length === OTP_LENGTH && transactionId)) return;
 
-    const systemKey =
-      flowType === "enrollment" ? "otp_system" : "verify_system";
     setIsOtpValid(true);
     verifyOtpMutation.mutate({
       otp: values.otp,
       transaction_id: transactionId,
       type: "mobile-number",
-      [systemKey]: "abdm",
+      [flowType === "enrollment" ? "otp_system" : "verify_system"]: "abdm",
     });
   };
 
@@ -108,10 +114,10 @@ const MobileNumberOtpFlow = ({
               <FormLabel>Mobile Number</FormLabel>
               <FormControl>
                 <Input
+                  {...field}
                   placeholder="Enter 10 digit mobile number"
                   maxLength={10}
                   disabled={otpSent}
-                  {...field}
                 />
               </FormControl>
               <FormMessage />
@@ -136,17 +142,11 @@ const MobileNumberOtpFlow = ({
                       setIsOtpValid(true);
                     }}
                     resendCountdown={resendCountdown}
-                    onResend={() => {
-                      sendOtpMutation.mutate({
-                        value: form.getValues("mobile"),
-                        otp_system: "abdm",
-                        type: "mobile-number",
-                      });
-                      resetCountdown();
-                    }}
+                    onResend={handleResendOtp}
                     disabled={isSubmitting}
                   />
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -162,7 +162,10 @@ const MobileNumberOtpFlow = ({
           }
         >
           {isSubmitting ? (
-            <Loader2Icon className="text-white animate-spin scale-150" />
+            <>
+              <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+              {otpSent ? "Verifying..." : "Sending..."}
+            </>
           ) : otpSent ? (
             "Verify OTP"
           ) : (

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
+import { useMemo, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 
 import { cn } from "@/lib/utils";
@@ -34,26 +34,61 @@ type PhrProfileFormSectionsProps = {
   showEmail?: boolean;
 };
 
+const BASIC_FIELDS = [
+  {
+    name: "first_name",
+    label: "First Name",
+    placeholder: "John",
+    required: true,
+  },
+  {
+    name: "middle_name",
+    label: "Middle Name",
+    placeholder: "Optional",
+    required: false,
+  },
+  {
+    name: "last_name",
+    label: "Last Name",
+    placeholder: "Doe",
+    required: false,
+  },
+];
+
+const GENDER_OPTIONS = [
+  { value: "M", label: "Male" },
+  { value: "F", label: "Female" },
+  { value: "O", label: "Other" },
+] as const;
+
+const PASSWORD_VALIDATIONS = [
+  {
+    content: "Must contain at least one uppercase letter",
+    test: (password: string) => /[A-Z]/.test(password),
+  },
+  {
+    content: "Must contain at least one number",
+    test: (password: string) => /\d/.test(password),
+  },
+  {
+    content: "Must contain at least one special character (!@#$^-)",
+    test: (password: string) => /[!@#$^*-]/.test(password),
+  },
+  {
+    content: "Must be at least 8 characters long",
+    test: (password: string) => password.length >= 8,
+  },
+];
+
 export const BasicDetailsSection = ({
   form,
   className,
   showEmail = false,
 }: PhrProfileFormSectionsProps) => {
-  const basicFields = [
-    {
-      name: "first_name",
-      label: "First Name",
-      placeholder: "John",
-      required: true,
-    },
-    { name: "middle_name", label: "Middle Name", placeholder: "Optional" },
-    { name: "last_name", label: "Last Name", placeholder: "Doe" },
-  ];
-
   return (
     <>
       <div className={cn("space-y-4", className)}>
-        {basicFields.map(({ name, label, placeholder, required }) => (
+        {BASIC_FIELDS.map(({ name, label, placeholder, required }) => (
           <FormField
             key={name}
             control={form.control}
@@ -70,6 +105,7 @@ export const BasicDetailsSection = ({
           />
         ))}
       </div>
+
       <div className="grid grid-cols-1 items-start md:grid-cols-2 gap-4">
         <FormField
           control={form.control}
@@ -77,16 +113,18 @@ export const BasicDetailsSection = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel aria-required>Gender</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select gender" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="M">Male</SelectItem>
-                  <SelectItem value="F">Female</SelectItem>
-                  <SelectItem value="O">Other</SelectItem>
+                  {GENDER_OPTIONS.map(({ value, label }) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -148,36 +186,32 @@ export const LocationDetailsSection = ({
     enabled: !!watchStateCode,
   });
 
-  const handleStateChange = useCallback(
-    (value: string) => {
-      const code = Number(value);
-      const selected = states.find((s) => s.state_code === code);
-      setValue("state_code", code, { shouldValidate: true, shouldDirty: true });
-      setValue("state_name", selected?.state_name ?? "");
-      setValue("district_code", undefined);
-      setValue("district_name", "");
-    },
-    [states, setValue],
-  );
+  const handleStateChange = (value: string) => {
+    const code = Number(value);
+    const selected = states.find((s) => s.state_code === code);
 
-  const handleDistrictChange = useCallback(
-    (value: string) => {
-      const code = Number(value);
-      const selected = districts.find((d) => d.district_code === code);
-      setValue("district_code", code, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-      setValue("district_name", selected?.district_name ?? "");
-    },
-    [districts, setValue],
-  );
+    setValue("state_code", code, { shouldValidate: true, shouldDirty: true });
+    setValue("state_name", selected?.state_name ?? "");
+    setValue("district_code", undefined);
+    setValue("district_name", "");
+  };
+
+  const handleDistrictChange = (value: string) => {
+    const code = Number(value);
+    const selected = districts.find((d) => d.district_code === code);
+
+    setValue("district_code", code, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+    setValue("district_name", selected?.district_name ?? "");
+  };
 
   return (
     <>
       <div className={cn("space-y-4", className)}>
         <FormField
-          control={form.control}
+          control={control}
           name="state_code"
           render={({ field }) => (
             <FormItem>
@@ -249,6 +283,10 @@ export const LocationDetailsSection = ({
                 inputMode="numeric"
                 maxLength={6}
                 placeholder="Enter pincode"
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, "");
+                  field.onChange(value);
+                }}
               />
             </FormControl>
             <FormMessage />
@@ -284,26 +322,19 @@ export const SetPasswordSection = ({
 }: PhrProfileFormSectionsProps) => {
   const [isPasswordFieldFocused, setIsPasswordFieldFocused] = useState(false);
 
-  const passwordInput = form.watch("password");
+  const passwordInput = form.watch("password") || "";
 
-  const passwordValidations = [
-    {
-      content: "Must contain at least one uppercase letter",
-      condition: /[A-Z]/.test(passwordInput),
-    },
-    {
-      content: "Must contain at least one number",
-      condition: /\d/.test(passwordInput),
-    },
-    {
-      content: "Must contain at least one special character (!@#$^-)",
-      condition: /[!@#$^*-]/.test(passwordInput),
-    },
-    {
-      content: "Must be at least 8 characters long",
-      condition: passwordInput.length >= 8,
-    },
-  ];
+  const passwordValidations = useMemo(
+    () =>
+      PASSWORD_VALIDATIONS.map((validation) => ({
+        content: validation.content,
+        condition: validation.test(passwordInput),
+      })),
+    [passwordInput],
+  );
+
+  const shouldShowValidation =
+    isPasswordFieldFocused || !!form.formState.errors.password;
 
   return (
     <div className={cn("space-y-4", className)}>
@@ -321,14 +352,14 @@ export const SetPasswordSection = ({
                 onBlur={() => setIsPasswordFieldFocused(false)}
               />
             </FormControl>
-            {(isPasswordFieldFocused ||
-              form.getFieldState("password").invalid) && (
+            {shouldShowValidation && (
               <FormDescription>
-                {passwordValidations.map((r) => (
-                  <ValidationHelper key={r.content} {...r} />
+                {passwordValidations.map((validation) => (
+                  <ValidationHelper key={validation.content} {...validation} />
                 ))}
               </FormDescription>
             )}
+            <FormMessage />
           </FormItem>
         )}
       />

@@ -25,7 +25,7 @@ export const TokenStorage = {
 export const formatDate = (date: string | undefined) => {
   if (!date) return ["", "", ""];
 
-  const parts = date.split("--");
+  const parts = date.split("-");
   if (parts.length !== 3) return ["", "", ""];
 
   const [a, b, c] = parts;
@@ -35,4 +35,19 @@ export const formatDate = (date: string | undefined) => {
   }
 
   return [c, b, a];
+};
+
+export const calculateCursorPosition = (
+  value: string,
+  selectionStart: number,
+  formatted: string,
+): number => {
+  const digitIndex = value.slice(0, selectionStart).replace(/\D/g, "").length;
+
+  let pos = 0;
+  let count = 0;
+  while (count < digitIndex && pos < formatted.length) {
+    if (/\d/.test(formatted[pos++])) count++;
+  }
+  return pos;
 };

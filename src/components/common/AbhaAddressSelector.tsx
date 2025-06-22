@@ -92,10 +92,18 @@ export default function AbhaAddressSelector({
   );
 
   useEffect(() => {
-    if (!defaultSelectedAddress && addresses.length > 0) {
+    if (defaultSelectedAddress) {
+      setSelectedAddress(defaultSelectedAddress);
+    } else if (!selectedAddress && addresses.length > 0) {
       setSelectedAddress(addresses[0].abhaAddress);
     }
-  }, [addresses, defaultSelectedAddress]);
+  }, [addresses, defaultSelectedAddress, selectedAddress]);
+
+  const handleContinue = () => {
+    if (selectedAddress) {
+      onContinue(selectedAddress);
+    }
+  };
 
   const content = useMemo(() => {
     if (isListLoading) {
@@ -131,10 +139,13 @@ export default function AbhaAddressSelector({
         <Button
           className="w-full"
           disabled={isContinueDisabled}
-          onClick={() => selectedAddress && onContinue(selectedAddress)}
+          onClick={handleContinue}
         >
           {isActionLoading ? (
-            <Loader2Icon className="text-white animate-spin scale-150" />
+            <>
+              <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+              Loading...
+            </>
           ) : (
             continueLabel
           )}
