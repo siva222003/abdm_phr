@@ -1,4 +1,5 @@
 import { Dispatch, SetStateAction, useState } from "react";
+import { toast } from "sonner";
 
 import {
   Dialog,
@@ -9,6 +10,8 @@ import {
 } from "@/components/ui/dialog";
 
 import AbhaNumberOtpFlow from "@/components/auth/AbhaNumberOtpFlow";
+
+import { useAuthContext } from "@/hooks/useAuth";
 
 import { InitialAuthFormValues } from "@/common/constants";
 
@@ -23,12 +26,15 @@ const SelectPreferredAbhaDialog = ({
   setOpen,
   existingAbhaNumber,
 }: SelectPreferredAbhaDialogProps) => {
+  const { logout } = useAuthContext();
   const [memory, setMemory] = useState(InitialAuthFormValues);
 
-  const onVerifyOtpSuccess = (data: any) => {
-    console.log("OTP verified successfully", data);
-    // Handle success logic here, e.g., show a success message or update state
-    setOpen(false); // Close the dialog on successful verification
+  const onVerifyOtpSuccess = () => {
+    toast.success(
+      "Preferred ABHA address selected successfully. Please login again.",
+    );
+    setOpen(false);
+    logout();
   };
 
   return (
@@ -47,6 +53,7 @@ const SelectPreferredAbhaDialog = ({
               transactionId={memory.transactionId}
               onVerifyOtpSuccess={onVerifyOtpSuccess}
               existingAbhaNumber={existingAbhaNumber}
+              action="SELECT_PREFERRED_ABHA"
             />
           </div>
         </DialogHeader>

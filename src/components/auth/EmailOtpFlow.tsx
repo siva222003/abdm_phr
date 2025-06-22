@@ -27,6 +27,7 @@ import {
   SendOtpRequest,
   VerifyOtpResponse,
 } from "@/types/auth";
+import { ProfileUpdateAction } from "@/types/profile";
 
 type EmailOtpFlowProps = {
   flowType: FlowType;
@@ -36,6 +37,7 @@ type EmailOtpFlowProps = {
     data: VerifyOtpResponse,
     sendOtpContext?: SendOtpRequest,
   ) => void;
+  action?: ProfileUpdateAction;
 };
 
 const EmailOtpFlow: FC<EmailOtpFlowProps> = ({
@@ -43,6 +45,7 @@ const EmailOtpFlow: FC<EmailOtpFlowProps> = ({
   transactionId,
   setMemory,
   onVerifyOtpSuccess,
+  action,
 }) => {
   const {
     otpSent,
@@ -82,14 +85,13 @@ const EmailOtpFlow: FC<EmailOtpFlowProps> = ({
 
     if (!(values.otp?.length === OTP_LENGTH && !!transactionId)) return;
 
-    const systemKey =
-      flowType === "enrollment" ? "otp_system" : "verify_system";
     setIsOtpValid(true);
     verifyOtpMutation.mutate({
       otp: values.otp,
       transaction_id: transactionId,
       type: "email",
-      [systemKey]: "abdm",
+      [flowType === "login" ? "verify_system" : "otp_system"]: "abdm",
+      action: action,
     });
   };
 

@@ -37,15 +37,21 @@ export const useOtpFlow = (
     return () => clearInterval(interval);
   }, [resendCountdown]);
 
-  const sendOtpMutationFn =
-    flowType === AuthFlowTypes.ENROLLMENT
-      ? mutate(routes.register.sendOtp)
-      : flowType === "login"
-        ? mutate(routes.login.sendOtp)
-        : mutate(routes.profile.sendOtp);
+  const sendOtpMutationFn = () => {
+    switch (flowType) {
+      case AuthFlowTypes.ENROLLMENT:
+        return mutate(routes.register.sendOtp);
+      case AuthFlowTypes.LOGIN:
+        return mutate(routes.login.sendOtp);
+      case AuthFlowTypes.PROFILE_UPDATE:
+        return mutate(routes.profile.sendOtp);
+      default:
+        return mutate(routes.profile.sendOtp);
+    }
+  };
 
   const sendOtpMutation = useMutation({
-    mutationFn: sendOtpMutationFn,
+    mutationFn: sendOtpMutationFn(),
     onSuccess: (data) => {
       toast.success(data.detail);
       setMemory((prev) => ({
@@ -55,23 +61,32 @@ export const useOtpFlow = (
       setOtpSent(true);
     },
   });
-
-  const verifyOtpMutationFn =
-    flowType === AuthFlowTypes.ENROLLMENT
-      ? mutate(routes.register.verifyOtp)
-      : flowType === "login"
-        ? mutate(routes.login.verifyOtp)
-        : mutate(routes.profile.verifyOtp);
+  const verifyOtpMutationFn = () => {
+    switch (flowType) {
+      case AuthFlowTypes.ENROLLMENT:
+        return mutate(routes.register.verifyOtp);
+      case AuthFlowTypes.LOGIN:
+        return mutate(routes.login.verifyOtp);
+      case AuthFlowTypes.PROFILE_UPDATE:
+        return mutate(routes.profile.verifyOtp);
+      default:
+        return mutate(routes.profile.verifyOtp);
+    }
+  };
 
   const verifyOtpMutation = useMutation({
-    mutationFn: verifyOtpMutationFn,
+    mutationFn: verifyOtpMutationFn(),
     onSuccess: (data) => {
       if ("access_token" in data && "refresh_token" in data) {
         toast.success("Otp verified successfully");
         handleAuthSuccess(data);
         return;
       }
-      toast.success(data.detail);
+
+      if ("detail" in data) {
+        toast.success(data.detail);
+      }
+
       onVerifyOtpSuccess(data, sendOtpMutation.variables);
     },
     onError: () => {

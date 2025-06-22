@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useEffect } from "react";
 import { ControllerRenderProps, useForm } from "react-hook-form";
 import { z } from "zod/v4";
 
@@ -41,6 +41,7 @@ import {
   SendOtpRequest,
   VerifyOtpResponse,
 } from "@/types/auth";
+import { ProfileUpdateAction } from "@/types/profile";
 import { calculateCursorPosition } from "@/utils";
 
 type AbhaNumberOtpFlowProps = {
@@ -52,6 +53,7 @@ type AbhaNumberOtpFlowProps = {
     sendOtpContext?: SendOtpRequest,
   ) => void;
   existingAbhaNumber?: string;
+  action?: ProfileUpdateAction;
 };
 
 const AbhaNumberOtpFlow = ({
@@ -60,6 +62,7 @@ const AbhaNumberOtpFlow = ({
   setMemory,
   onVerifyOtpSuccess,
   existingAbhaNumber,
+  action,
 }: AbhaNumberOtpFlowProps) => {
   const schema = z.object({
     abha: z.string().regex(ABHA_NUMBER_REGEX, {
@@ -88,6 +91,12 @@ const AbhaNumberOtpFlow = ({
       otp: "",
     },
   });
+
+  useEffect(() => {
+    if (flowType === "profile-update" && existingAbhaNumber) {
+      form.setValue("abha", existingAbhaNumber);
+    }
+  }, [flowType, form, existingAbhaNumber]);
 
   const formatAbhaNumber = (digits: string): string => {
     const parts = [
@@ -170,7 +179,7 @@ const AbhaNumberOtpFlow = ({
                   {...field}
                   placeholder="Enter 14 digit ABHA number"
                   maxLength={17}
-                  disabled={otpSent}
+                  disabled={otpSent || flowType === "profile-update"}
                   onChange={(e) => handleAbhaInputChange(e, field)}
                 />
               </FormControl>

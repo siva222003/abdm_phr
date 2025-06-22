@@ -30,6 +30,7 @@ import {
   SendOtpRequest,
   VerifyOtpResponse,
 } from "@/types/auth";
+import { ProfileUpdateAction } from "@/types/profile";
 
 type MobileNumberOtpFlowProps = {
   flowType: AuthFlowTypes;
@@ -39,6 +40,7 @@ type MobileNumberOtpFlowProps = {
     data: VerifyOtpResponse,
     sendOtpContext?: SendOtpRequest,
   ) => void;
+  action?: ProfileUpdateAction;
 };
 
 const MobileNumberOtpFlow = ({
@@ -46,6 +48,7 @@ const MobileNumberOtpFlow = ({
   transactionId,
   setMemory,
   onVerifyOtpSuccess,
+  action,
 }: MobileNumberOtpFlowProps) => {
   const schema = z.object({
     mobile: z.string().regex(MOBILE_NUMBER_REGEX, {
@@ -99,8 +102,14 @@ const MobileNumberOtpFlow = ({
       otp: values.otp,
       transaction_id: transactionId,
       type: AuthModes.MOBILE_NUMBER,
+<<<<<<< HEAD
       [flowType === AuthFlowTypes.LOGIN ? "verify_system" : "otp_system"]:
         DEFAULT_AUTH_METHOD,
+=======
+      [flowType === AuthFlowTypes.ENROLLMENT ? "otp_system" : "verify_system"]:
+        DEFAULT_OTP_SYSTEM,
+      action,
+>>>>>>> 9464494 (updated otp flows for profile specific actions)
     });
   };
 

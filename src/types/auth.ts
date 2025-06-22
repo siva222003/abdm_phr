@@ -1,6 +1,11 @@
 import { AUTH_METHODS, DEFAULT_AUTH_METHOD } from "@/common/constants";
 
-import { PhrEnrolDetails, PhrProfilePartial, User } from "./profile";
+import {
+  PhrEnrolDetails,
+  PhrProfilePartial,
+  ProfileUpdateAction,
+  User,
+} from "./profile";
 
 export enum AuthModes {
   ABHA_NUMBER = "abha-number",
@@ -35,6 +40,7 @@ export interface SendOtpRequest {
 export interface VerifyOtpRequest extends Omit<SendOtpRequest, "value"> {
   otp: string;
   transaction_id: string;
+  action?: ProfileUpdateAction;
 }
 
 export interface VerifyPasswordRequest {
