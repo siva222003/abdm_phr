@@ -1,6 +1,12 @@
 export type Gender = "M" | "F" | "O";
-export type KycStatus = "VERIFIED" | "PENDING";
 export type BoolString = "true" | "false";
+
+export const KYC_STATUS = {
+  VERIFIED: "VERIFIED",
+  PENDING: "PENDING",
+} as const;
+
+export type KycStatus = (typeof KYC_STATUS)[keyof typeof KYC_STATUS];
 
 type BasicProfileFields = {
   address: string;

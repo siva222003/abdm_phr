@@ -1,4 +1,9 @@
-import { Loader2Icon, UserSearch } from "lucide-react";
+import {
+  CheckCircle2,
+  Loader2Icon,
+  TriangleAlert,
+  UserSearch,
+} from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { cn } from "@/lib/utils";
@@ -6,8 +11,14 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 import { User } from "@/types/auth";
+import { KYC_STATUS, KycStatus } from "@/types/profile";
 
 interface AbhaAddressSelectorProps {
   addresses: User[];
@@ -38,16 +49,18 @@ function AddressItem({
   address,
   selected,
   onSelect,
+  kycStatus,
 }: {
   address: string;
   selected: boolean;
   onSelect: (address: string) => void;
+  kycStatus: KycStatus;
 }) {
   return (
     <div
       key={address}
       className={cn(
-        "relative cursor-pointer rounded-lg border p-3 text-sm shadow-sm transition-colors flex items-center",
+        "cursor-pointer rounded-lg border p-3 text-sm shadow-sm transition-colors flex items-center gap-2",
         selected ? "border-primary bg-primary/10" : "hover:bg-primary/5",
       )}
       onClick={() => onSelect(address)}
@@ -61,15 +74,34 @@ function AddressItem({
       tabIndex={0}
       aria-pressed={selected}
     >
-      <div className="flex items-center gap-2">
-        <div
-          className={cn(
-            "h-4 w-4 rounded-full border border-gray-400 transition-colors",
-            selected ? "border-primary bg-primary" : "bg-white",
-          )}
-          aria-hidden="true"
-        />
-        <div className="font-mono">{address}</div>
+      <div
+        className={cn(
+          "size-4 rounded-full border border-gray-400 transition-colors flex-shrink-0",
+          selected ? "border-primary bg-primary" : "bg-white",
+        )}
+        aria-hidden="true"
+      />
+      <div className="font-mono truncate flex-1">{address}</div>
+
+      <div className="flex-shrink-0">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div>
+              {kycStatus === KYC_STATUS.VERIFIED ? (
+                <CheckCircle2 className="text-green-600 size-5" />
+              ) : (
+                <TriangleAlert className="text-yellow-500 size-5" />
+              )}
+            </div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>
+              {kycStatus === KYC_STATUS.VERIFIED
+                ? "KYC Verified"
+                : "KYC Pending"}
+            </p>
+          </TooltipContent>
+        </Tooltip>
       </div>
     </div>
   );
@@ -114,12 +146,13 @@ export default function AbhaAddressSelector({
       return emptyState || <DefaultEmptyState />;
     }
 
-    return addresses.map(({ abhaAddress }) => (
+    return addresses.map(({ abhaAddress, kycStatus }) => (
       <AddressItem
         key={abhaAddress}
         address={abhaAddress}
         selected={abhaAddress === selectedAddress}
         onSelect={setSelectedAddress}
+        kycStatus={kycStatus}
       />
     ));
   }, [addresses, selectedAddress, isListLoading, emptyState]);
@@ -129,8 +162,8 @@ export default function AbhaAddressSelector({
 
   return (
     <div className="flex flex-col h-full">
-      <ScrollArea className="w-full rounded-md p-1">
-        <div className="max-h-48 space-y-2">{content}</div>
+      <ScrollArea className="w-full rounded-md">
+        <div className="max-h-48 space-y-2 px-1">{content}</div>
       </ScrollArea>
 
       <div className="mt-2 pt-4 space-y-4">
