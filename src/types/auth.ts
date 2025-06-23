@@ -1,7 +1,20 @@
 import { KycStatus, PhrEnrolDetails, PhrProfilePartial } from "./profile";
 
 // Common types for authentication and verification
-export type AuthMode = "abha-number" | "mobile-number" | "abha-address";
+export const AUTH_MODES = {
+  ABHA_NUMBER: "abha-number",
+  MOBILE_NUMBER: "mobile-number",
+  ABHA_ADDRESS: "abha-address",
+} as const;
+
+export const AUTH_FLOW_TYPES = {
+  ENROLLMENT: "enrollment",
+  LOGIN: "login",
+} as const;
+
+export type AuthMode = (typeof AUTH_MODES)[keyof typeof AUTH_MODES];
+export type FlowType = (typeof AUTH_FLOW_TYPES)[keyof typeof AUTH_FLOW_TYPES];
+
 export type VerifySystem = "abdm" | "aadhaar";
 export type AuthMethod =
   | "MOBILE_OTP"
@@ -9,7 +22,6 @@ export type AuthMethod =
   | "EMAIL_OTP"
   | "AADHAAR_OTP";
 
-export type FlowType = "enrollment" | "login";
 export type User = {
   abhaAddress: string;
   fullName: string;
@@ -116,4 +128,32 @@ export type FormMemory = {
   verifySystem: VerifySystem;
   existingAbhaAddresses?: User[];
   phrProfile?: PhrEnrolDetails;
+};
+
+// Common Auth Constants
+export const INITIAL_AUTH_FORM_VALUES: FormMemory = {
+  transactionId: "mock-id",
+  mode: "mobile-number",
+  verifySystem: "abdm",
+  existingAbhaAddresses: [],
+  phrProfile: {
+    abha_address: "",
+    first_name: "",
+    middle_name: "",
+    last_name: "",
+    gender: "O",
+    day_of_birth: "",
+    month_of_birth: "",
+    year_of_birth: "",
+    address: "",
+    state_name: "",
+    state_code: "",
+    district_name: "",
+    district_code: "",
+    pincode: "",
+    mobile: "",
+    email: "",
+    profile_photo: "",
+    password: "",
+  },
 };

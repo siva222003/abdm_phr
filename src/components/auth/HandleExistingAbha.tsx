@@ -15,7 +15,12 @@ import AbhaAddressSelector from "@/components/common/AbhaAddressSelector";
 
 import { useAuthContext } from "@/hooks/useAuth";
 
-import { FlowType, FormMemory } from "@/types/auth";
+import {
+  AUTH_FLOW_TYPES,
+  AUTH_MODES,
+  FlowType,
+  FormMemory,
+} from "@/types/auth";
 
 interface HandleExistingAbhaProps {
   flowType: FlowType;
@@ -63,7 +68,7 @@ const HandleExistingAbhaAddress = ({
       return;
     }
 
-    if (memory.mode === "abha-number") {
+    if (memory.mode === AUTH_MODES.ABHA_NUMBER) {
       goTo("choose-abha-address");
     } else {
       goTo("add-demographic-details");
@@ -87,7 +92,7 @@ const HandleExistingAbhaAddress = ({
   );
 
   useEffect(() => {
-    if (!hasAddresses && flowType === "enrollment" && memory) {
+    if (!hasAddresses && flowType === AUTH_FLOW_TYPES.ENROLLMENT && memory) {
       handleCreateNew();
     }
   }, [hasAddresses, flowType, memory, handleCreateNew]);
@@ -98,7 +103,7 @@ const HandleExistingAbhaAddress = ({
     const addressCount = existingAbhaAddresses.length;
     const plural = addressCount > 1 ? "es" : "";
     const createNewText =
-      flowType === "enrollment" ? " or create a new one" : "";
+      flowType === AUTH_FLOW_TYPES.ENROLLMENT ? " or create a new one" : "";
 
     return `We found ${addressCount} ABHA address${plural} associated with your account. Choose one to continue${createNewText}.`;
   };
@@ -121,7 +126,7 @@ const HandleExistingAbhaAddress = ({
           addresses={existingAbhaAddresses}
           isActionLoading={isVerifyingUser}
           onContinue={handleSelectExisting}
-          showCreateNew={flowType === "enrollment"}
+          showCreateNew={flowType === AUTH_FLOW_TYPES.ENROLLMENT}
           onCreateNew={handleCreateNew}
           emptyState={<AuthEmptyState />}
         />

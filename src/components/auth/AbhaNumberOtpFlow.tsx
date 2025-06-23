@@ -4,6 +4,8 @@ import { Dispatch, SetStateAction } from "react";
 import { ControllerRenderProps, useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { ABHA_NUMBER_REGEX } from "@/lib/validators";
+
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -29,6 +31,8 @@ import { useOtpFlow } from "@/hooks/useOtpFlow";
 import { OTP_LENGTH } from "@/common/constants";
 
 import {
+  AUTH_FLOW_TYPES,
+  AUTH_MODES,
   FlowType,
   FormMemory,
   SendOtpRequest,
@@ -58,7 +62,7 @@ const AbhaNumberOtpFlow = ({
   onVerifyOtpSuccess,
 }: AbhaNumberOtpFlowProps) => {
   const schema = z.object({
-    abha: z.string().regex(/^\d{2}-\d{4}-\d{4}-\d{4}$/, {
+    abha: z.string().regex(ABHA_NUMBER_REGEX, {
       message: "Enter a valid 14 digit ABHA number",
     }),
     otpMethod: z.enum(["abdm", "aadhaar"], {
@@ -120,7 +124,7 @@ const AbhaNumberOtpFlow = ({
   const handleResendOtp = () => {
     sendOtpMutation.mutate({
       value: form.getValues("abha"),
-      type: "abha-number",
+      type: AUTH_MODES.ABHA_NUMBER,
       otp_system: form.getValues("otpMethod"),
     });
     resetCountdown();
@@ -130,7 +134,7 @@ const AbhaNumberOtpFlow = ({
     if (!otpSent) {
       sendOtpMutation.mutate({
         value: values.abha,
-        type: "abha-number",
+        type: AUTH_MODES.ABHA_NUMBER,
         otp_system: values.otpMethod!,
       });
       resetCountdown();
@@ -144,9 +148,10 @@ const AbhaNumberOtpFlow = ({
     verifyOtpMutation.mutate({
       transaction_id: transactionId,
       otp: values.otp,
-      type: "abha-number",
-      [flowType === "enrollment" ? "otp_system" : "verify_system"]:
-        values.otpMethod,
+      type: AUTH_MODES.ABHA_NUMBER,
+      [flowType === AUTH_FLOW_TYPES.ENROLLMENT
+        ? "otp_system"
+        : "verify_system"]: values.otpMethod,
     });
   };
 
@@ -243,7 +248,7 @@ const AbhaNumberOtpFlow = ({
         >
           {isSubmitting ? (
             <>
-              <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2Icon className="mr-2 size-4 animate-spin" />
               {otpSent ? "Verifying..." : "Sending..."}
             </>
           ) : otpSent ? (

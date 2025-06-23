@@ -4,6 +4,8 @@ import { Dispatch, SetStateAction } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { ABHA_ADDRESS_REGEX, PASSWORD_REGEX } from "@/lib/validators";
+
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -31,6 +33,7 @@ import { useOtpFlow } from "@/hooks/useOtpFlow";
 import { DOMAIN, OTP_LENGTH } from "@/common/constants";
 
 import {
+  AUTH_MODES,
   FlowType,
   FormMemory,
   SendOtpRequest,
@@ -59,12 +62,9 @@ const AbhaAddressFlow = ({
   setMemory,
   onVerifyOtpSuccess,
 }: AbhaAddressFlowProps) => {
-  const passwordRegex =
-    /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$^-])[A-Za-z\d!@#$%^&*-]{8,}$/;
-
   const schema = z
     .object({
-      abhaAddress: z.string().regex(/^(?![\d.])[a-zA-Z0-9._]{4,}(?<!\.)$/, {
+      abhaAddress: z.string().regex(ABHA_ADDRESS_REGEX, {
         message: "Enter a valid ABHA address",
       }),
       otpMethod: z.enum(["abdm", "aadhaar", "password"], {
@@ -76,7 +76,7 @@ const AbhaAddressFlow = ({
     .refine(
       (data) =>
         data.otpMethod !== "password" ||
-        passwordRegex.test(data.password || ""),
+        PASSWORD_REGEX.test(data.password || ""),
       {
         message:
           "Password must be 8+ characters, 1 uppercase, 1 number, 1 special char",
@@ -109,7 +109,7 @@ const AbhaAddressFlow = ({
   const handleResendOtp = () => {
     sendOtpMutation.mutate({
       value: form.getValues("abhaAddress"),
-      type: "abha-address",
+      type: AUTH_MODES.ABHA_ADDRESS,
       otp_system: form.getValues("otpMethod") as "abdm" | "aadhaar",
     });
     resetCountdown();
@@ -122,7 +122,7 @@ const AbhaAddressFlow = ({
       verifyPassword({
         password: values.password,
         abha_address: values.abhaAddress,
-        type: "abha-address",
+        type: AUTH_MODES.ABHA_ADDRESS,
         verify_system: values.otpMethod,
       });
       return;
@@ -131,7 +131,7 @@ const AbhaAddressFlow = ({
     if (!otpSent) {
       sendOtpMutation.mutate({
         value: values.abhaAddress,
-        type: "abha-address",
+        type: AUTH_MODES.ABHA_ADDRESS,
         otp_system: values.otpMethod,
       });
       resetCountdown();
@@ -144,7 +144,7 @@ const AbhaAddressFlow = ({
     verifyOtpMutation.mutate({
       transaction_id: transactionId,
       otp: values.otp,
-      type: "abha-address",
+      type: AUTH_MODES.ABHA_ADDRESS,
       verify_system: values.otpMethod,
     });
   };
@@ -282,7 +282,7 @@ const AbhaAddressFlow = ({
         >
           {isSubmitting ? (
             <>
-              <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2Icon className="mr-2 size-4 animate-spin" />
               {getButtonText()}
             </>
           ) : (

@@ -1,8 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 
 import { cn } from "@/lib/utils";
+import { PASSWORD_VALIDATION_RULES } from "@/lib/validators";
 
 import {
   FormControl,
@@ -60,25 +61,6 @@ const GENDER_OPTIONS = [
   { value: "F", label: "Female" },
   { value: "O", label: "Other" },
 ] as const;
-
-const PASSWORD_VALIDATIONS = [
-  {
-    content: "Must contain at least one uppercase letter",
-    test: (password: string) => /[A-Z]/.test(password),
-  },
-  {
-    content: "Must contain at least one number",
-    test: (password: string) => /\d/.test(password),
-  },
-  {
-    content: "Must contain at least one special character (!@#$^-)",
-    test: (password: string) => /[!@#$^*-]/.test(password),
-  },
-  {
-    content: "Must be at least 8 characters long",
-    test: (password: string) => password.length >= 8,
-  },
-];
 
 export const BasicDetailsSection = ({
   form,
@@ -324,15 +306,6 @@ export const SetPasswordSection = ({
 
   const passwordInput = form.watch("password") || "";
 
-  const passwordValidations = useMemo(
-    () =>
-      PASSWORD_VALIDATIONS.map((validation) => ({
-        content: validation.content,
-        condition: validation.test(passwordInput),
-      })),
-    [passwordInput],
-  );
-
   const shouldShowValidation =
     isPasswordFieldFocused || !!form.formState.errors.password;
 
@@ -354,7 +327,7 @@ export const SetPasswordSection = ({
             </FormControl>
             {shouldShowValidation && (
               <FormDescription>
-                {passwordValidations.map((validation) => (
+                {PASSWORD_VALIDATION_RULES(passwordInput).map((validation) => (
                   <ValidationHelper key={validation.content} {...validation} />
                 ))}
               </FormDescription>

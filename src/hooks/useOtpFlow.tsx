@@ -2,8 +2,11 @@ import { useMutation } from "@tanstack/react-query";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { RESEND_OTP_DURATION } from "@/common/constants";
+
 import routes from "@/api";
 import {
+  AUTH_FLOW_TYPES,
   FlowType,
   FormMemory,
   SendOtpRequest,
@@ -12,8 +15,6 @@ import {
 import { mutate } from "@/utils/request/request";
 
 import { useAuthContext } from "./useAuth";
-
-const RESEND_OTP_DURATION = 60;
 
 export const useOtpFlow = (
   flowType: FlowType,
@@ -38,7 +39,7 @@ export const useOtpFlow = (
   }, [resendCountdown]);
 
   const sendOtpMutationFn =
-    flowType === "enrollment"
+    flowType === AUTH_FLOW_TYPES.ENROLLMENT
       ? mutate(routes.register.sendOtp)
       : mutate(routes.login.sendOtp);
 
@@ -55,7 +56,7 @@ export const useOtpFlow = (
   });
 
   const verifyOtpMutationFn =
-    flowType === "enrollment"
+    flowType === AUTH_FLOW_TYPES.ENROLLMENT
       ? mutate(routes.register.verifyOtp)
       : mutate(routes.login.verifyOtp);
 

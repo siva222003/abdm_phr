@@ -4,6 +4,8 @@ import { Dispatch, SetStateAction } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { MOBILE_NUMBER_REGEX } from "@/lib/validators";
+
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -22,6 +24,8 @@ import { useOtpFlow } from "@/hooks/useOtpFlow";
 import { OTP_LENGTH } from "@/common/constants";
 
 import {
+  AUTH_FLOW_TYPES,
+  AUTH_MODES,
   FlowType,
   FormMemory,
   SendOtpRequest,
@@ -38,6 +42,8 @@ type MobileNumberOtpFlowProps = {
   ) => void;
 };
 
+const DEFAULT_OTP_SYSTEM = "abdm";
+
 const MobileNumberOtpFlow = ({
   flowType,
   transactionId,
@@ -45,7 +51,7 @@ const MobileNumberOtpFlow = ({
   onVerifyOtpSuccess,
 }: MobileNumberOtpFlowProps) => {
   const schema = z.object({
-    mobile: z.string().regex(/^[1-9][0-9]{9}$/, {
+    mobile: z.string().regex(MOBILE_NUMBER_REGEX, {
       message: "Enter a valid 10 digit mobile number",
     }),
     otp: z.string().optional(),
@@ -72,8 +78,8 @@ const MobileNumberOtpFlow = ({
   const handleResendOtp = () => {
     sendOtpMutation.mutate({
       value: form.getValues("mobile"),
-      otp_system: "abdm",
-      type: "mobile-number",
+      otp_system: DEFAULT_OTP_SYSTEM,
+      type: AUTH_MODES.MOBILE_NUMBER,
     });
     resetCountdown();
   };
@@ -82,8 +88,8 @@ const MobileNumberOtpFlow = ({
     if (!otpSent) {
       sendOtpMutation.mutate({
         value: values.mobile,
-        otp_system: "abdm",
-        type: "mobile-number",
+        otp_system: DEFAULT_OTP_SYSTEM,
+        type: AUTH_MODES.MOBILE_NUMBER,
       });
       resetCountdown();
       return;
@@ -95,8 +101,10 @@ const MobileNumberOtpFlow = ({
     verifyOtpMutation.mutate({
       otp: values.otp,
       transaction_id: transactionId,
-      type: "mobile-number",
-      [flowType === "enrollment" ? "otp_system" : "verify_system"]: "abdm",
+      type: AUTH_MODES.MOBILE_NUMBER,
+      [flowType === AUTH_FLOW_TYPES.ENROLLMENT
+        ? "otp_system"
+        : "verify_system"]: DEFAULT_OTP_SYSTEM,
     });
   };
 
@@ -163,7 +171,7 @@ const MobileNumberOtpFlow = ({
         >
           {isSubmitting ? (
             <>
-              <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2Icon className="mr-2 size-4 animate-spin" />
               {otpSent ? "Verifying..." : "Sending..."}
             </>
           ) : otpSent ? (

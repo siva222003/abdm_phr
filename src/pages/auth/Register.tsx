@@ -7,6 +7,14 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import {
+  ABHA_ADDRESS_REGEX,
+  ABHA_ADDRESS_VALIDATION_RULES,
+  DATE_OF_BIRTH_REGEX,
+  PASSWORD_REGEX,
+  PIN_CODE_REGEX,
+} from "@/lib/validators";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -52,12 +60,15 @@ import {
 import { useAuthContext } from "@/hooks/useAuth";
 import useMultiStepForm, { InjectedStepProps } from "@/hooks/useMultiStepForm";
 
-import { DOMAIN, InitialAuthFormValues } from "@/common/constants";
+import { DOMAIN } from "@/common/constants";
 
 import routes from "@/api";
 import {
+  AUTH_FLOW_TYPES,
+  AUTH_MODES,
   AuthMode,
   FormMemory,
+  INITIAL_AUTH_FORM_VALUES,
   SendOtpRequest,
   VerifyOtpResponse,
 } from "@/types/auth";
@@ -92,7 +103,7 @@ const RegisterAbha = () => {
         element: <SetPassword {...({} as SetPasswordProps)} />,
       },
     ],
-    InitialAuthFormValues,
+    INITIAL_AUTH_FORM_VALUES,
   );
 
   return (
@@ -116,7 +127,10 @@ const Register = ({ memory, setMemory, goTo }: RegisterProps) => {
     (data: VerifyOtpResponse, sendOtpContext?: SendOtpRequest) => {
       let mobileNumber = data.abha_number?.mobile || "";
 
-      if (sendOtpContext?.type === "mobile-number" && sendOtpContext?.value) {
+      if (
+        sendOtpContext?.type === AUTH_MODES.MOBILE_NUMBER &&
+        sendOtpContext?.value
+      ) {
         mobileNumber = sendOtpContext.value;
       }
 
@@ -163,31 +177,31 @@ const Register = ({ memory, setMemory, goTo }: RegisterProps) => {
       </CardHeader>
       <CardContent>
         <Tabs
-          defaultValue="mobile-number"
-          value={memory?.mode ?? "mobile-number"}
+          defaultValue={AUTH_MODES.MOBILE_NUMBER}
+          value={memory?.mode ?? AUTH_MODES.MOBILE_NUMBER}
           onValueChange={handleTabChange}
         >
           <TabsList className="flex w-full">
-            <TabsTrigger className="flex-1" value="mobile-number">
+            <TabsTrigger className="flex-1" value={AUTH_MODES.MOBILE_NUMBER}>
               Mobile
             </TabsTrigger>
-            <TabsTrigger className="flex-1" value="abha-number">
+            <TabsTrigger className="flex-1" value={AUTH_MODES.ABHA_NUMBER}>
               ABHA Number
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="mobile-number">
+          <TabsContent value={AUTH_MODES.MOBILE_NUMBER}>
             <MobileNumberOtpFlow
-              flowType="enrollment"
+              flowType={AUTH_FLOW_TYPES.ENROLLMENT}
               transactionId={memory?.transactionId}
               setMemory={setMemory}
               onVerifyOtpSuccess={onVerifyOtpSuccess}
             />
           </TabsContent>
 
-          <TabsContent value="abha-number">
+          <TabsContent value={AUTH_MODES.ABHA_NUMBER}>
             <AbhaNumberOtpFlow
-              flowType="enrollment"
+              flowType={AUTH_FLOW_TYPES.ENROLLMENT}
               transactionId={memory?.transactionId}
               setMemory={setMemory}
               onVerifyOtpSuccess={onVerifyOtpSuccess}
@@ -215,7 +229,7 @@ type HandleExistingAbhaProps = InjectedStepProps<FormMemory>;
 const HandleExistingAbha = ({ memory, goTo }: HandleExistingAbhaProps) => {
   return (
     <HandleExistingAbhaAddress
-      flowType="enrollment"
+      flowType={AUTH_FLOW_TYPES.ENROLLMENT}
       memory={memory}
       goTo={goTo}
     />
@@ -236,7 +250,7 @@ const AddBasicDetails = ({ memory, setMemory, goTo }: AddBasicDetailsProps) => {
       .string({
         required_error: "Date of birth is required",
       })
-      .regex(/^\d{4}-\d{2}-\d{2}$/, {
+      .regex(DATE_OF_BIRTH_REGEX, {
         message: "Date of birth must be in YYYY-MM-DD format",
       }),
     email: z.string().email("Invalid email address").optional(),
@@ -249,7 +263,7 @@ const AddBasicDetails = ({ memory, setMemory, goTo }: AddBasicDetailsProps) => {
       first_name: "",
       middle_name: "",
       last_name: "",
-      gender: undefined as "M" | "F" | "O" | undefined,
+      gender: undefined,
       date_of_birth: "",
       email: "",
     },
@@ -309,7 +323,7 @@ const AddLocationDetails = ({ setMemory, goTo }: AddLocationDetailsProps) => {
     address: z.string().min(1, "Address is required"),
     pincode: z
       .string()
-      .regex(/^\d{6}$/, { message: "Pin code must be exactly 6 digits" }),
+      .regex(PIN_CODE_REGEX, { message: "Pin code must be exactly 6 digits" }),
   });
 
   const form = useForm({
@@ -372,7 +386,7 @@ export const ChooseAbhaAddress = ({
   const [suggestions, setSuggestions] = useState<string[]>([]);
 
   const schema = z.object({
-    abhaAddress: z.string().regex(/^(?![\d.])[a-zA-Z0-9._]{4,}(?<!\.)$/),
+    abhaAddress: z.string().regex(ABHA_ADDRESS_REGEX),
   });
 
   const form = useForm({
@@ -447,22 +461,6 @@ export const ChooseAbhaAddress = ({
 
   const abhaInput = form.watch("abhaAddress");
 
-  const rules = [
-    {
-      condition: abhaInput.length >= 4,
-      content: "Must be at least 4 characters",
-    },
-    {
-      condition: /^[a-zA-Z_]/.test(abhaInput),
-      content: "Must start with alphabet or underscore",
-    },
-    { condition: !abhaInput.endsWith("."), content: "Must not end with a dot" },
-    {
-      condition: /^[0-9a-zA-Z._]+$/.test(abhaInput),
-      content: "Can only contain alphanumeric, dots, underscores",
-    },
-  ];
-
   return (
     <Card className="mx-4 sm:w-full">
       <CardHeader className="space-y-1 px-4">
@@ -496,7 +494,7 @@ export const ChooseAbhaAddress = ({
                     </span>
                   </div>
                   <FormDescription>
-                    {rules.map((r) => (
+                    {ABHA_ADDRESS_VALIDATION_RULES(abhaInput).map((r) => (
                       <ValidationHelper key={r.content} {...r} />
                     ))}
                   </FormDescription>
@@ -545,7 +543,7 @@ export const ChooseAbhaAddress = ({
             >
               {checkAbhaAddressExistsMutation.isPending ? (
                 <>
-                  <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2Icon className="mr-2 size-4 animate-spin" />
                   Checking...
                 </>
               ) : (
@@ -570,9 +568,6 @@ export const SetPassword = ({ memory }: SetPasswordProps) => {
     null,
   );
 
-  const passwordRegex =
-    /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$^-])[A-Za-z\d!@#$%^&*-]{8,}$/;
-
   const schema = z
     .object({
       password: z.string().optional(),
@@ -580,7 +575,7 @@ export const SetPassword = ({ memory }: SetPasswordProps) => {
     })
     .superRefine((data, ctx) => {
       if (data.password) {
-        if (!passwordRegex.test(data.password)) {
+        if (!PASSWORD_REGEX.test(data.password)) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ["password"],
@@ -606,9 +601,9 @@ export const SetPassword = ({ memory }: SetPasswordProps) => {
     },
   });
 
-  const enrolAbhaAddressMutationFn = mutate(routes.register.enrolAbhaAddress);
+  const mutationFn = mutate(routes.register.enrolAbhaAddress);
   const enrolAbhaAddressMutation = useMutation({
-    mutationFn: enrolAbhaAddressMutationFn,
+    mutationFn,
     onSuccess: (data) => {
       toast.success("ABHA Address created successfully");
       handleAuthSuccess(data);
@@ -728,7 +723,7 @@ export const SetPassword = ({ memory }: SetPasswordProps) => {
                 {enrolAbhaAddressMutation.isPending &&
                 clickedAction === "set" ? (
                   <>
-                    <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2Icon className="mr-2 size-4 animate-spin" />
                     Creating Account...
                   </>
                 ) : (
@@ -748,7 +743,7 @@ export const SetPassword = ({ memory }: SetPasswordProps) => {
                 {enrolAbhaAddressMutation.isPending &&
                 clickedAction === "skip" ? (
                   <>
-                    <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2Icon className="mr-2 size-4 animate-spin" />
                     Creating Account...
                   </>
                 ) : (

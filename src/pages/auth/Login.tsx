@@ -18,11 +18,12 @@ import MobileNumberOtpFlow from "@/components/auth/MobileNumberOtpFlow";
 
 import useMultiStepForm, { InjectedStepProps } from "@/hooks/useMultiStepForm";
 
-import { InitialAuthFormValues } from "@/common/constants";
-
 import {
+  AUTH_FLOW_TYPES,
+  AUTH_MODES,
   AuthMode,
   FormMemory,
+  INITIAL_AUTH_FORM_VALUES,
   SendOtpRequest,
   VerifyOtpResponse,
 } from "@/types/auth";
@@ -39,7 +40,7 @@ const LoginAbha = () => {
         element: <HandleExistingAbha {...({} as HandleExistingAbhaProps)} />,
       },
     ],
-    InitialAuthFormValues,
+    INITIAL_AUTH_FORM_VALUES,
   );
 
   return (
@@ -88,43 +89,43 @@ const Login = ({ memory, setMemory, goTo }: LoginProps) => {
       </CardHeader>
       <CardContent>
         <Tabs
-          defaultValue="mobile-number"
-          value={memory?.mode ?? "mobile-number"}
+          defaultValue={AUTH_MODES.MOBILE_NUMBER}
+          value={memory?.mode ?? AUTH_MODES.MOBILE_NUMBER}
           onValueChange={handleTabChange}
         >
           <TabsList className="flex w-full">
-            <TabsTrigger className="flex-1" value="mobile-number">
+            <TabsTrigger className="flex-1" value={AUTH_MODES.MOBILE_NUMBER}>
               Mobile
             </TabsTrigger>
-            <TabsTrigger className="flex-1" value="abha-number">
+            <TabsTrigger className="flex-1" value={AUTH_MODES.ABHA_NUMBER}>
               ABHA Number
             </TabsTrigger>
-            <TabsTrigger className="flex-1" value="abha-address">
+            <TabsTrigger className="flex-1" value={AUTH_MODES.ABHA_ADDRESS}>
               ABHA Address
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="mobile-number">
+          <TabsContent value={AUTH_MODES.MOBILE_NUMBER}>
             <MobileNumberOtpFlow
-              flowType="login"
+              flowType={AUTH_FLOW_TYPES.LOGIN}
               transactionId={memory?.transactionId}
               setMemory={setMemory}
               onVerifyOtpSuccess={onVerifyOtpSuccess}
             />
           </TabsContent>
 
-          <TabsContent value="abha-number">
+          <TabsContent value={AUTH_MODES.ABHA_NUMBER}>
             <AbhaNumberOtpFlow
-              flowType="login"
+              flowType={AUTH_FLOW_TYPES.LOGIN}
               transactionId={memory?.transactionId}
               setMemory={setMemory}
               onVerifyOtpSuccess={onVerifyOtpSuccess}
             />
           </TabsContent>
 
-          <TabsContent value="abha-address">
+          <TabsContent value={AUTH_MODES.ABHA_ADDRESS}>
             <AbhaAddressFlow
-              flowType="login"
+              flowType={AUTH_FLOW_TYPES.LOGIN}
               transactionId={memory?.transactionId}
               setMemory={setMemory}
               onVerifyOtpSuccess={onVerifyOtpSuccess}
