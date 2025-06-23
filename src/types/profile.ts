@@ -118,7 +118,7 @@ export interface PasswordUpdateRequest {
 }
 
 export interface PasswordUpdateResponse {
-  detail: string;
+  profile_photo: string;
 }
 
 export interface LogoutRequest {

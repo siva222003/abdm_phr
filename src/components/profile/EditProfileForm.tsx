@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
-import { Loader2Icon } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Info, Loader2Icon } from "lucide-react";
+import { useCallback, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -13,49 +14,54 @@ import {
   LocationDetailsSection,
 } from "@/components/profile/ProfileFormSections";
 
+import routes from "@/api";
 import { PhrProfile } from "@/types/profile";
+import { formatDate } from "@/utils";
+import { mutate } from "@/utils/request/request";
 
 type EditProfileFormProps = {
   userData: PhrProfile;
   onUpdateSuccess: () => void;
+  isKYCVerified: boolean;
 };
+
+const schema = z.object({
+  first_name: z.string().min(1, "First name is required"),
+  middle_name: z.string().optional(),
+  last_name: z.string().optional(),
+  gender: z.enum(["M", "F", "O"], {
+    required_error: "Gender is required",
+  }),
+  date_of_birth: z.string({
+    required_error: "Date of birth is required",
+  }),
+  state_code: z.number({ required_error: "State is required" }),
+  state_name: z.string(),
+  district_code: z
+    .number({ required_error: "District is required" })
+    .min(1, { message: "Select a district" }),
+  district_name: z.string(),
+  address: z.string().min(1, "Address is required"),
+  pincode: z.string().regex(/^\d{6}$/, "Pin code must be 6 digits"),
+});
+
+type FormData = z.infer<typeof schema>;
 
 export default function EditProfileForm({
   userData,
   onUpdateSuccess,
+  isKYCVerified,
 }: EditProfileFormProps) {
-  // const queryClient = useQueryClient();
-
-  const phrFormSchema = z.object({
-    first_name: z.string().nonempty({
-      message: "First name is required",
-    }),
-    middle_name: z.string().optional(),
-    last_name: z.string().optional(),
-    gender: z.enum(["M", "F", "O"], {
-      required_error: "Gender is required",
-    }),
-    date_of_birth: z.string({
-      required_error: "Date of birth is required",
-    }),
-    state_code: z.number({ required_error: "State is required" }),
-    state_name: z.string(),
-    district_code: z
-      .number({ required_error: "District is required" })
-      .min(1, { message: "Select a district" }),
-    district_name: z.string(),
-    address: z.string().min(1, "Address is required"),
-    pincode: z.string().regex(/^\d{6}$/, "Pin code must be 6 digits"),
-  });
+  const queryClient = useQueryClient();
 
   const form = useForm({
-    resolver: zodResolver(phrFormSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       first_name: userData.firstName,
       middle_name: userData.middleName || "",
       last_name: userData.lastName || "",
       gender: userData.gender,
-      date_of_birth: userData.dateOfBirth.split("-").reverse().join("-"),
+      date_of_birth: formatDate(userData.dateOfBirth).join("-"),
       state_code: Number(userData.stateCode),
       district_code: Number(userData.districtCode),
       state_name: userData.stateName,
@@ -66,55 +72,52 @@ export default function EditProfileForm({
   });
 
   const updateProfileMutation = useMutation({
-    mutationFn: () => {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve("Profile updated successfully");
-        }, 1000);
-      });
-    },
+    mutationFn: mutate(routes.profile.updateProfile),
     onSuccess: () => {
-      //TODO: INVALIDATE QUERIES AND CLOSE SHEET
       toast.success("Profile updated successfully");
+      queryClient.invalidateQueries({ queryKey: ["user"] });
       onUpdateSuccess();
-    },
-    onError: (error) => {
-      toast.error(error.message || "Failed to update profile");
     },
   });
 
-  const onSubmit = (values: z.infer<typeof phrFormSchema>) => {
-    const payload = {
-      firstName: values.first_name,
-      middleName: values.middle_name,
-      lastName: values.last_name,
-      gender: values.gender,
-      yearOfBirth: values.date_of_birth.split("-")[0],
-      monthOfBirth: values.date_of_birth.split("-")[1],
-      dayOfBirth: values.date_of_birth.split("-")[2],
-      stateCode: values.state_code.toString(),
-      stateName: values.state_name,
-      districtCode: values.district_code.toString(),
-      districtName: values.district_name,
-      address: values.address,
-      pinCode: values.pincode,
-      mobile: userData.mobile,
-      email: userData.email,
-      profilePhoto: userData.profilePhoto,
-    };
+  const onSubmit = useCallback(
+    (values: FormData) => {
+      const [year, month, day] = formatDate(values.date_of_birth);
 
-    console.log(payload);
+      updateProfileMutation.mutate({
+        ...values,
+        year_of_birth: year,
+        month_of_birth: month,
+        day_of_birth: day,
+        state_code: values.state_code.toString(),
+        district_code: values.district_code.toString(),
+        profile_photo: userData.profilePhoto,
+      });
+    },
+    [updateProfileMutation, userData.profilePhoto],
+  );
 
-    updateProfileMutation.mutate();
-  };
+  const isSubmitDisabled = useMemo(
+    () => !form.formState.isDirty || updateProfileMutation.isPending,
+    [form.formState.isDirty, updateProfileMutation.isPending],
+  );
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <div className="space-y-4 rounded-lg border border-gray-200 p-4">
+          {isKYCVerified && (
+            <div className="flex items-start gap-2 text-sm text-blue-600 bg-blue-50 p-2 rounded-md border border-blue-200">
+              <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
+              <span>
+                These fields are as per your KYC document and cannot be edited.
+              </span>
+            </div>
+          )}
           <h3 className="text-lg font-medium">Basic Details</h3>
           <BasicDetailsSection
             form={form}
+            disableFields={isKYCVerified}
             className="grid grid-cols-1 gap-4 items-start sm:grid-cols-3"
           />
         </div>
@@ -131,10 +134,13 @@ export default function EditProfileForm({
           type="submit"
           className="w-full"
           variant="primary"
-          disabled={!form.formState.isDirty || updateProfileMutation.isPending}
+          disabled={isSubmitDisabled}
         >
           {updateProfileMutation.isPending ? (
-            <Loader2Icon className="text-white animate-spin scale-150" />
+            <>
+              <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+              Updating...
+            </>
           ) : (
             "Update Profile"
           )}

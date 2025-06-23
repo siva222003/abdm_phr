@@ -16,12 +16,14 @@ interface EditProfileSheetProps {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   userData: PhrProfile;
+  isKYCVerified: boolean;
 }
 
 export default function EditProfileSheet({
   open,
   setOpen,
   userData,
+  isKYCVerified,
 }: EditProfileSheetProps) {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -31,14 +33,16 @@ export default function EditProfileSheet({
         className="w-full sm:max-w-2xl overflow-y-auto p-6"
       >
         <SheetHeader className="p-0">
-          <SheetTitle className="text-lg">Edit Abha Profile</SheetTitle>
+          <SheetTitle className="text-lg">Edit ABHA Profile</SheetTitle>
           <SheetDescription>
-            Update your Abha profile details below.
+            Update your ABHA profile details below.
           </SheetDescription>
         </SheetHeader>
+
         <div className="mt-4">
           <EditProfileForm
             userData={userData}
+            isKYCVerified={isKYCVerified}
             onUpdateSuccess={() => {
               setOpen(false);
             }}

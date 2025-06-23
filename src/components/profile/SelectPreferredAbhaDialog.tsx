@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useState } from "react";
 import { toast } from "sonner";
 
 import {
@@ -29,34 +29,45 @@ const SelectPreferredAbhaDialog = ({
   const { logout } = useAuthContext();
   const [memory, setMemory] = useState(InitialAuthFormValues);
 
-  const onVerifyOtpSuccess = () => {
+  const onVerifyOtpSuccess = useCallback(() => {
     toast.success(
       "Preferred ABHA address selected successfully. Please login again.",
     );
     setOpen(false);
-    logout();
-  };
+    logout(false);
+  }, [setOpen, logout]);
+
+  const handleOpenChange = useCallback(
+    (isOpen: boolean) => {
+      setOpen(isOpen);
+      if (!isOpen) {
+        setMemory(InitialAuthFormValues);
+      }
+    },
+    [setOpen],
+  );
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Select Preferred ABHA Address</DialogTitle>
           <DialogDescription>
-            Select a method to verify otp for selecting your preferred ABHA
+            Select a method to verify OTP for selecting your preferred ABHA
             address.
           </DialogDescription>
-          <div className="my-3">
-            <AbhaNumberOtpFlow
-              flowType="profile-update"
-              setMemory={setMemory}
-              transactionId={memory.transactionId}
-              onVerifyOtpSuccess={onVerifyOtpSuccess}
-              existingAbhaNumber={existingAbhaNumber}
-              action="SELECT_PREFERRED_ABHA"
-            />
-          </div>
         </DialogHeader>
+
+        <div className="mt-1">
+          <AbhaNumberOtpFlow
+            flowType="profile-update"
+            setMemory={setMemory}
+            transactionId={memory.transactionId}
+            onVerifyOtpSuccess={onVerifyOtpSuccess}
+            existingAbhaNumber={existingAbhaNumber}
+            action="SELECT_PREFERRED_ABHA"
+          />
+        </div>
       </DialogContent>
     </Dialog>
   );

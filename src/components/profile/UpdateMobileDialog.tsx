@@ -27,8 +27,15 @@ const UpdateMobileDialog = ({ open, setOpen }: UpdateMobileDialogProps) => {
     setOpen(false);
   }, [queryClient, setOpen]);
 
+  const handleOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen) {
+      setMemory(InitialAuthFormValues);
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Update Mobile</DialogTitle>

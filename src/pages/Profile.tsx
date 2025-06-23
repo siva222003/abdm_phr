@@ -151,6 +151,7 @@ const Profile = () => {
         open={showPhrProfileEditSheet}
         setOpen={setShowPhrProfileEditSheet}
         userData={userData}
+        isKYCVerified={isKYCVerified}
       />
 
       <SwitchProfileDialog
@@ -199,8 +200,9 @@ const Profile = () => {
             onSwitchProfile={() => setShowSwitchProfileDialog(true)}
             onSelectPreferredAbha={() => setShowSelectPreferredAbhaDialog(true)}
             onDownloadAbha={() => setShowDownloadAbhaDialog(true)}
-            isPreferredAddress={
-              userData.preferredAbhaAddress === userData.abhaAddress
+            canSelectPreferredAbha={
+              userData.preferredAbhaAddress !== userData.abhaAddress &&
+              isKYCVerified
             }
             switchProfileEnabled={switchProfileEnabled}
           />

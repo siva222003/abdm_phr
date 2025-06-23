@@ -95,28 +95,33 @@ export default function AuthUserProvider({
       },
     });
 
-  const logout = useCallback(async () => {
-    try {
-      const accessToken = TokenStorage.getAccessToken();
-      const refreshToken = TokenStorage.getRefreshToken();
+  const logout = useCallback(
+    async (showToast = true) => {
+      try {
+        const accessToken = TokenStorage.getAccessToken();
+        const refreshToken = TokenStorage.getRefreshToken();
 
-      if (accessToken && refreshToken) {
-        const response = await mutate(routes.profile.logout)({
-          access_token: accessToken,
-          refresh_token: refreshToken,
-        });
-        toast.success(response.detail);
+        if (accessToken && refreshToken) {
+          const response = await mutate(routes.profile.logout)({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+          if (showToast) {
+            toast.success(response.detail);
+          }
+        }
+      } catch (error) {
+        console.log("Logout error:", error);
       }
-    } catch (error) {
-      console.log("Logout error:", error);
-    }
 
-    TokenStorage.clear();
+      TokenStorage.clear();
 
-    await queryClient.resetQueries({ queryKey: ["user"] });
+      await queryClient.resetQueries({ queryKey: ["user"] });
 
-    navigate("/login");
-  }, [queryClient, navigate, mutate]);
+      navigate("/login");
+    },
+    [queryClient, navigate, mutate],
+  );
 
   useEffect(() => {
     const handleInvalidToken = (e: StorageEvent) => {

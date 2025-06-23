@@ -9,15 +9,18 @@ import "@/types/profile";
 import {
   LogoutRequest,
   LogoutResponse,
+  PasswordUpdateRequest,
+  PasswordUpdateResponse,
   PhrProfile,
   ProfileSwitchResponse,
   ProfileSwitchVerifyRequest,
-  UpdatePasswordResponse,
+  ProfileUpdateRequest,
 } from "@/types/profile";
 import { API } from "@/utils/request/api";
 
 export const profile = {
   getProfile: API<PhrProfile>("GET /phr/profile/get_profile"),
+  abhaCard: API<Blob>("GET /phr/profile/phr_card/"),
   sendOtp: API<SendOtpResponse, SendOtpRequest>(
     "POST /phr/profile/request_otp/",
   ),
@@ -28,9 +31,9 @@ export const profile = {
   switchProfileVerify: API<VerifyAuthResponse, ProfileSwitchVerifyRequest>(
     "POST /phr/profile/switch/verify_user",
   ),
-  updatePassword: API<UpdatePasswordResponse, UpdatePasswordResponse>(
+  updateProfile: API<void, ProfileUpdateRequest>("POST /phr/profile/update/"),
+  updatePassword: API<PasswordUpdateResponse, PasswordUpdateRequest>(
     "POST /phr/profile/reset_password/",
   ),
-  abhaCard: API<Blob>("GET /phr/profile/phr_card/"),
   logout: API<LogoutResponse, LogoutRequest>("POST /phr/profile/logout/"),
 };

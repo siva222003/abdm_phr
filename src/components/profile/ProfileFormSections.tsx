@@ -34,7 +34,8 @@ import { query } from "@/utils/request/request";
 type PhrProfileFormSectionsProps = {
   form: UseFormReturn<any>;
   className?: string;
-  showEmail?: boolean;
+  showEmail?: boolean; // To hide email field from profile form
+  disableFields?: boolean; // To disable basic details fields when KYC is verified
 };
 
 const BASIC_FIELDS = [
@@ -61,6 +62,7 @@ const BASIC_FIELDS = [
 export const BasicDetailsSection = ({
   form,
   className,
+  disableFields = false,
   showEmail = false,
 }: PhrProfileFormSectionsProps) => {
   return (
@@ -75,7 +77,11 @@ export const BasicDetailsSection = ({
               <FormItem>
                 <FormLabel aria-required={required}>{label}</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder={placeholder} />
+                  <Input
+                    {...field}
+                    placeholder={placeholder}
+                    disabled={disableFields}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -91,7 +97,11 @@ export const BasicDetailsSection = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel aria-required>Gender</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
+              <Select
+                onValueChange={field.onChange}
+                value={field.value}
+                disabled={disableFields}
+              >
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select gender" />
@@ -117,7 +127,7 @@ export const BasicDetailsSection = ({
             <FormItem>
               <FormLabel aria-required>Date of Birth</FormLabel>
               <FormControl>
-                <Input type="date" {...field} />
+                <Input type="date" {...field} disabled={disableFields} />
               </FormControl>
               <FormMessage />
             </FormItem>

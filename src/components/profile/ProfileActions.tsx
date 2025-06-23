@@ -12,7 +12,7 @@ type ProfileActionsProps = {
   onSwitchProfile: () => void;
   onSelectPreferredAbha: () => void;
   onDownloadAbha: () => void;
-  isPreferredAddress: boolean;
+  canSelectPreferredAbha: boolean;
   switchProfileEnabled: boolean;
 };
 
@@ -20,7 +20,7 @@ const ProfileActions = ({
   onSwitchProfile,
   onSelectPreferredAbha,
   onDownloadAbha,
-  isPreferredAddress,
+  canSelectPreferredAbha,
   switchProfileEnabled,
 }: ProfileActionsProps) => {
   return (
@@ -47,7 +47,7 @@ const ProfileActions = ({
             </Button>
           </DropdownMenuItem>
         )}
-        {!isPreferredAddress && (
+        {canSelectPreferredAbha && (
           <DropdownMenuItem asChild>
             <Button
               size="sm"
