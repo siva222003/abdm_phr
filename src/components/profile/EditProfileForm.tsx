@@ -135,7 +135,7 @@ export default function EditProfileForm({
           type="submit"
           className="w-full"
           variant="primary"
-          disabled={!form.formState.isDirty || updateProfileMutation.isPending}
+          disabled={isSubmitDisabled}
         >
           {updateProfileMutation.isPending ? (
             <>
