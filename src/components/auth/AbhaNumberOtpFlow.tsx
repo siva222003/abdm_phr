@@ -93,7 +93,7 @@ const AbhaNumberOtpFlow = ({
   });
 
   useEffect(() => {
-    if (flowType === "profile-update" && existingAbhaNumber) {
+    if (flowType === AuthFlowTypes.PROFILE_UPDATE && existingAbhaNumber) {
       form.setValue("abha", existingAbhaNumber);
     }
   }, [flowType, form, existingAbhaNumber]);
@@ -159,10 +159,14 @@ const AbhaNumberOtpFlow = ({
       type: AuthModes.ABHA_NUMBER,
       [flowType === AuthFlowTypes.LOGIN ? "verify_system" : "otp_system"]:
         values.otpMethod,
+      action,
     });
   };
 
   const isSubmitting = sendOtpMutation.isPending || verifyOtpMutation.isPending;
+  const isAbhaNumberDisabled =
+    otpSent ||
+    (flowType === AuthFlowTypes.PROFILE_UPDATE && !!existingAbhaNumber);
   const otpValue = form.watch("otp");
 
   return (
@@ -179,7 +183,7 @@ const AbhaNumberOtpFlow = ({
                   {...field}
                   placeholder="Enter 14 digit ABHA number"
                   maxLength={17}
-                  disabled={otpSent || flowType === "profile-update"}
+                  disabled={isAbhaNumberDisabled}
                   onChange={(e) => handleAbhaInputChange(e, field)}
                 />
               </FormControl>

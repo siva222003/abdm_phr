@@ -13,7 +13,8 @@ import AbhaNumberOtpFlow from "@/components/auth/AbhaNumberOtpFlow";
 
 import { useAuthContext } from "@/hooks/useAuth";
 
-import { InitialAuthFormValues } from "@/common/constants";
+import { AuthFlowTypes, INITIAL_AUTH_FORM_VALUES } from "@/types/auth";
+import { PROFILE_UPDATE_ACTIONS } from "@/types/profile";
 
 type SelectPreferredAbhaDialogProps = {
   open: boolean;
@@ -27,7 +28,7 @@ const SelectPreferredAbhaDialog = ({
   existingAbhaNumber,
 }: SelectPreferredAbhaDialogProps) => {
   const { logout } = useAuthContext();
-  const [memory, setMemory] = useState(InitialAuthFormValues);
+  const [memory, setMemory] = useState(INITIAL_AUTH_FORM_VALUES);
 
   const onVerifyOtpSuccess = useCallback(() => {
     toast.success(
@@ -37,15 +38,12 @@ const SelectPreferredAbhaDialog = ({
     logout(false);
   }, [setOpen, logout]);
 
-  const handleOpenChange = useCallback(
-    (isOpen: boolean) => {
-      setOpen(isOpen);
-      if (!isOpen) {
-        setMemory(InitialAuthFormValues);
-      }
-    },
-    [setOpen],
-  );
+  const handleOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen) {
+      setMemory(INITIAL_AUTH_FORM_VALUES);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -60,12 +58,12 @@ const SelectPreferredAbhaDialog = ({
 
         <div className="mt-1">
           <AbhaNumberOtpFlow
-            flowType="profile-update"
+            flowType={AuthFlowTypes.PROFILE_UPDATE}
             setMemory={setMemory}
             transactionId={memory.transactionId}
             onVerifyOtpSuccess={onVerifyOtpSuccess}
             existingAbhaNumber={existingAbhaNumber}
-            action="SELECT_PREFERRED_ABHA"
+            action={PROFILE_UPDATE_ACTIONS.SELECT_PREFERRED_ABHA}
           />
         </div>
       </DialogContent>

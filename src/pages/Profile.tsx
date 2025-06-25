@@ -1,10 +1,10 @@
 import {
-  CircleAlertIcon,
   CircleCheckIcon,
   Link2Icon,
   SquarePen,
+  TriangleAlert,
 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,6 @@ import DownloadAbhaDialog from "@/components/profile/DownloadAbhaDialog";
 import EditProfileSheet from "@/components/profile/EditProfileSheet";
 import PhrProfileActions from "@/components/profile/ProfileActions";
 import ProfileColumns from "@/components/profile/ProfileColumns";
-// import UserAvatar from "@/components/profile/UserAvatar";
 import {
   BasicInfo,
   ContactInfo,
@@ -32,240 +31,292 @@ import SelectPreferredAbhaDialog from "@/components/profile/SelectPreferredAbhaD
 import SwitchProfileDialog from "@/components/profile/SwitchProfileDialog";
 import UpdateEmailDialog from "@/components/profile/UpdateEmailDialog";
 import UpdateMobileDialog from "@/components/profile/UpdateMobileDialog";
+import UserAvatar from "@/components/profile/UserAvatar";
 
 import { useAuthContext } from "@/hooks/useAuth";
 
-const Profile = () => {
-  const { user: userData, switchProfileEnabled } = useAuthContext();
-  const [showPhrProfileEditSheet, setShowPhrProfileEditSheet] = useState(false);
-  const [showSwitchProfileDialog, setShowSwitchProfileDialog] = useState(false);
-  const [showSelectPreferredAbhaDialog, setShowSelectPreferredAbhaDialog] =
-    useState(false);
-  const [showDownloadAbhaDialog, setShowDownloadAbhaDialog] = useState(false);
-  const [showAbhaUnlinkDialog, setShowAbhaUnlinkDialog] = useState(false);
-  const [showUpdateMobileDialog, setShowUpdateMobileDialog] = useState(false);
-  const [showUpdateEmailDialog, setShowUpdateEmailDialog] = useState(false);
+import { KYC_STATUS, PhrProfile } from "@/types/profile";
+import { getProfilePhotoUrl } from "@/utils";
 
-  if (!userData) {
-    return null;
-  }
+const KYCStatusBadge = ({ isVerified }: { isVerified: boolean }) => (
+  <Badge
+    variant="outline"
+    className={`flex items-center whitespace-nowrap ${
+      isVerified
+        ? "bg-green-50 text-green-700 border-green-200"
+        : "bg-yellow-50 text-yellow-700 border-yellow-200"
+    }`}
+  >
+    {isVerified ? (
+      <CircleCheckIcon className="h-3 w-3 mr-2" aria-hidden="true" />
+    ) : (
+      <TriangleAlert className="h-3 w-3 mr-2" aria-hidden="true" />
+    )}
+    <span>{isVerified ? "KYC Verified" : "Self Declared"}</span>
+  </Badge>
+);
 
-  const isKYCVerified =
-    !!userData.abhaNumber && userData?.kycStatus === "VERIFIED";
+const AbhaNumberDisplay = ({
+  isKYCVerified,
+  abhaNumber,
+}: {
+  isKYCVerified: boolean;
+  abhaNumber?: string;
+}) => (
+  <>
+    {isKYCVerified && abhaNumber ? (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <p className="text-sm font-light text-gray-600 truncate">
+            ABHA Number: {abhaNumber}
+          </p>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">{abhaNumber}</TooltipContent>
+      </Tooltip>
+    ) : (
+      <p className="text-sm text-gray-500">No ABHA Number Linked</p>
+    )}
+  </>
+);
 
-  const renderBasicInfo = () => {
-    return (
-      <div className="overflow-visible px-4 py-5 sm:px-6 rounded-lg shadow-sm sm:rounded-lg bg-white">
-        <BasicInfo user={userData} />
+const ProfileHeader = ({
+  userData,
+  isKYCVerified,
+}: {
+  userData: PhrProfile;
+  isKYCVerified: boolean;
+}) => (
+  <div className="flex gap-4 items-start">
+    <Avatar
+      imageUrl={getProfilePhotoUrl(userData.profilePhoto)}
+      name={userData.abhaAddress}
+      className="size-20 shrink-0"
+    />
+
+    <div className="flex-1 min-w-0 space-y-2">
+      <div className="flex items-center gap-3 flex-wrap">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <h1 className="text-xl font-bold truncate">
+              {userData.abhaAddress}
+            </h1>
+          </TooltipTrigger>
+          <TooltipContent side="top">{userData.abhaAddress}</TooltipContent>
+        </Tooltip>
+        <KYCStatusBadge isVerified={isKYCVerified} />
       </div>
-    );
-  };
 
-  const renderContactInfo = () => {
-    return (
-      <div className="overflow-visible px-4 py-5 sm:px-6 rounded-lg shadow-sm sm:rounded-lg bg-white">
-        <ContactInfo
-          setShowUpdateMobile={setShowUpdateMobileDialog}
-          setShowUpdateEmail={setShowUpdateEmailDialog}
-          user={userData}
-        />
-      </div>
-    );
-  };
+      <AbhaNumberDisplay
+        isKYCVerified={isKYCVerified}
+        abhaNumber={userData.abhaNumber}
+      />
+    </div>
+  </div>
+);
 
-  const renderLocationInfo = () => {
-    return (
-      <div className="overflow-visible px-4 py-5 sm:px-6 rounded-lg shadow-sm sm:rounded-lg bg-white">
-        <LocationInfo user={userData} />
-      </div>
-    );
-  };
-
-  const kycStatusBadge = (isVerified: boolean) => {
-    if (isVerified) {
-      return (
-        <Badge
-          variant="outline"
-          className="bg-green-100 text-green-700 flex items-center whitespace-nowrap"
-        >
-          <CircleCheckIcon className="h-3 w-3 mr-2" aria-hidden="true" />
-          <span>KYC Verified</span>
-        </Badge>
-      );
-    }
-    return (
-      <Badge
-        variant="outline"
-        className="bg-yellow-100 text-yellow-700 flex items-center whitespace-nowrap"
-      >
-        <CircleAlertIcon className="h-3 w-3 mr-2" aria-hidden="true" />
-        <span>Self Declared</span>
-      </Badge>
-    );
-  };
-  const { profilePhoto, abhaAddress, abhaNumber } = userData;
-
-  const imageUrl = profilePhoto
-    ? `data:image/jpeg;base64,${profilePhoto}`
-    : undefined;
-
-  return (
-    <Page title="Abha Profile" hideTitleOnPage>
-      <div className="flex gap-2 items-start">
-        <Avatar
-          imageUrl={imageUrl}
-          name={abhaAddress}
-          className="size-20 shrink-0 md:mr-2"
-        />
-
-        <div className="grid grid-cols-1 self-center min-w-0">
-          {" "}
-          <div className="flex items-center gap-3">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="text-xl font-bold truncate">{abhaAddress}</div>
-              </TooltipTrigger>
-              <TooltipContent side="top">{abhaAddress}</TooltipContent>
-            </Tooltip>
-            <div className="text-sm shrink-0">
-              {kycStatusBadge(isKYCVerified)}
-            </div>
-          </div>
-          {isKYCVerified && abhaNumber ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <p className="text-left text-sm font-light leading-relaxed text-secondary-600 truncate">
-                  {abhaNumber}
-                </p>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">{abhaNumber}</TooltipContent>
-            </Tooltip>
-          ) : (
-            <p className="text-sm leading-relaxed text-secondary-600 truncate">
-              No ABHA Number Linked
+const DangerZone = ({
+  isKYCVerified,
+  onUnlink,
+}: {
+  isKYCVerified: boolean;
+  onUnlink: () => void;
+}) => (
+  <div className="mt-8 p-6 bg-red-50 border border-red-200 rounded-lg">
+    <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+      <div className="flex-1">
+        <h3 className="text-lg font-semibold text-red-900 mb-2">Danger Zone</h3>
+        <div className="text-sm text-red-700 space-y-1">
+          <p className="font-medium">Unlink ABHA Account</p>
+          <p>
+            This action will permanently disconnect your ABHA account and remove
+            all associated data. This cannot be undone.
+          </p>
+          {!isKYCVerified && (
+            <p className="text-red-600 font-medium">
+              ⚠️ Your account is not KYC verified. Unlinking will permanently
+              delete your profile.
             </p>
           )}
         </div>
       </div>
-      <EditProfileSheet
-        open={showPhrProfileEditSheet}
-        setOpen={setShowPhrProfileEditSheet}
-        userData={userData}
-        isKYCVerified={isKYCVerified}
-      />
 
-      <SwitchProfileDialog
-        open={showSwitchProfileDialog}
-        setOpen={setShowSwitchProfileDialog}
-        currentAbhaAddress={userData.abhaAddress}
-      />
+      <Button
+        onClick={onUnlink}
+        variant={isKYCVerified ? "destructive" : "outline"}
+        className={`flex items-center gap-2 ${
+          !isKYCVerified
+            ? "border-red-300 text-red-700 hover:bg-red-50 hover:border-red-400"
+            : ""
+        }`}
+      >
+        <Link2Icon className="size-4" />
+        {isKYCVerified ? "Unlink ABHA" : "Delete Account"}
+      </Button>
+    </div>
+  </div>
+);
 
-      <DownloadAbhaDialog
-        open={showDownloadAbhaDialog}
-        setOpen={setShowDownloadAbhaDialog}
-      />
+const Profile = () => {
+  const { user, switchProfileEnabled } = useAuthContext();
 
-      <UpdateMobileDialog
-        open={showUpdateMobileDialog}
-        setOpen={setShowUpdateMobileDialog}
-      />
+  const [modals, setModals] = useState({
+    editProfile: false,
+    switchProfile: false,
+    selectPreferredAbha: false,
+    downloadAbha: false,
+    abhaUnlink: false,
+    updateMobile: false,
+    updateEmail: false,
+  });
 
-      <UpdateEmailDialog
-        open={showUpdateEmailDialog}
-        setOpen={setShowUpdateEmailDialog}
-      />
+  const toggleModal = (modalName: keyof typeof modals) => {
+    setModals((prev) => ({ ...prev, [modalName]: !prev[modalName] }));
+  };
 
-      <SelectPreferredAbhaDialog
-        open={showSelectPreferredAbhaDialog}
-        setOpen={setShowSelectPreferredAbhaDialog}
-        existingAbhaNumber={abhaNumber || ""}
-      />
+  const isKYCVerified = user?.kycStatus === KYC_STATUS.VERIFIED;
 
-      <AbhaUnlinkDialog
-        open={showAbhaUnlinkDialog}
-        setOpen={setShowAbhaUnlinkDialog}
-      />
+  const ContactInfoWithHandlers = (user: PhrProfile) => (
+    <ContactInfo
+      user={user}
+      setShowUpdateMobile={() => toggleModal("updateMobile")}
+      setShowUpdateEmail={() => toggleModal("updateEmail")}
+    />
+  );
 
-      <div className="mt-10 flex flex-col gap-y-6">
-        <div className="flex gap-4 self-end">
+  const profileSections = useMemo(
+    () => [
+      {
+        id: "avatar",
+        heading: "Profile Picture",
+        note: "Upload and manage your profile picture.",
+        Component: UserAvatar,
+        props: user,
+      },
+      {
+        id: "basic",
+        heading: "Basic Information",
+        note: "Your personal details and identification information.",
+        Component: BasicInfo,
+        props: user,
+      },
+      {
+        id: "contact",
+        heading: "Contact Information",
+        note: "Manage your contact details for communication.",
+        Component: ContactInfoWithHandlers,
+        props: user,
+      },
+      {
+        id: "location",
+        heading: "Location Information",
+        note: "Your address and location details for service delivery.",
+        Component: LocationInfo,
+        props: user,
+      },
+      {
+        id: "security",
+        heading: "Security",
+        note: "Manage your account password and security settings.",
+        Component: ResetPassword,
+        props: user,
+      },
+    ],
+    [user],
+  );
+
+  if (!user) {
+    return null;
+  }
+
+  return (
+    <Page title="ABHA Profile" hideTitleOnPage>
+      <div className="mx-auto space-y-8">
+        {/* Profile Header */}
+        <ProfileHeader userData={user} isKYCVerified={isKYCVerified} />
+
+        {/* Profile Actions */}
+        <div className="flex gap-3 justify-end flex-wrap">
           <Button
             variant="outline"
-            className="w-fit"
-            onClick={() => setShowPhrProfileEditSheet(true)}
+            onClick={() => toggleModal("editProfile")}
+            className="flex items-center gap-2"
           >
-            <SquarePen />
-            Edit User
+            <SquarePen className="size-4" />
+            Edit Profile
           </Button>
+
           <PhrProfileActions
-            onSwitchProfile={() => setShowSwitchProfileDialog(true)}
-            onSelectPreferredAbha={() => setShowSelectPreferredAbhaDialog(true)}
-            onDownloadAbha={() => setShowDownloadAbhaDialog(true)}
+            onSwitchProfile={() => toggleModal("switchProfile")}
+            onSelectPreferredAbha={() => toggleModal("selectPreferredAbha")}
+            onDownloadAbha={() => toggleModal("downloadAbha")}
             canSelectPreferredAbha={
-              userData.preferredAbhaAddress !== userData.abhaAddress &&
-              isKYCVerified
+              user.preferredAbhaAddress !== user.abhaAddress && isKYCVerified
             }
             switchProfileEnabled={switchProfileEnabled}
           />
         </div>
 
-        {/* <ProfileColumns
-            heading="Edit Avatar"
-            note={
-              "You can change your avatar here. This will be visible to other users."
-            }
-            Child={UserAvatar}
-            childProps={userData}
-          /> */}
-
-        <ProfileColumns
-          heading="Basic Information"
-          note="This section contains your personal information."
-          Child={renderBasicInfo}
-          childProps={userData}
-        />
-        <ProfileColumns
-          heading="Contact Information"
-          note="This section contains your contact details."
-          Child={renderContactInfo}
-          childProps={userData}
-        />
-        <ProfileColumns
-          heading="Location Information"
-          note="Your location details are important for service delivery."
-          Child={renderLocationInfo}
-          childProps={userData}
-        />
-
-        <ProfileColumns
-          heading="Reset Password"
-          note="Change your password to keep your account secure."
-          Child={ResetPassword}
-          childProps={userData}
-        />
-
-        <div className="mt-3 flex flex-col items-center gap-5 border-t-2 pt-5 sm:flex-row">
-          <div className="sm:w-1/4">
-            <div className="my-1 text-sm leading-5">
-              <p className="mb-2 font-semibold">Delete Account</p>
-              <p className="text-secondary-600">
-                This action will permanently delete your account and all
-                associated data. Please proceed with caution.
-              </p>
-            </div>
-          </div>
-          <div className="w-full sm:w-3/4">
-            <Button
-              onClick={() => setShowAbhaUnlinkDialog(true)}
-              variant="destructive"
-              data-testid="user-delete-button"
-              className="my-1 inline-flex"
-            >
-              <Link2Icon className="h-4 w-4 mr-2" />
-              <span className="">Unlink ABHA</span>
-            </Button>
-          </div>
+        {/* Profile Sections */}
+        <div className="space-y-8">
+          {profileSections.map(({ id, heading, note, Component, props }) => (
+            <ProfileColumns
+              key={id}
+              heading={heading}
+              note={note}
+              Child={Component}
+              childProps={props!}
+            />
+          ))}
         </div>
+
+        {/* Danger Zone */}
+        <DangerZone
+          isKYCVerified={isKYCVerified}
+          onUnlink={() => toggleModal("abhaUnlink")}
+        />
       </div>
+
+      {/* All Modals */}
+      <EditProfileSheet
+        open={modals.editProfile}
+        setOpen={() => toggleModal("editProfile")}
+        userData={user}
+        isKYCVerified={isKYCVerified}
+      />
+
+      <SwitchProfileDialog
+        open={modals.switchProfile}
+        setOpen={() => toggleModal("switchProfile")}
+        currentAbhaAddress={user.abhaAddress}
+      />
+
+      <DownloadAbhaDialog
+        open={modals.downloadAbha}
+        setOpen={() => toggleModal("downloadAbha")}
+      />
+
+      <UpdateMobileDialog
+        open={modals.updateMobile}
+        setOpen={() => toggleModal("updateMobile")}
+      />
+
+      <UpdateEmailDialog
+        open={modals.updateEmail}
+        setOpen={() => toggleModal("updateEmail")}
+      />
+
+      <SelectPreferredAbhaDialog
+        open={modals.selectPreferredAbha}
+        setOpen={() => toggleModal("selectPreferredAbha")}
+        existingAbhaNumber={user.abhaNumber || ""}
+      />
+
+      <AbhaUnlinkDialog
+        open={modals.abhaUnlink}
+        setOpen={() => toggleModal("abhaUnlink")}
+        existingAbhaNumber={user.abhaNumber || ""}
+        isKYCVerified={isKYCVerified}
+      />
     </Page>
   );
 };

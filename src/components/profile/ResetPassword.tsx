@@ -6,6 +6,8 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import { PASSWORD_REGEX } from "@/lib/validators";
+
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 
@@ -15,15 +17,15 @@ import routes from "@/api";
 import { PhrProfile } from "@/types/profile";
 import { mutate } from "@/utils/request/request";
 
-const PASSWORD_REGEX =
-  /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$^-])[A-Za-z\d!@#$%^&*-]{8,}$/;
-
 export default function ResetPassword({ abhaAddress }: PhrProfile) {
   const [isEditing, setIsEditing] = useState(false);
 
   const schema = z
     .object({
-      password: z.string().regex(PASSWORD_REGEX),
+      password: z.string().regex(PASSWORD_REGEX, {
+        message:
+          "Password must be at least 8 characters long and contain at least one uppercase letter, one number, and one special character",
+      }),
       confirmPassword: z.string(),
     })
     .refine((data) => data.password === data.confirmPassword, {

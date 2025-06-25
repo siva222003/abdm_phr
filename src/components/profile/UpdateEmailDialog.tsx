@@ -11,7 +11,8 @@ import {
 
 import EmailOtpFlow from "@/components/auth/EmailOtpFlow";
 
-import { InitialAuthFormValues } from "@/common/constants";
+import { AuthFlowTypes, INITIAL_AUTH_FORM_VALUES } from "@/types/auth";
+import { PROFILE_UPDATE_ACTIONS } from "@/types/profile";
 
 type UpdateEmailDialogProps = {
   open: boolean;
@@ -19,7 +20,7 @@ type UpdateEmailDialogProps = {
 };
 
 const UpdateEmailDialog = ({ open, setOpen }: UpdateEmailDialogProps) => {
-  const [memory, setMemory] = useState(InitialAuthFormValues);
+  const [memory, setMemory] = useState(INITIAL_AUTH_FORM_VALUES);
   const queryClient = useQueryClient();
 
   const handleOtpSuccess = useCallback(() => {
@@ -30,7 +31,7 @@ const UpdateEmailDialog = ({ open, setOpen }: UpdateEmailDialogProps) => {
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
     if (!isOpen) {
-      setMemory(InitialAuthFormValues);
+      setMemory(INITIAL_AUTH_FORM_VALUES);
     }
   };
 
@@ -45,10 +46,11 @@ const UpdateEmailDialog = ({ open, setOpen }: UpdateEmailDialogProps) => {
         </DialogHeader>
 
         <EmailOtpFlow
-          flowType="profile-update"
+          flowType={AuthFlowTypes.PROFILE_UPDATE}
           setMemory={setMemory}
           transactionId={memory.transactionId}
           onVerifyOtpSuccess={handleOtpSuccess}
+          action={PROFILE_UPDATE_ACTIONS.UPDATE_EMAIL}
         />
       </DialogContent>
     </Dialog>

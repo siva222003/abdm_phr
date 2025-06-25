@@ -51,3 +51,8 @@ export const calculateCursorPosition = (
   }
   return pos;
 };
+
+export const getProfilePhotoUrl = (profilePhoto: string | null) => {
+  if (!profilePhoto) return undefined;
+  return `data:image/jpeg;base64,${profilePhoto}`;
+};

@@ -18,12 +18,6 @@ import {
 
 import { PhrProfile } from "@/types/profile";
 
-interface UserViewDetailsProps {
-  user: PhrProfile;
-  setShowUpdateMobile?: Dispatch<SetStateAction<boolean>>;
-  setShowUpdateEmail?: Dispatch<SetStateAction<boolean>>;
-}
-
 const LabelValue = ({
   label,
   value,
@@ -78,9 +72,16 @@ export const Badge = ({
   );
 };
 
-export const BasicInfo = ({ user }: UserViewDetailsProps) => {
+// Add consistent wrapper component
+const SectionWrapper = ({ children }: { children: React.ReactNode }) => (
+  <div className="bg-white rounded-lg shadow-sm border px-6 py-8">
+    {children}
+  </div>
+);
+
+export const BasicInfo = (user: PhrProfile) => {
   return (
-    <div className="pt-2 pb-5">
+    <SectionWrapper>
       <Badge text="Basic Information" />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <LabelValue
@@ -107,7 +108,7 @@ export const BasicInfo = ({ user }: UserViewDetailsProps) => {
         />
         <LabelValue id="gender" label="Gender" value={user.gender} />
       </div>
-    </div>
+    </SectionWrapper>
   );
 };
 
@@ -115,9 +116,13 @@ export const ContactInfo = ({
   user,
   setShowUpdateMobile,
   setShowUpdateEmail,
-}: UserViewDetailsProps) => {
+}: {
+  user: PhrProfile;
+  setShowUpdateMobile: Dispatch<SetStateAction<boolean>>;
+  setShowUpdateEmail: Dispatch<SetStateAction<boolean>>;
+}) => {
   return (
-    <div className="pt-2 pb-5">
+    <SectionWrapper>
       <div className="flex justify-between">
         <Badge text="Contact Information" />
         <DropdownMenu>
@@ -156,13 +161,13 @@ export const ContactInfo = ({
         <LabelValue id="email" label="Email" value={user.email} />
         <LabelValue id="phone_number" label="Mobile" value={user.mobile} />
       </div>
-    </div>
+    </SectionWrapper>
   );
 };
 
-export const LocationInfo = ({ user }: UserViewDetailsProps) => {
+export const LocationInfo = (user: PhrProfile) => {
   return (
-    <div className="pt-2 pb-5">
+    <SectionWrapper>
       <Badge text="Location" />
       <div className="space-y-4">
         <LabelValue
@@ -182,6 +187,6 @@ export const LocationInfo = ({ user }: UserViewDetailsProps) => {
           <LabelValue id="pincode" label="Pincode" value={user.pinCode} />
         </div>
       </div>
-    </div>
+    </SectionWrapper>
   );
 };

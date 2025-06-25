@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,31 +12,48 @@ import {
 
 import AbhaNumberOtpFlow from "@/components/auth/AbhaNumberOtpFlow";
 
-import { InitialAuthFormValues } from "@/common/constants";
+import { useAuthContext } from "@/hooks/useAuth";
+
+import { AuthFlowTypes, INITIAL_AUTH_FORM_VALUES } from "@/types/auth";
+import { PROFILE_UPDATE_ACTIONS } from "@/types/profile";
 
 type AbhaUnlinkDialogProps = {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
+  existingAbhaNumber: string;
+  isKYCVerified: boolean;
 };
 
-const AbhaUnlinkDialog = ({ open, setOpen }: AbhaUnlinkDialogProps) => {
-  const [isConfirmed, setIsConfirmed] = useState(false);
+const AbhaUnlinkDialog = ({
+  open,
+  setOpen,
+  existingAbhaNumber,
+  isKYCVerified,
+}: AbhaUnlinkDialogProps) => {
+  const { logout } = useAuthContext();
+  const [isConfirmed, setIsConfirmed] = useState(isKYCVerified ? false : true);
 
-  const [memory, setMemory] = useState(InitialAuthFormValues);
+  const [memory, setMemory] = useState(INITIAL_AUTH_FORM_VALUES);
 
-  const onVerifyOtpSuccess = (data: any) => {
-    console.log("OTP verified successfully", data);
-    // Handle success logic here, e.g., show a success message or update state
+  const onVerifyOtpSuccess = useCallback(() => {
+    setOpen(false);
+    logout(false);
+  }, [logout, setOpen]);
+
+  const handleOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (isKYCVerified) {
+      setIsConfirmed(false);
+    }
+    if (!isOpen) {
+      setMemory(INITIAL_AUTH_FORM_VALUES);
+    }
   };
 
+  const { LINK, DE_LINK } = PROFILE_UPDATE_ACTIONS;
+
   return (
-    <Dialog
-      open={open}
-      onOpenChange={() => {
-        setOpen(false);
-        setIsConfirmed(false);
-      }}
-    >
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         {!isConfirmed ? (
           <>
@@ -55,7 +72,9 @@ const AbhaUnlinkDialog = ({ open, setOpen }: AbhaUnlinkDialogProps) => {
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline" onClick={() => setOpen(false)}>
+                Cancel
+              </Button>
               <Button
                 variant="destructive"
                 onClick={() => {
@@ -74,10 +93,12 @@ const AbhaUnlinkDialog = ({ open, setOpen }: AbhaUnlinkDialogProps) => {
               Select a method to verify otp for unlinking your ABHA number.
             </DialogDescription>
             <AbhaNumberOtpFlow
-              flowType="profile-update"
+              flowType={AuthFlowTypes.PROFILE_UPDATE}
               setMemory={setMemory}
+              existingAbhaNumber={existingAbhaNumber}
               transactionId={memory.transactionId}
               onVerifyOtpSuccess={onVerifyOtpSuccess}
+              action={isKYCVerified ? DE_LINK : LINK}
             />
           </DialogHeader>
         )}

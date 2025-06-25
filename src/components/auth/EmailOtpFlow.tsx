@@ -19,10 +19,11 @@ import OtpInput from "@/components/auth/ui/otp-resend-input";
 
 import { useOtpFlow } from "@/hooks/useOtpFlow";
 
-import { OTP_LENGTH } from "@/common/constants";
+import { DEFAULT_OTP_SYSTEM, OTP_LENGTH } from "@/common/constants";
 
 import {
-  FlowType,
+  AuthFlowType,
+  AuthFlowTypes,
   FormMemory,
   SendOtpRequest,
   VerifyOtpResponse,
@@ -30,7 +31,7 @@ import {
 import { ProfileUpdateAction } from "@/types/profile";
 
 type EmailOtpFlowProps = {
-  flowType: FlowType;
+  flowType: AuthFlowType;
   transactionId?: string;
   setMemory: Dispatch<SetStateAction<FormMemory>>;
   onVerifyOtpSuccess: (
@@ -72,26 +73,36 @@ const EmailOtpFlow: FC<EmailOtpFlowProps> = ({
     },
   });
 
+  const handleResendOtp = () => {
+    sendOtpMutation.mutate({
+      value: form.getValues("email"),
+      otp_system: DEFAULT_OTP_SYSTEM,
+      type: "email",
+    });
+    resetCountdown();
+  };
+
   const onSubmit = (values: z.infer<typeof baseSchema>) => {
     if (!otpSent) {
       sendOtpMutation.mutate({
         value: values.email,
-        otp_system: "abdm",
+        otp_system: DEFAULT_OTP_SYSTEM,
         type: "email",
       });
       resetCountdown();
       return;
     }
 
-    if (!(values.otp?.length === OTP_LENGTH && !!transactionId)) return;
+    if (!(values.otp?.length === OTP_LENGTH && transactionId)) return;
 
     setIsOtpValid(true);
     verifyOtpMutation.mutate({
       otp: values.otp,
       transaction_id: transactionId,
       type: "email",
-      [flowType === "login" ? "verify_system" : "otp_system"]: "abdm",
-      action: action,
+      [flowType === AuthFlowTypes.ENROLLMENT ? "otp_system" : "verify_system"]:
+        DEFAULT_OTP_SYSTEM,
+      action,
     });
   };
 
@@ -137,17 +148,11 @@ const EmailOtpFlow: FC<EmailOtpFlowProps> = ({
                       setIsOtpValid(true);
                     }}
                     resendCountdown={resendCountdown}
-                    onResend={() => {
-                      sendOtpMutation.mutate({
-                        value: form.getValues("email"),
-                        otp_system: "abdm",
-                        type: "email",
-                      });
-                      resetCountdown();
-                    }}
+                    onResend={handleResendOtp}
                     disabled={isSubmitting}
                   />
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -163,7 +168,10 @@ const EmailOtpFlow: FC<EmailOtpFlowProps> = ({
           }
         >
           {isSubmitting ? (
-            <Loader2Icon className="text-white animate-spin scale-150" />
+            <>
+              <Loader2Icon className="mr-2 size-4 animate-spin" />
+              {otpSent ? "Verifying..." : "Sending..."}
+            </>
           ) : otpSent ? (
             "Verify OTP"
           ) : (

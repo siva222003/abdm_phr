@@ -37,13 +37,15 @@ export const useOtpFlow = (
     return () => clearInterval(interval);
   }, [resendCountdown]);
 
+  const { ENROLLMENT, LOGIN, PROFILE_UPDATE } = AuthFlowTypes;
+
   const sendOtpMutationFn = () => {
     switch (flowType) {
-      case AuthFlowTypes.ENROLLMENT:
+      case ENROLLMENT:
         return mutate(routes.register.sendOtp);
-      case AuthFlowTypes.LOGIN:
+      case LOGIN:
         return mutate(routes.login.sendOtp);
-      case AuthFlowTypes.PROFILE_UPDATE:
+      case PROFILE_UPDATE:
         return mutate(routes.profile.sendOtp);
       default:
         return mutate(routes.profile.sendOtp);
@@ -63,11 +65,11 @@ export const useOtpFlow = (
   });
   const verifyOtpMutationFn = () => {
     switch (flowType) {
-      case AuthFlowTypes.ENROLLMENT:
+      case ENROLLMENT:
         return mutate(routes.register.verifyOtp);
-      case AuthFlowTypes.LOGIN:
+      case LOGIN:
         return mutate(routes.login.verifyOtp);
-      case AuthFlowTypes.PROFILE_UPDATE:
+      case PROFILE_UPDATE:
         return mutate(routes.profile.verifyOtp);
       default:
         return mutate(routes.profile.verifyOtp);

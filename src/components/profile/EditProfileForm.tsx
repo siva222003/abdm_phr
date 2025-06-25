@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Info, Loader2Icon } from "lucide-react";
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -97,10 +97,8 @@ export default function EditProfileForm({
     [updateProfileMutation, userData.profilePhoto],
   );
 
-  const isSubmitDisabled = useMemo(
-    () => !form.formState.isDirty || updateProfileMutation.isPending,
-    [form.formState.isDirty, updateProfileMutation.isPending],
-  );
+  const isSubmitDisabled =
+    !form.formState.isDirty || updateProfileMutation.isPending;
 
   return (
     <Form {...form}>
@@ -138,7 +136,7 @@ export default function EditProfileForm({
         >
           {updateProfileMutation.isPending ? (
             <>
-              <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2Icon className="mr-2 size-4 animate-spin" />
               Updating...
             </>
           ) : (
