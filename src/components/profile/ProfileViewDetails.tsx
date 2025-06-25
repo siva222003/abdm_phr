@@ -72,7 +72,6 @@ export const Badge = ({
   );
 };
 
-// Add consistent wrapper component
 const SectionWrapper = ({ children }: { children: React.ReactNode }) => (
   <div className="bg-white rounded-lg shadow-sm border px-6 py-8">
     {children}

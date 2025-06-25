@@ -8,6 +8,7 @@ import { useMemo, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Tooltip,
   TooltipContent,
@@ -43,8 +44,8 @@ const KYCStatusBadge = ({ isVerified }: { isVerified: boolean }) => (
     variant="outline"
     className={`flex items-center whitespace-nowrap ${
       isVerified
-        ? "bg-green-50 text-green-700 border-green-200"
-        : "bg-yellow-50 text-yellow-700 border-yellow-200"
+        ? "bg-green-50 text-primary-500 border-primary-200"
+        : "bg-yellow-50 text-warning-500 border-yellow-200"
     }`}
   >
     {isVerified ? (
@@ -114,47 +115,66 @@ const ProfileHeader = ({
   </div>
 );
 
-const DangerZone = ({
+const AbhaManagementSection = ({
   isKYCVerified,
-  onUnlink,
+  onAction,
 }: {
   isKYCVerified: boolean;
-  onUnlink: () => void;
-}) => (
-  <div className="mt-8 p-6 bg-red-50 border border-red-200 rounded-lg">
-    <div className="flex flex-col sm:flex-row sm:items-start gap-4">
-      <div className="flex-1">
-        <h3 className="text-lg font-semibold text-red-900 mb-2">Danger Zone</h3>
-        <div className="text-sm text-red-700 space-y-1">
-          <p className="font-medium">Unlink ABHA Account</p>
-          <p>
-            This action will permanently disconnect your ABHA account and remove
-            all associated data. This cannot be undone.
-          </p>
-          {!isKYCVerified && (
-            <p className="text-red-600 font-medium">
-              ⚠️ Your account is not KYC verified. Unlinking will permanently
-              delete your profile.
-            </p>
-          )}
-        </div>
-      </div>
-
-      <Button
-        onClick={onUnlink}
-        variant={isKYCVerified ? "destructive" : "outline"}
-        className={`flex items-center gap-2 ${
-          !isKYCVerified
-            ? "border-red-300 text-red-700 hover:bg-red-50 hover:border-red-400"
-            : ""
-        }`}
-      >
-        <Link2Icon className="size-4" />
-        {isKYCVerified ? "Unlink ABHA" : "Delete Account"}
-      </Button>
-    </div>
-  </div>
-);
+  onAction: () => void;
+}) => {
+  if (isKYCVerified) {
+    return (
+      <Card className="border-destructive">
+        <CardHeader>
+          <CardTitle className="text-destructive">
+            ABHA Account Management
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-md border p-4">
+            <div className="space-y-1">
+              <h3 className="text-sm font-medium">Unlink ABHA Number</h3>
+              <p className="text-sm text-gray-700">
+                Disconnect your ABHA number from this account. This will remove
+                verification benefits but won't delete your profile.
+              </p>
+            </div>
+            <Button onClick={onAction} variant="destructive" className="w-fit">
+              <Link2Icon className="h-4 mr-2" />
+              Unlink ABHA
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  } else {
+    return (
+      <Card className="border-warning">
+        <CardHeader>
+          <CardTitle className="text-warning">Complete ABHA Setup</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-md border p-4">
+            <div className="space-y-1">
+              <h3 className="text-sm font-medium">Link ABHA Number</h3>
+              <p className="text-sm text-gray-700">
+                Your account is incomplete. Link your ABHA number to verify your
+                identity and access full health services.
+              </p>
+            </div>
+            <Button
+              onClick={onAction}
+              className="w-fit bg-warning hover:bg-warning/90 text-white"
+            >
+              <Link2Icon className="h-4 mr-2" />
+              Link ABHA Number
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+};
 
 const Profile = () => {
   const { user, switchProfileEnabled } = useAuthContext();
@@ -269,10 +289,10 @@ const Profile = () => {
           ))}
         </div>
 
-        {/* Danger Zone */}
-        <DangerZone
-          isKYCVerified={isKYCVerified}
-          onUnlink={() => toggleModal("abhaUnlink")}
+        {/* ABHA Management Section */}
+        <AbhaManagementSection
+          isKYCVerified={!isKYCVerified}
+          onAction={() => toggleModal("abhaUnlink")}
         />
       </div>
 
