@@ -57,6 +57,9 @@ export default LoginAbha;
 
 type LoginProps = InjectedStepProps<FormMemory>;
 
+const { MOBILE_NUMBER, ABHA_NUMBER, ABHA_ADDRESS } = AUTH_MODES;
+const { LOGIN } = AUTH_FLOW_TYPES;
+
 const Login = ({ memory, setMemory, goTo }: LoginProps) => {
   const navigate = useNavigate();
 
@@ -89,43 +92,43 @@ const Login = ({ memory, setMemory, goTo }: LoginProps) => {
       </CardHeader>
       <CardContent>
         <Tabs
-          defaultValue={AUTH_MODES.MOBILE_NUMBER}
-          value={memory?.mode ?? AUTH_MODES.MOBILE_NUMBER}
+          defaultValue={MOBILE_NUMBER}
+          value={memory?.mode ?? MOBILE_NUMBER}
           onValueChange={handleTabChange}
         >
           <TabsList className="flex w-full">
-            <TabsTrigger className="flex-1" value={AUTH_MODES.MOBILE_NUMBER}>
+            <TabsTrigger className="flex-1" value={MOBILE_NUMBER}>
               Mobile
             </TabsTrigger>
-            <TabsTrigger className="flex-1" value={AUTH_MODES.ABHA_NUMBER}>
+            <TabsTrigger className="flex-1" value={ABHA_NUMBER}>
               ABHA Number
             </TabsTrigger>
-            <TabsTrigger className="flex-1" value={AUTH_MODES.ABHA_ADDRESS}>
+            <TabsTrigger className="flex-1" value={ABHA_ADDRESS}>
               ABHA Address
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value={AUTH_MODES.MOBILE_NUMBER}>
+          <TabsContent value={MOBILE_NUMBER}>
             <MobileNumberOtpFlow
-              flowType={AUTH_FLOW_TYPES.LOGIN}
+              flowType={LOGIN}
               transactionId={memory?.transactionId}
               setMemory={setMemory}
               onVerifyOtpSuccess={onVerifyOtpSuccess}
             />
           </TabsContent>
 
-          <TabsContent value={AUTH_MODES.ABHA_NUMBER}>
+          <TabsContent value={ABHA_NUMBER}>
             <AbhaNumberOtpFlow
-              flowType={AUTH_FLOW_TYPES.LOGIN}
+              flowType={LOGIN}
               transactionId={memory?.transactionId}
               setMemory={setMemory}
               onVerifyOtpSuccess={onVerifyOtpSuccess}
             />
           </TabsContent>
 
-          <TabsContent value={AUTH_MODES.ABHA_ADDRESS}>
+          <TabsContent value={ABHA_ADDRESS}>
             <AbhaAddressFlow
-              flowType={AUTH_FLOW_TYPES.LOGIN}
+              flowType={LOGIN}
               transactionId={memory?.transactionId}
               setMemory={setMemory}
               onVerifyOtpSuccess={onVerifyOtpSuccess}
@@ -152,6 +155,6 @@ type HandleExistingAbhaProps = InjectedStepProps<FormMemory>;
 
 const HandleExistingAbha = ({ memory, goTo }: HandleExistingAbhaProps) => {
   return (
-    <HandleExistingAbhaAddress flowType="login" memory={memory} goTo={goTo} />
+    <HandleExistingAbhaAddress flowType={LOGIN} memory={memory} goTo={goTo} />
   );
 };

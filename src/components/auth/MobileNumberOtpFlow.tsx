@@ -43,6 +43,7 @@ type MobileNumberOtpFlowProps = {
 };
 
 const DEFAULT_OTP_SYSTEM = "abdm";
+const { MOBILE_NUMBER } = AUTH_MODES;
 
 const MobileNumberOtpFlow = ({
   flowType,
@@ -79,7 +80,7 @@ const MobileNumberOtpFlow = ({
     sendOtpMutation.mutate({
       value: form.getValues("mobile"),
       otp_system: DEFAULT_OTP_SYSTEM,
-      type: AUTH_MODES.MOBILE_NUMBER,
+      type: MOBILE_NUMBER,
     });
     resetCountdown();
   };
@@ -89,7 +90,7 @@ const MobileNumberOtpFlow = ({
       sendOtpMutation.mutate({
         value: values.mobile,
         otp_system: DEFAULT_OTP_SYSTEM,
-        type: AUTH_MODES.MOBILE_NUMBER,
+        type: MOBILE_NUMBER,
       });
       resetCountdown();
       return;
@@ -101,7 +102,7 @@ const MobileNumberOtpFlow = ({
     verifyOtpMutation.mutate({
       otp: values.otp,
       transaction_id: transactionId,
-      type: AUTH_MODES.MOBILE_NUMBER,
+      type: MOBILE_NUMBER,
       [flowType === AUTH_FLOW_TYPES.ENROLLMENT
         ? "otp_system"
         : "verify_system"]: DEFAULT_OTP_SYSTEM,

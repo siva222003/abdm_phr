@@ -56,6 +56,8 @@ const OTP_METHODS = [
   { id: "password", label: "Password" },
 ] as const;
 
+const { ABHA_ADDRESS } = AUTH_MODES;
+
 const AbhaAddressFlow = ({
   flowType,
   transactionId,
@@ -109,7 +111,7 @@ const AbhaAddressFlow = ({
   const handleResendOtp = () => {
     sendOtpMutation.mutate({
       value: form.getValues("abhaAddress"),
-      type: AUTH_MODES.ABHA_ADDRESS,
+      type: ABHA_ADDRESS,
       otp_system: form.getValues("otpMethod") as "abdm" | "aadhaar",
     });
     resetCountdown();
@@ -122,7 +124,7 @@ const AbhaAddressFlow = ({
       verifyPassword({
         password: values.password,
         abha_address: values.abhaAddress,
-        type: AUTH_MODES.ABHA_ADDRESS,
+        type: ABHA_ADDRESS,
         verify_system: values.otpMethod,
       });
       return;
@@ -131,7 +133,7 @@ const AbhaAddressFlow = ({
     if (!otpSent) {
       sendOtpMutation.mutate({
         value: values.abhaAddress,
-        type: AUTH_MODES.ABHA_ADDRESS,
+        type: ABHA_ADDRESS,
         otp_system: values.otpMethod,
       });
       resetCountdown();
@@ -144,7 +146,7 @@ const AbhaAddressFlow = ({
     verifyOtpMutation.mutate({
       transaction_id: transactionId,
       otp: values.otp,
-      type: AUTH_MODES.ABHA_ADDRESS,
+      type: ABHA_ADDRESS,
       verify_system: values.otpMethod,
     });
   };

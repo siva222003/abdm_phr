@@ -120,6 +120,9 @@ export default RegisterAbha;
 
 type RegisterProps = InjectedStepProps<FormMemory>;
 
+const { MOBILE_NUMBER, ABHA_NUMBER } = AUTH_MODES;
+const { ENROLLMENT } = AUTH_FLOW_TYPES;
+
 const Register = ({ memory, setMemory, goTo }: RegisterProps) => {
   const navigate = useNavigate();
 
@@ -127,10 +130,7 @@ const Register = ({ memory, setMemory, goTo }: RegisterProps) => {
     (data: VerifyOtpResponse, sendOtpContext?: SendOtpRequest) => {
       let mobileNumber = data.abha_number?.mobile || "";
 
-      if (
-        sendOtpContext?.type === AUTH_MODES.MOBILE_NUMBER &&
-        sendOtpContext?.value
-      ) {
+      if (sendOtpContext?.type === MOBILE_NUMBER && sendOtpContext?.value) {
         mobileNumber = sendOtpContext.value;
       }
 
@@ -177,31 +177,31 @@ const Register = ({ memory, setMemory, goTo }: RegisterProps) => {
       </CardHeader>
       <CardContent>
         <Tabs
-          defaultValue={AUTH_MODES.MOBILE_NUMBER}
-          value={memory?.mode ?? AUTH_MODES.MOBILE_NUMBER}
+          defaultValue={MOBILE_NUMBER}
+          value={memory?.mode ?? MOBILE_NUMBER}
           onValueChange={handleTabChange}
         >
           <TabsList className="flex w-full">
-            <TabsTrigger className="flex-1" value={AUTH_MODES.MOBILE_NUMBER}>
+            <TabsTrigger className="flex-1" value={MOBILE_NUMBER}>
               Mobile
             </TabsTrigger>
-            <TabsTrigger className="flex-1" value={AUTH_MODES.ABHA_NUMBER}>
+            <TabsTrigger className="flex-1" value={ABHA_NUMBER}>
               ABHA Number
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value={AUTH_MODES.MOBILE_NUMBER}>
+          <TabsContent value={MOBILE_NUMBER}>
             <MobileNumberOtpFlow
-              flowType={AUTH_FLOW_TYPES.ENROLLMENT}
+              flowType={ENROLLMENT}
               transactionId={memory?.transactionId}
               setMemory={setMemory}
               onVerifyOtpSuccess={onVerifyOtpSuccess}
             />
           </TabsContent>
 
-          <TabsContent value={AUTH_MODES.ABHA_NUMBER}>
+          <TabsContent value={ABHA_NUMBER}>
             <AbhaNumberOtpFlow
-              flowType={AUTH_FLOW_TYPES.ENROLLMENT}
+              flowType={ENROLLMENT}
               transactionId={memory?.transactionId}
               setMemory={setMemory}
               onVerifyOtpSuccess={onVerifyOtpSuccess}
@@ -229,7 +229,7 @@ type HandleExistingAbhaProps = InjectedStepProps<FormMemory>;
 const HandleExistingAbha = ({ memory, goTo }: HandleExistingAbhaProps) => {
   return (
     <HandleExistingAbhaAddress
-      flowType={AUTH_FLOW_TYPES.ENROLLMENT}
+      flowType={ENROLLMENT}
       memory={memory}
       goTo={goTo}
     />
@@ -641,7 +641,7 @@ export const SetPassword = ({ memory }: SetPasswordProps) => {
       <CardHeader className="space-y-1 px-4">
         <CardTitle className="text-2xl font-bold">Final Step</CardTitle>
         <CardDescription className="text-sm">
-          Set a password for extra security (optional), and create your account.
+          Set a password for your ABHA address for seamless login experience.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -656,7 +656,7 @@ export const SetPassword = ({ memory }: SetPasswordProps) => {
                 onCheckedChange={(checked) =>
                   setHasAgreedToTerms(Boolean(checked))
                 }
-                className="mt-1"
+                className="mt-1 text-white"
               />
               <div className="flex-1 space-y-1">
                 <Label

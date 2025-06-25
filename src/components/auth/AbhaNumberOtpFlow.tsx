@@ -55,6 +55,8 @@ const OTP_METHODS = [
   { id: "aadhaar", label: "Aadhaar OTP" },
 ] as const;
 
+const { ABHA_NUMBER } = AUTH_MODES;
+
 const AbhaNumberOtpFlow = ({
   flowType,
   transactionId,
@@ -124,7 +126,7 @@ const AbhaNumberOtpFlow = ({
   const handleResendOtp = () => {
     sendOtpMutation.mutate({
       value: form.getValues("abha"),
-      type: AUTH_MODES.ABHA_NUMBER,
+      type: ABHA_NUMBER,
       otp_system: form.getValues("otpMethod"),
     });
     resetCountdown();
@@ -134,7 +136,7 @@ const AbhaNumberOtpFlow = ({
     if (!otpSent) {
       sendOtpMutation.mutate({
         value: values.abha,
-        type: AUTH_MODES.ABHA_NUMBER,
+        type: ABHA_NUMBER,
         otp_system: values.otpMethod!,
       });
       resetCountdown();
@@ -148,7 +150,7 @@ const AbhaNumberOtpFlow = ({
     verifyOtpMutation.mutate({
       transaction_id: transactionId,
       otp: values.otp,
-      type: AUTH_MODES.ABHA_NUMBER,
+      type: ABHA_NUMBER,
       [flowType === AUTH_FLOW_TYPES.ENROLLMENT
         ? "otp_system"
         : "verify_system"]: values.otpMethod,
