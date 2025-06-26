@@ -78,10 +78,6 @@ const RegisterAbha = () => {
   const { currentStep } = useMultiStepForm<FormMemory>(
     [
       {
-        id: "set-password",
-        element: <SetPassword {...({} as SetPasswordProps)} />,
-      },
-      {
         id: "register",
         element: <Register {...({} as RegisterProps)} />,
       },
