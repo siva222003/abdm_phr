@@ -262,13 +262,9 @@ export const LocationDetailsSection = ({
             <FormControl>
               <Input
                 {...field}
+                type="number"
                 inputMode="numeric"
-                maxLength={6}
                 placeholder="Enter pincode"
-                onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, "");
-                  field.onChange(value);
-                }}
               />
             </FormControl>
             <FormMessage />

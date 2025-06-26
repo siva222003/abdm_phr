@@ -127,12 +127,12 @@ export type FormMemory = {
   mode: AuthMode;
   verifySystem: VerifySystem;
   existingAbhaAddresses?: User[];
-  phrProfile?: PhrEnrolDetails;
+  phrProfile: PhrEnrolDetails;
 };
 
 // Common Auth Constants
 export const INITIAL_AUTH_FORM_VALUES: FormMemory = {
-  transactionId: "mock-id",
+  transactionId: "",
   mode: "mobile-number",
   verifySystem: "abdm",
   existingAbhaAddresses: [],

@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { Dispatch, SetStateAction } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 import { ABHA_ADDRESS_REGEX, PASSWORD_REGEX } from "@/lib/validators";
 
@@ -67,20 +67,20 @@ const AbhaAddressFlow = ({
   const schema = z
     .object({
       abhaAddress: z.string().regex(ABHA_ADDRESS_REGEX, {
-        message: "Enter a valid ABHA address",
+        error: "Enter a valid ABHA address",
       }),
       otpMethod: z.enum(["abdm", "aadhaar", "password"], {
-        errorMap: () => ({ message: "Please select an OTP method" }),
+        error: "Please select an OTP method",
       }),
       otp: z.string().optional(),
-      password: z.string().optional(),
+      password: z.string().trim().optional(),
     })
     .refine(
       (data) =>
         data.otpMethod !== "password" ||
         PASSWORD_REGEX.test(data.password || ""),
       {
-        message:
+        error:
           "Password must be 8+ characters, 1 uppercase, 1 number, 1 special char",
         path: ["password"],
       },

@@ -2,10 +2,7 @@ export const ABHA_NUMBER_REGEX = /^\d{2}-\d{4}-\d{4}-\d{4}$/;
 export const ABHA_ADDRESS_REGEX = /^(?![\d.])[a-zA-Z0-9._]{4,}(?<!\.)$/;
 export const MOBILE_NUMBER_REGEX = /^[1-9][0-9]{9}$/;
 export const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$^-])[A-Za-z\d!@#$%^&*-]{8,}$/;
-export const DATE_OF_BIRTH_REGEX = /^\d{4}-\d{2}-\d{2}$/;
-export const PIN_CODE_REGEX = /^\d{6}$/;
-
-
+export const PIN_CODE_REGEX = /^[1-9][0-9]{5}$/;
 
 export const ABHA_ADDRESS_VALIDATION_RULES = (abhaInput: string) => [
   {

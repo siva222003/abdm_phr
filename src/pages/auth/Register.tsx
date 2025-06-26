@@ -5,12 +5,11 @@ import { useNavigate } from "raviger";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 import {
   ABHA_ADDRESS_REGEX,
   ABHA_ADDRESS_VALIDATION_RULES,
-  DATE_OF_BIRTH_REGEX,
   PASSWORD_REGEX,
   PIN_CODE_REGEX,
 } from "@/lib/validators";
@@ -79,6 +78,10 @@ const RegisterAbha = () => {
   const { currentStep } = useMultiStepForm<FormMemory>(
     [
       {
+        id: "set-password",
+        element: <SetPassword {...({} as SetPasswordProps)} />,
+      },
+      {
         id: "register",
         element: <Register {...({} as RegisterProps)} />,
       },
@@ -91,7 +94,7 @@ const RegisterAbha = () => {
         element: <AddBasicDetails {...({} as AddBasicDetailsProps)} />,
       },
       {
-        id: "add-address",
+        id: "add-location-details",
         element: <AddLocationDetails {...({} as AddLocationDetailsProps)} />,
       },
       {
@@ -142,7 +145,7 @@ const Register = ({ memory, setMemory, goTo }: RegisterProps) => {
         existingAbhaAddresses: data.users,
         verifySystem: sendOtpContext?.otp_system || "abdm",
         phrProfile: {
-          ...prev.phrProfile!,
+          ...prev.phrProfile,
           ...data.abha_number,
           abha_address: data.abha_number?.health_id ?? "",
           day_of_birth: day ?? "",
@@ -240,20 +243,16 @@ type AddBasicDetailsProps = InjectedStepProps<FormMemory>;
 
 const AddBasicDetails = ({ memory, setMemory, goTo }: AddBasicDetailsProps) => {
   const schema = z.object({
-    first_name: z.string().min(1, "First name is required"),
-    middle_name: z.string().optional(),
-    last_name: z.string().optional(),
+    first_name: z.string().trim().min(1, "First name is required"),
+    middle_name: z.string().trim().optional(),
+    last_name: z.string().trim().optional(),
     gender: z.enum(["M", "F", "O"], {
-      required_error: "Gender is required",
+      error: "Gender is required",
     }),
-    date_of_birth: z
-      .string({
-        required_error: "Date of birth is required",
-      })
-      .regex(DATE_OF_BIRTH_REGEX, {
-        message: "Date of birth must be in YYYY-MM-DD format",
-      }),
-    email: z.string().email("Invalid email address").optional(),
+    date_of_birth: z.iso.date({
+      error: "Date of birth is required",
+    }),
+    email: z.email({ error: "Invalid email address" }).optional(),
     profile_photo: z.string().optional(),
   });
 
@@ -264,7 +263,7 @@ const AddBasicDetails = ({ memory, setMemory, goTo }: AddBasicDetailsProps) => {
       middle_name: "",
       last_name: "",
       gender: undefined,
-      date_of_birth: "",
+      date_of_birth: undefined,
       email: "",
     },
   });
@@ -275,7 +274,7 @@ const AddBasicDetails = ({ memory, setMemory, goTo }: AddBasicDetailsProps) => {
     setMemory((prev) => ({
       ...prev,
       phrProfile: {
-        ...prev.phrProfile!,
+        ...prev.phrProfile,
         ...data,
         middle_name: data.middle_name ?? "",
         last_name: data.last_name ?? "",
@@ -316,14 +315,14 @@ type AddLocationDetailsProps = InjectedStepProps<FormMemory>;
 
 const AddLocationDetails = ({ setMemory, goTo }: AddLocationDetailsProps) => {
   const schema = z.object({
-    state_code: z.number({ required_error: "State is required" }),
+    state_code: z.number({ error: "State is required" }),
     state_name: z.string(),
-    district_code: z.number({ required_error: "District is required" }),
+    district_code: z.number({ error: "District is required" }),
     district_name: z.string(),
-    address: z.string().min(1, "Address is required"),
-    pincode: z
-      .string()
-      .regex(PIN_CODE_REGEX, { message: "Pin code must be exactly 6 digits" }),
+    address: z.string().trim().min(1, { error: "Address is required" }),
+    pincode: z.string().regex(PIN_CODE_REGEX, {
+      error: "Enter a valid 6 digit pincode",
+    }),
   });
 
   const form = useForm({
@@ -342,7 +341,7 @@ const AddLocationDetails = ({ setMemory, goTo }: AddLocationDetailsProps) => {
     setMemory((prev) => ({
       ...prev,
       phrProfile: {
-        ...prev.phrProfile!,
+        ...prev.phrProfile,
         ...data,
         state_code: data.state_code.toString(),
         district_code: data.district_code.toString(),
@@ -419,7 +418,7 @@ export const ChooseAbhaAddress = ({
         setMemory((prev) => ({
           ...prev,
           phrProfile: {
-            ...prev.phrProfile!,
+            ...prev.phrProfile,
             abha_address: `${form.getValues("abhaAddress")}${DOMAIN}`,
           },
         }));
@@ -431,7 +430,8 @@ export const ChooseAbhaAddress = ({
   useEffect(() => {
     if (
       !memory?.transactionId ||
-      !memory?.phrProfile ||
+      !memory?.phrProfile.first_name ||
+      !memory?.phrProfile.year_of_birth ||
       suggestions.length > 0
     ) {
       return;
@@ -445,12 +445,7 @@ export const ChooseAbhaAddress = ({
       month_of_birth: memory.phrProfile.month_of_birth ?? "",
       day_of_birth: memory.phrProfile.day_of_birth ?? "",
     });
-  }, [
-    memory?.transactionId,
-    memory?.phrProfile,
-    suggestions.length,
-    fetchSuggestionsMutation,
-  ]);
+  }, [memory?.transactionId, memory?.phrProfile, suggestions.length]);
 
   const onSubmit = (values: z.infer<typeof schema>) => {
     const fullAddress = `${values.abhaAddress}${DOMAIN}`;
@@ -570,27 +565,18 @@ export const SetPassword = ({ memory }: SetPasswordProps) => {
 
   const schema = z
     .object({
-      password: z.string().optional(),
-      confirmPassword: z.string().optional(),
+      password: z
+        .string()
+        .trim()
+        .optional()
+        .refine((val) => !val || PASSWORD_REGEX.test(val), {
+          error: "",
+        }),
+      confirmPassword: z.string().trim().optional(),
     })
-    .superRefine((data, ctx) => {
-      if (data.password) {
-        if (!PASSWORD_REGEX.test(data.password)) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            path: ["password"],
-            message:
-              "Password must be 8+ chars, 1 uppercase, 1 number, 1 special char",
-          });
-        }
-        if (data.password !== data.confirmPassword) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            path: ["confirmPassword"],
-            message: "Passwords do not match",
-          });
-        }
-      }
+    .refine((data) => data.password === data.confirmPassword, {
+      message: "Passwords do not match",
+      path: ["confirmPassword"],
     });
 
   const form = useForm<z.infer<typeof schema>>({
@@ -628,7 +614,7 @@ export const SetPassword = ({ memory }: SetPasswordProps) => {
 
   const handleSkipPassword = () => {
     setClickedAction("skip");
-    form.handleSubmit(onSubmit)();
+    onSubmit({ password: "", confirmPassword: "" });
   };
 
   const handleAgreeToTerms = () => {

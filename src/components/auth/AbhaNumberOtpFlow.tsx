@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { Dispatch, SetStateAction } from "react";
 import { ControllerRenderProps, useForm } from "react-hook-form";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 import { ABHA_NUMBER_REGEX } from "@/lib/validators";
 
@@ -65,14 +65,13 @@ const AbhaNumberOtpFlow = ({
 }: AbhaNumberOtpFlowProps) => {
   const schema = z.object({
     abha: z.string().regex(ABHA_NUMBER_REGEX, {
-      message: "Enter a valid 14 digit ABHA number",
+      error: "Enter a valid 14 digit ABHA number",
     }),
     otpMethod: z.enum(["abdm", "aadhaar"], {
-      errorMap: () => ({ message: "Please select an OTP method" }),
+      error: "Please select an OTP method",
     }),
     otp: z.string().optional(),
   });
-
   const {
     otpSent,
     isOtpValid,

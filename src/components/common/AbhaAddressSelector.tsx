@@ -88,7 +88,7 @@ function AddressItem({
           <TooltipTrigger asChild>
             <div>
               {kycStatus === KYC_STATUS.VERIFIED ? (
-                <CheckCircle2 className="text-green-600 size-5" />
+                <CheckCircle2 className="text-primary-500 size-5" />
               ) : (
                 <TriangleAlert className="text-yellow-500 size-5" />
               )}

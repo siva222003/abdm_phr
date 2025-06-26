@@ -20,7 +20,7 @@ const ValidationRule = ({
         {isInitialState ? (
           <CircleIcon className="size-4 text-gray-500" />
         ) : condition ? (
-          <CircleCheckIcon className="size-4 text-green-500" />
+          <CircleCheckIcon className="size-4 text-primary-500" />
         ) : (
           <CircleXIcon className="size-4 text-red-500" />
         )}

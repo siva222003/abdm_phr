@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { Dispatch, SetStateAction } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 import { MOBILE_NUMBER_REGEX } from "@/lib/validators";
 
@@ -53,7 +53,7 @@ const MobileNumberOtpFlow = ({
 }: MobileNumberOtpFlowProps) => {
   const schema = z.object({
     mobile: z.string().regex(MOBILE_NUMBER_REGEX, {
-      message: "Enter a valid 10 digit mobile number",
+      error: "Enter a valid 10 digit mobile number",
     }),
     otp: z.string().optional(),
   });
