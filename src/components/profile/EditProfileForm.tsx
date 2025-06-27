@@ -1,10 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Info, Loader2Icon } from "lucide-react";
-import { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import * as z from "zod";
+import { z } from "zod/v4";
+
+import { PIN_CODE_REGEX } from "@/lib/validators";
 
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -26,23 +27,23 @@ type EditProfileFormProps = {
 };
 
 const schema = z.object({
-  first_name: z.string().min(1, "First name is required"),
-  middle_name: z.string().optional(),
-  last_name: z.string().optional(),
+  first_name: z.string().trim().min(1, "First name is required"),
+  middle_name: z.string().trim().optional(),
+  last_name: z.string().trim().optional(),
   gender: z.enum(["M", "F", "O"], {
-    required_error: "Gender is required",
+    error: "Gender is required",
   }),
-  date_of_birth: z.string({
-    required_error: "Date of birth is required",
+  date_of_birth: z.iso.date({
+    error: "Date of birth is required",
   }),
-  state_code: z.number({ required_error: "State is required" }),
+  state_code: z.number({ error: "State is required" }),
   state_name: z.string(),
-  district_code: z
-    .number({ required_error: "District is required" })
-    .min(1, { message: "Select a district" }),
+  district_code: z.number({ error: "District is required" }),
   district_name: z.string(),
-  address: z.string().min(1, "Address is required"),
-  pincode: z.string().regex(/^\d{6}$/, "Pin code must be 6 digits"),
+  address: z.string().trim().min(1, { error: "Address is required" }),
+  pincode: z.string().regex(PIN_CODE_REGEX, {
+    error: "Enter a valid 6 digit pincode",
+  }),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -80,22 +81,19 @@ export default function EditProfileForm({
     },
   });
 
-  const onSubmit = useCallback(
-    (values: FormData) => {
-      const [year, month, day] = formatDate(values.date_of_birth);
+  const onSubmit = (values: FormData) => {
+    const [year, month, day] = formatDate(values.date_of_birth);
 
-      updateProfileMutation.mutate({
-        ...values,
-        year_of_birth: year,
-        month_of_birth: month,
-        day_of_birth: day,
-        state_code: values.state_code.toString(),
-        district_code: values.district_code.toString(),
-        profile_photo: userData.profilePhoto,
-      });
-    },
-    [updateProfileMutation, userData.profilePhoto],
-  );
+    updateProfileMutation.mutate({
+      ...values,
+      year_of_birth: year,
+      month_of_birth: month,
+      day_of_birth: day,
+      state_code: values.state_code.toString(),
+      district_code: values.district_code.toString(),
+      profile_photo: userData.profilePhoto,
+    });
+  };
 
   const isSubmitDisabled =
     !form.formState.isDirty || updateProfileMutation.isPending;

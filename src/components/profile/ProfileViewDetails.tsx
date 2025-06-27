@@ -40,7 +40,9 @@ const LabelValue = ({
           {value || "-"}
         </span>
       </TooltipTrigger>
-      <TooltipContent side="bottom">{value || "-"}</TooltipContent>
+      <TooltipContent side="bottom" className="text-white">
+        {value || "-"}
+      </TooltipContent>
     </Tooltip>
   </div>
 );

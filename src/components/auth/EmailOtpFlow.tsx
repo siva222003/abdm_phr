@@ -100,7 +100,7 @@ const EmailOtpFlow: FC<EmailOtpFlowProps> = ({
       otp: values.otp,
       transaction_id: transactionId,
       type: "email",
-      [flowType === AuthFlowTypes.ENROLLMENT ? "otp_system" : "verify_system"]:
+      [flowType === AuthFlowTypes.LOGIN ? "verify_system" : "otp_system"]:
         DEFAULT_OTP_SYSTEM,
       action,
     });

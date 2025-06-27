@@ -69,10 +69,12 @@ const AbhaNumberDisplay = ({
       <Tooltip>
         <TooltipTrigger asChild>
           <p className="text-sm font-light text-gray-600 truncate">
-            ABHA Number: {abhaNumber}
+            {abhaNumber}
           </p>
         </TooltipTrigger>
-        <TooltipContent side="bottom">{abhaNumber}</TooltipContent>
+        <TooltipContent side="bottom" className="text-white">
+          {abhaNumber}
+        </TooltipContent>
       </Tooltip>
     ) : (
       <p className="text-sm text-gray-500">No ABHA Number Linked</p>
@@ -87,22 +89,24 @@ const ProfileHeader = ({
   userData: PhrProfile;
   isKYCVerified: boolean;
 }) => (
-  <div className="flex gap-4 items-start">
+  <div className="flex gap-4 items-center">
     <Avatar
       imageUrl={getProfilePhotoUrl(userData.profilePhoto)}
       name={userData.abhaAddress}
       className="size-20 shrink-0"
     />
 
-    <div className="flex-1 min-w-0 space-y-2">
-      <div className="flex items-center gap-3 flex-wrap">
+    <div className="space-y-1">
+      <div className="flex items-center flex-wrap space-x-2">
         <Tooltip>
           <TooltipTrigger asChild>
             <h1 className="text-xl font-bold truncate">
               {userData.abhaAddress}
             </h1>
           </TooltipTrigger>
-          <TooltipContent side="top">{userData.abhaAddress}</TooltipContent>
+          <TooltipContent side="top" className="text-white">
+            {userData.abhaAddress}
+          </TooltipContent>
         </Tooltip>
         <KYCStatusBadge isVerified={isKYCVerified} />
       </div>
@@ -291,7 +295,7 @@ const Profile = () => {
 
         {/* ABHA Management Section */}
         <AbhaManagementSection
-          isKYCVerified={!isKYCVerified}
+          isKYCVerified={isKYCVerified}
           onAction={() => toggleModal("abhaUnlink")}
         />
       </div>

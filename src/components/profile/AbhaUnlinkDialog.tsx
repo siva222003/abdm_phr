@@ -31,7 +31,7 @@ const AbhaUnlinkDialog = ({
   isKYCVerified,
 }: AbhaUnlinkDialogProps) => {
   const { logout } = useAuthContext();
-  const [isConfirmed, setIsConfirmed] = useState(isKYCVerified ? false : true);
+  const [isConfirmed, setIsConfirmed] = useState(!isKYCVerified);
 
   const [memory, setMemory] = useState(INITIAL_AUTH_FORM_VALUES);
 
@@ -88,9 +88,13 @@ const AbhaUnlinkDialog = ({
           </>
         ) : (
           <DialogHeader>
-            <DialogTitle>Unlink ABHA</DialogTitle>
+            <DialogTitle>
+              {isKYCVerified ? "Unlink ABHA" : "Link ABHA"}
+            </DialogTitle>
             <DialogDescription>
-              Select a method to verify otp for unlinking your ABHA number.
+              {`Select a method to verify otp for ${
+                isKYCVerified ? "unlinking" : "linking"
+              } your ABHA number.`}
             </DialogDescription>
             <AbhaNumberOtpFlow
               flowType={AuthFlowTypes.PROFILE_UPDATE}

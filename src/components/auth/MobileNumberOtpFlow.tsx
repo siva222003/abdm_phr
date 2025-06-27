@@ -102,14 +102,9 @@ const MobileNumberOtpFlow = ({
       otp: values.otp,
       transaction_id: transactionId,
       type: AuthModes.MOBILE_NUMBER,
-<<<<<<< HEAD
       [flowType === AuthFlowTypes.LOGIN ? "verify_system" : "otp_system"]:
         DEFAULT_AUTH_METHOD,
-=======
-      [flowType === AuthFlowTypes.ENROLLMENT ? "otp_system" : "verify_system"]:
-        DEFAULT_OTP_SYSTEM,
       action,
->>>>>>> 9464494 (updated otp flows for profile specific actions)
     });
   };
 

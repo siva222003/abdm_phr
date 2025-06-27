@@ -4,7 +4,7 @@ import { Edit2Icon, Loader2Icon } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 import { PASSWORD_REGEX } from "@/lib/validators";
 
@@ -22,15 +22,17 @@ export default function ResetPassword({ abhaAddress }: PhrProfile) {
 
   const schema = z
     .object({
-      password: z.string().regex(PASSWORD_REGEX, {
-        message:
-          "Password must be at least 8 characters long and contain at least one uppercase letter, one number, and one special character",
-      }),
-      confirmPassword: z.string(),
+      password: z
+        .string()
+        .trim()
+        .refine((val) => !val || PASSWORD_REGEX.test(val), {
+          error: "",
+        }),
+      confirmPassword: z.string().trim(),
     })
     .refine((data) => data.password === data.confirmPassword, {
-      path: ["confirmPassword"],
       message: "Passwords do not match",
+      path: ["confirmPassword"],
     });
 
   const form = useForm({
