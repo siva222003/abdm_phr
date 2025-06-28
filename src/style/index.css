@@ -186,7 +186,7 @@
   --color-sidebar-ring: var(--sidebar-ring);
 
   /* Custom breakpoint */
-  --breakpoint-xs: 350px;
+  --breakpoint-xs: 300px;
 }
 
 /* Root CSS variables (shadcn/ui theme) */

@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
 import { Dispatch, SetStateAction } from "react";
 import { useForm } from "react-hook-form";
@@ -32,13 +33,16 @@ import { useOtpFlow } from "@/hooks/useOtpFlow";
 
 import { DOMAIN, OTP_LENGTH } from "@/common/constants";
 
+import routes from "@/api";
 import {
   AUTH_MODES,
   FlowType,
   FormMemory,
   SendOtpRequest,
   VerifyOtpResponse,
+  VerifySystem,
 } from "@/types/auth";
+import { mutate } from "@/utils/request/request";
 
 type AbhaAddressFlowProps = {
   flowType: FlowType;
@@ -70,7 +74,7 @@ const AbhaAddressFlow = ({
         error: "Enter a valid ABHA address",
       }),
       otpMethod: z.enum(["abdm", "aadhaar", "password"], {
-        error: "Please select an OTP method",
+        error: "Please select a method to validate",
       }),
       otp: z.string().optional(),
       password: z.string().trim().optional(),
@@ -112,20 +116,35 @@ const AbhaAddressFlow = ({
     sendOtpMutation.mutate({
       value: form.getValues("abhaAddress"),
       type: ABHA_ADDRESS,
-      otp_system: form.getValues("otpMethod") as "abdm" | "aadhaar",
+      otp_system: form.getValues("otpMethod") as VerifySystem,
     });
     resetCountdown();
   };
 
-  const onSubmit = (values: z.infer<typeof schema>) => {
-    if (values.otpMethod === "password") {
+  const checkAuthMethodsMutation = useMutation({
+    mutationFn: mutate(routes.login.chechAuthMethods),
+  });
+
+  const onSubmit = async (values: z.infer<typeof schema>) => {
+    const selectedMethod = values.otpMethod;
+
+    try {
+      await checkAuthMethodsMutation.mutateAsync({
+        abha_address: values.abhaAddress,
+        verify_system: selectedMethod,
+      });
+    } catch {
+      return;
+    }
+
+    if (selectedMethod === "password") {
       if (!values.password) return;
 
       verifyPassword({
         password: values.password,
         abha_address: values.abhaAddress,
         type: ABHA_ADDRESS,
-        verify_system: values.otpMethod,
+        verify_system: selectedMethod,
       });
       return;
     }
@@ -134,7 +153,7 @@ const AbhaAddressFlow = ({
       sendOtpMutation.mutate({
         value: values.abhaAddress,
         type: ABHA_ADDRESS,
-        otp_system: values.otpMethod,
+        otp_system: selectedMethod,
       });
       resetCountdown();
       return;
@@ -147,13 +166,14 @@ const AbhaAddressFlow = ({
       transaction_id: transactionId,
       otp: values.otp,
       type: ABHA_ADDRESS,
-      verify_system: values.otpMethod,
+      verify_system: selectedMethod,
     });
   };
 
   const isSubmitting =
     sendOtpMutation.isPending ||
     verifyOtpMutation.isPending ||
+    checkAuthMethodsMutation.isPending ||
     isVerifyingPassword;
 
   const otpValue = form.watch("otp");
@@ -205,7 +225,10 @@ const AbhaAddressFlow = ({
               <FormLabel>Validate using</FormLabel>
               <FormControl>
                 <Select
-                  onValueChange={field.onChange}
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    form.resetField("password");
+                  }}
                   value={field.value}
                   disabled={otpSent}
                 >

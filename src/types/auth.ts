@@ -16,11 +16,7 @@ export type AuthMode = (typeof AUTH_MODES)[keyof typeof AUTH_MODES];
 export type FlowType = (typeof AUTH_FLOW_TYPES)[keyof typeof AUTH_FLOW_TYPES];
 
 export type VerifySystem = "abdm" | "aadhaar";
-export type AuthMethod =
-  | "MOBILE_OTP"
-  | "PASSWORD"
-  | "EMAIL_OTP"
-  | "AADHAAR_OTP";
+export type AuthMethod = "MOBILE_OTP" | "PASSWORD" | "AADHAAR_OTP";
 
 export type User = {
   abhaAddress: string;
@@ -77,11 +73,11 @@ export type VerifyAuthResponse = {
 // Login specific types
 export type CheckAuthMethodsRequest = {
   abha_address: string;
+  verify_system: VerifySystem | "password";
 };
 
 export type CheckAuthMethodsResponse = {
   auth_methods: AuthMethod[];
-  abha_number: string;
 };
 
 export type RefreshAccessTokenRequest = {

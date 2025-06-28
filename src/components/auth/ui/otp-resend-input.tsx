@@ -44,7 +44,7 @@ const OtpInput = ({
             key={i}
             index={i}
             className={cn(
-              "size-10",
+              "xs:size-10 size-8.5",
               !isOtpValid && "border-red-500 focus-visible:ring-red-500",
             )}
           />

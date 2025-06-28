@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import AbhaAddressFlow from "@/components/auth/AbhaAddressFlow";
@@ -96,17 +97,20 @@ const Login = ({ memory, setMemory, goTo }: LoginProps) => {
           value={memory?.mode ?? MOBILE_NUMBER}
           onValueChange={handleTabChange}
         >
-          <TabsList className="flex w-full">
-            <TabsTrigger className="flex-1" value={MOBILE_NUMBER}>
-              Mobile
-            </TabsTrigger>
-            <TabsTrigger className="flex-1" value={ABHA_NUMBER}>
-              ABHA Number
-            </TabsTrigger>
-            <TabsTrigger className="flex-1" value={ABHA_ADDRESS}>
-              ABHA Address
-            </TabsTrigger>
-          </TabsList>
+          <ScrollArea>
+            <TabsList className="flex w-full">
+              <TabsTrigger className="flex-1" value={MOBILE_NUMBER}>
+                Mobile
+              </TabsTrigger>
+              <TabsTrigger className="flex-1" value={ABHA_NUMBER}>
+                ABHA Number
+              </TabsTrigger>
+              <TabsTrigger className="flex-1" value={ABHA_ADDRESS}>
+                ABHA Address
+              </TabsTrigger>
+            </TabsList>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
 
           <TabsContent value={MOBILE_NUMBER}>
             <MobileNumberOtpFlow
