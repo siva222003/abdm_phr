@@ -1,4 +1,5 @@
 import {
+  Check,
   CheckCircle2,
   Loader2Icon,
   TriangleAlert,
@@ -65,7 +66,7 @@ function AddressItem({
       )}
       onClick={() => onSelect(address)}
       onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
+        if (e.key === "Enter") {
           e.preventDefault();
           onSelect(address);
         }
@@ -75,12 +76,12 @@ function AddressItem({
       aria-pressed={selected}
     >
       <div
-        className={cn(
-          "size-4 rounded-full border border-gray-400 transition-colors flex-shrink-0",
-          selected ? "border-primary bg-primary" : "bg-white",
-        )}
-        aria-hidden="true"
-      />
+        className={`size-5 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+          selected ? "border-primary bg-primary" : "border-gray-300"
+        }`}
+      >
+        {selected && <Check className="size-3 text-white" />}
+      </div>
       <div className="font-mono truncate flex-1">{address}</div>
 
       <div className="flex-shrink-0">
@@ -94,7 +95,7 @@ function AddressItem({
               )}
             </div>
           </TooltipTrigger>
-          <TooltipContent>
+          <TooltipContent className="text-white">
             <p>
               {kycStatus === KYC_STATUS.VERIFIED
                 ? "KYC Verified"
