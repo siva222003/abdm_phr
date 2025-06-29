@@ -1,5 +1,5 @@
 import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
-import { Ellipsis, Users, Zap } from "lucide-react";
+import { Award, Ellipsis, ImageDown, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -30,32 +30,30 @@ const ProfileActions = ({
           <Ellipsis />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="end"
-        className="w-[calc(100vw-2.5rem)] sm:w-full"
-      >
-        {switchProfileEnabled && (
-          <DropdownMenuItem asChild>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => onSwitchProfile()}
-              className="flex flex-row justify-stretch items-center w-full "
-            >
-              <Users className="h-4 w-4 mr-2" />
-              <span>Switch Profile</span>
-            </Button>
-          </DropdownMenuItem>
-        )}
+      <DropdownMenuContent align="end">
         {canSelectPreferredAbha && (
           <DropdownMenuItem asChild>
             <Button
               size="sm"
               variant="ghost"
               onClick={() => onSelectPreferredAbha()}
-              className="flex flex-row justify-stretch items-center w-full "
+              className="flex justify-stretch items-center w-full cursor-pointer"
             >
-              <span>Selct this as preferred abha</span>
+              <Award className="size-4" />
+              <span>Set as preferred ABHA</span>
+            </Button>
+          </DropdownMenuItem>
+        )}
+        {switchProfileEnabled && (
+          <DropdownMenuItem asChild>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => onSwitchProfile()}
+              className="flex justify-stretch items-center w-full cursor-pointer"
+            >
+              <Users className="size-4" />
+              <span>Switch Profile</span>
             </Button>
           </DropdownMenuItem>
         )}
@@ -64,9 +62,9 @@ const ProfileActions = ({
             size="sm"
             variant="ghost"
             onClick={() => onDownloadAbha()}
-            className="flex flex-row justify-stretch items-center w-full "
+            className="flex justify-stretch items-center w-full cursor-pointer"
           >
-            <Zap className="h-4 w-4 mr-2" />
+            <ImageDown className="size-4" />
             <span>Download ABHA</span>
           </Button>
         </DropdownMenuItem>

@@ -20,7 +20,7 @@ import Page from "@/components/common/Page";
 import AbhaUnlinkDialog from "@/components/profile/AbhaUnlinkDialog";
 import DownloadAbhaDialog from "@/components/profile/DownloadAbhaDialog";
 import EditProfileSheet from "@/components/profile/EditProfileSheet";
-import PhrProfileActions from "@/components/profile/ProfileActions";
+import ProfileActions from "@/components/profile/ProfileActions";
 import ProfileColumns from "@/components/profile/ProfileColumns";
 import {
   BasicInfo,
@@ -39,93 +39,99 @@ import { useAuthContext } from "@/hooks/useAuth";
 import { KYC_STATUS, PhrProfile } from "@/types/profile";
 import { getProfilePhotoUrl } from "@/utils";
 
-const KYCStatusBadge = ({ isVerified }: { isVerified: boolean }) => (
-  <Badge
-    variant="outline"
-    className={`flex items-center whitespace-nowrap ${
-      isVerified
-        ? "bg-green-50 text-primary-500 border-primary-200"
-        : "bg-yellow-50 text-warning-500 border-yellow-200"
-    }`}
-  >
-    {isVerified ? (
-      <CircleCheckIcon className="h-3 w-3 mr-2" aria-hidden="true" />
-    ) : (
-      <TriangleAlert className="h-3 w-3 mr-2" aria-hidden="true" />
-    )}
-    <span>{isVerified ? "KYC Verified" : "Self Declared"}</span>
-  </Badge>
-);
+function KYCStatusBadge({ isVerified }: { isVerified: boolean }) {
+  return (
+    <Badge
+      variant="outline"
+      className={`flex items-center whitespace-nowrap ${
+        isVerified
+          ? "bg-green-50 text-primary-500 border-primary-200"
+          : "bg-yellow-50 text-warning-500 border-yellow-200"
+      }`}
+    >
+      {isVerified ? (
+        <CircleCheckIcon className="h-3 w-3 mr-2" aria-hidden="true" />
+      ) : (
+        <TriangleAlert className="h-3 w-3 mr-2" aria-hidden="true" />
+      )}
+      <span>{isVerified ? "KYC Verified" : "Self Declared"}</span>
+    </Badge>
+  );
+}
 
-const AbhaNumberDisplay = ({
+function AbhaNumberDisplay({
   isKYCVerified,
   abhaNumber,
 }: {
   isKYCVerified: boolean;
   abhaNumber?: string;
-}) => (
-  <>
-    {isKYCVerified && abhaNumber ? (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <p className="text-sm font-light text-gray-600 truncate">
+}) {
+  return (
+    <>
+      {isKYCVerified && abhaNumber ? (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <p className="text-sm font-light text-gray-600 truncate">
+              {abhaNumber}
+            </p>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="text-white">
             {abhaNumber}
-          </p>
-        </TooltipTrigger>
-        <TooltipContent side="bottom" className="text-white">
-          {abhaNumber}
-        </TooltipContent>
-      </Tooltip>
-    ) : (
-      <p className="text-sm text-gray-500">No ABHA Number Linked</p>
-    )}
-  </>
-);
+          </TooltipContent>
+        </Tooltip>
+      ) : (
+        <p className="text-sm text-gray-500">No ABHA Number Linked</p>
+      )}
+    </>
+  );
+}
 
-const ProfileHeader = ({
+function ProfileHeader({
   userData,
   isKYCVerified,
 }: {
   userData: PhrProfile;
   isKYCVerified: boolean;
-}) => (
-  <div className="flex gap-4 items-center">
-    <Avatar
-      imageUrl={getProfilePhotoUrl(userData.profilePhoto)}
-      name={userData.abhaAddress}
-      className="size-20 shrink-0"
-    />
-
-    <div className="space-y-1">
-      <div className="flex items-center flex-wrap space-x-2">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <h1 className="text-xl font-bold truncate">
-              {userData.abhaAddress}
-            </h1>
-          </TooltipTrigger>
-          <TooltipContent side="top" className="text-white">
-            {userData.abhaAddress}
-          </TooltipContent>
-        </Tooltip>
-        <KYCStatusBadge isVerified={isKYCVerified} />
-      </div>
-
-      <AbhaNumberDisplay
-        isKYCVerified={isKYCVerified}
-        abhaNumber={userData.abhaNumber}
+}) {
+  return (
+    <div className="flex gap-4 items-center">
+      <Avatar
+        imageUrl={getProfilePhotoUrl(userData.profilePhoto)}
+        name={userData.abhaAddress}
+        className="size-20 shrink-0"
       />
-    </div>
-  </div>
-);
 
-const AbhaManagementSection = ({
+      <div className="space-y-1">
+        <div className="flex items-center space-x-2">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <h1 className="text-xl font-bold truncate">
+                {userData.abhaAddress}
+              </h1>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="text-white">
+              {userData.abhaAddress}
+            </TooltipContent>
+          </Tooltip>
+          <KYCStatusBadge isVerified={isKYCVerified} />
+        </div>
+
+        <AbhaNumberDisplay
+          isKYCVerified={isKYCVerified}
+          abhaNumber={userData.abhaNumber}
+        />
+      </div>
+    </div>
+  );
+}
+
+function AbhaManagementSection({
   isKYCVerified,
   onAction,
 }: {
   isKYCVerified: boolean;
   onAction: () => void;
-}) => {
+}) {
   if (isKYCVerified) {
     return (
       <Card className="border-destructive">
@@ -178,9 +184,9 @@ const AbhaManagementSection = ({
       </Card>
     );
   }
-};
+}
 
-const Profile = () => {
+export default function Profile() {
   const { user, switchProfileEnabled } = useAuthContext();
 
   const [modals, setModals] = useState({
@@ -197,7 +203,10 @@ const Profile = () => {
     setModals((prev) => ({ ...prev, [modalName]: !prev[modalName] }));
   };
 
-  const isKYCVerified = user?.kycStatus === KYC_STATUS.VERIFIED;
+  const isKYCVerified = useMemo(() => {
+    if (!user) return false;
+    return user.kycStatus === KYC_STATUS.VERIFIED;
+  }, [user]);
 
   const ContactInfoWithHandlers = (user: PhrProfile) => (
     <ContactInfo
@@ -205,47 +214,6 @@ const Profile = () => {
       setShowUpdateMobile={() => toggleModal("updateMobile")}
       setShowUpdateEmail={() => toggleModal("updateEmail")}
     />
-  );
-
-  const profileSections = useMemo(
-    () => [
-      {
-        id: "avatar",
-        heading: "Profile Picture",
-        note: "Upload and manage your profile picture.",
-        Component: UserAvatar,
-        props: user,
-      },
-      {
-        id: "basic",
-        heading: "Basic Information",
-        note: "Your personal details and identification information.",
-        Component: BasicInfo,
-        props: user,
-      },
-      {
-        id: "contact",
-        heading: "Contact Information",
-        note: "Manage your contact details for communication.",
-        Component: ContactInfoWithHandlers,
-        props: user,
-      },
-      {
-        id: "location",
-        heading: "Location Information",
-        note: "Your address and location details for service delivery.",
-        Component: LocationInfo,
-        props: user,
-      },
-      {
-        id: "security",
-        heading: "Security",
-        note: "Manage your account password and security settings.",
-        Component: ResetPassword,
-        props: user,
-      },
-    ],
-    [user],
   );
 
   if (!user) {
@@ -269,7 +237,7 @@ const Profile = () => {
             Edit Profile
           </Button>
 
-          <PhrProfileActions
+          <ProfileActions
             onSwitchProfile={() => toggleModal("switchProfile")}
             onSelectPreferredAbha={() => toggleModal("selectPreferredAbha")}
             onDownloadAbha={() => toggleModal("downloadAbha")}
@@ -282,15 +250,40 @@ const Profile = () => {
 
         {/* Profile Sections */}
         <div className="space-y-8">
-          {profileSections.map(({ id, heading, note, Component, props }) => (
-            <ProfileColumns
-              key={id}
-              heading={heading}
-              note={note}
-              Child={Component}
-              childProps={props!}
-            />
-          ))}
+          <ProfileColumns
+            heading="Profile Picture"
+            note="Upload and manage your profile picture."
+            Child={UserAvatar}
+            childProps={user}
+          />
+
+          <ProfileColumns
+            heading="Basic Information"
+            note="Your personal details and identification information."
+            Child={BasicInfo}
+            childProps={user}
+          />
+
+          <ProfileColumns
+            heading="Contact Information"
+            note="Manage your contact details for communication."
+            Child={ContactInfoWithHandlers}
+            childProps={user}
+          />
+
+          <ProfileColumns
+            heading="Location Information"
+            note="Your address and location details for service delivery."
+            Child={LocationInfo}
+            childProps={user}
+          />
+
+          <ProfileColumns
+            heading="Security"
+            note="Manage your account password and security settings."
+            Child={ResetPassword}
+            childProps={user}
+          />
         </div>
 
         {/* ABHA Management Section */}
@@ -338,11 +331,10 @@ const Profile = () => {
       <AbhaUnlinkDialog
         open={modals.abhaUnlink}
         setOpen={() => toggleModal("abhaUnlink")}
-        existingAbhaNumber={user.abhaNumber || ""}
         isKYCVerified={isKYCVerified}
+        existingAbhaNumber={user.abhaNumber || ""}
+        currentAbhaAddress={user.abhaAddress}
       />
     </Page>
   );
-};
-
-export default Profile;
+}

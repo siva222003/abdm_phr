@@ -66,7 +66,6 @@ export default function AvatarEditModal({
   };
 
   const handleCloseModal = () => {
-    console.log("RUNNING");
     resetModalState();
     onOpenChange(false);
   };

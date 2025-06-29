@@ -20,15 +20,17 @@ import { PROFILE_UPDATE_ACTIONS } from "@/types/profile";
 type AbhaUnlinkDialogProps = {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
-  existingAbhaNumber: string;
   isKYCVerified: boolean;
+  existingAbhaNumber: string;
+  currentAbhaAddress: string;
 };
 
 const AbhaUnlinkDialog = ({
   open,
   setOpen,
-  existingAbhaNumber,
   isKYCVerified,
+  existingAbhaNumber,
+  currentAbhaAddress,
 }: AbhaUnlinkDialogProps) => {
   const { logout } = useAuthContext();
   const [isConfirmed, setIsConfirmed] = useState(!isKYCVerified);
@@ -66,8 +68,9 @@ const AbhaUnlinkDialog = ({
                   ABHA address.
                 </div>
                 <div>
-                  Do you still want to unlink the ABHA number 91-3167-7861-0170
-                  from the ABHA address 91316778610170@sbx?
+                  Do you still want to unlink the ABHA number{" "}
+                  {existingAbhaNumber} from the ABHA address{" "}
+                  {currentAbhaAddress}?
                 </div>
               </DialogDescription>
             </DialogHeader>
@@ -87,15 +90,17 @@ const AbhaUnlinkDialog = ({
             </DialogFooter>
           </>
         ) : (
-          <DialogHeader>
-            <DialogTitle>
-              {isKYCVerified ? "Unlink ABHA" : "Link ABHA"}
-            </DialogTitle>
-            <DialogDescription>
-              {`Select a method to verify otp for ${
-                isKYCVerified ? "unlinking" : "linking"
-              } your ABHA number.`}
-            </DialogDescription>
+          <>
+            <DialogHeader>
+              <DialogTitle>
+                {isKYCVerified ? "Unlink ABHA" : "Link ABHA"}
+              </DialogTitle>
+              <DialogDescription>
+                {`Select a method to verify otp for ${
+                  isKYCVerified ? "unlinking" : "linking"
+                } your ABHA number.`}
+              </DialogDescription>
+            </DialogHeader>
             <AbhaNumberOtpFlow
               flowType={AuthFlowTypes.PROFILE_UPDATE}
               setMemory={setMemory}
@@ -104,7 +109,7 @@ const AbhaUnlinkDialog = ({
               onVerifyOtpSuccess={onVerifyOtpSuccess}
               action={isKYCVerified ? DE_LINK : LINK}
             />
-          </DialogHeader>
+          </>
         )}
       </DialogContent>
     </Dialog>

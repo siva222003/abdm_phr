@@ -77,6 +77,7 @@ export default function EditProfileForm({
     onSuccess: () => {
       toast.success("Profile updated successfully");
       queryClient.invalidateQueries({ queryKey: ["user"] });
+      queryClient.invalidateQueries({ queryKey: ["abhaCard"] });
       onUpdateSuccess();
     },
   });
@@ -94,9 +95,6 @@ export default function EditProfileForm({
       profile_photo: userData.profilePhoto,
     });
   };
-
-  const isSubmitDisabled =
-    !form.formState.isDirty || updateProfileMutation.isPending;
 
   return (
     <Form {...form}>
@@ -130,7 +128,7 @@ export default function EditProfileForm({
           type="submit"
           className="w-full"
           variant="primary"
-          disabled={isSubmitDisabled}
+          disabled={!form.formState.isDirty || updateProfileMutation.isPending}
         >
           {updateProfileMutation.isPending ? (
             <>

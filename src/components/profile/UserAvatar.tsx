@@ -21,6 +21,7 @@ export default function UserAvatar(userData: PhrProfile) {
     onSuccess: () => {
       toast.success("Profile photo updated successfully");
       queryClient.invalidateQueries({ queryKey: ["user"] });
+      queryClient.invalidateQueries({ queryKey: ["abhaCard"] });
       setShowEditModal(false);
     },
   });
