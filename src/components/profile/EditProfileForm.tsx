@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod/v4";
 
-import { PIN_CODE_REGEX } from "@/lib/validators";
+import { ADDRESS_REGEX, PIN_CODE_REGEX, validators } from "@/lib/validators";
 
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -33,14 +33,19 @@ const schema = z.object({
   gender: z.enum(["M", "F", "O"], {
     error: "Gender is required",
   }),
-  date_of_birth: z.iso.date({
-    error: "Date of birth is required",
-  }),
+  date_of_birth: validators.dateOfBirth,
   state_code: z.number({ error: "State is required" }),
   state_name: z.string(),
   district_code: z.number({ error: "District is required" }),
   district_name: z.string(),
-  address: z.string().trim().min(1, { error: "Address is required" }),
+  address: z
+    .string()
+    .trim()
+    .min(1, { error: "Address is required" })
+    .regex(ADDRESS_REGEX, {
+      error:
+        "Address can only contain letters, numbers, and these characters: ,.'/()-",
+    }),
   pincode: z.string().regex(PIN_CODE_REGEX, {
     error: "Enter a valid 6 digit pincode",
   }),

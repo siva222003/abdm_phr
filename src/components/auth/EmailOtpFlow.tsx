@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { Dispatch, FC, SetStateAction } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -59,16 +59,14 @@ const EmailOtpFlow: FC<EmailOtpFlowProps> = ({
   } = useOtpFlow(flowType, setMemory, onVerifyOtpSuccess);
 
   const baseSchema = z.object({
-    email: z.string().email({
-      message: "Invalid email address",
-    }),
+    email: z.email({ error: "Invalid email address" }),
     otp: z.string().optional(),
   });
 
   const form = useForm({
     resolver: zodResolver(baseSchema),
     defaultValues: {
-      email: "",
+      email: undefined,
       otp: "",
     },
   });
