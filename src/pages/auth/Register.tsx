@@ -80,6 +80,10 @@ const RegisterAbha = () => {
   const { currentStep } = useMultiStepForm<FormMemory>(
     [
       {
+        id: "add-personal-details",
+        element: <AddBasicDetails {...({} as AddBasicDetailsProps)} />,
+      },
+      {
         id: "register",
         element: <Register {...({} as RegisterProps)} />,
       },
@@ -262,7 +266,8 @@ const AddBasicDetails = ({ memory, setMemory, goTo }: AddBasicDetailsProps) => {
       middle_name: "",
       last_name: "",
       gender: undefined,
-      date_of_birth: undefined,
+      date_of_birth: "",
+      email: undefined,
       profile_photo: "",
     },
   });
