@@ -12,7 +12,9 @@ import {
   ABHA_ADDRESS_VALIDATION_RULES,
   PASSWORD_REGEX,
   PIN_CODE_REGEX,
+  validators,
 } from "@/lib/validators";
+import { ADDRESS_REGEX } from "@/lib/validators";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -144,9 +146,9 @@ const Register = ({ memory, setMemory, goTo }: RegisterProps) => {
           ...prev.phrProfile,
           ...data.abha_number,
           abha_address: data.abha_number?.health_id ?? "",
-          day_of_birth: day ?? "",
-          month_of_birth: month ?? "",
-          year_of_birth: year ?? "",
+          day_of_birth: day,
+          month_of_birth: month,
+          year_of_birth: year,
           district_name: data.abha_number?.district ?? "",
           state_name: data.abha_number?.state ?? "",
           mobile: mobileNumber,
@@ -239,16 +241,17 @@ type AddBasicDetailsProps = InjectedStepProps<FormMemory>;
 
 const AddBasicDetails = ({ memory, setMemory, goTo }: AddBasicDetailsProps) => {
   const schema = z.object({
-    first_name: z.string().trim().min(1, "First name is required"),
+    first_name: z.string().trim().min(2, "First name is required"),
     middle_name: z.string().trim().optional(),
     last_name: z.string().trim().optional(),
     gender: z.enum(["M", "F", "O"], {
       error: "Gender is required",
     }),
-    date_of_birth: z.iso.date({
-      error: "Date of birth is required",
-    }),
-    email: z.email({ error: "Invalid email address" }).optional(),
+    date_of_birth: validators.dateOfBirth,
+    email: z.preprocess(
+      (val) => (val === "" ? undefined : val),
+      z.email({ message: "Invalid email address" }).optional(),
+    ),
     profile_photo: z.string().optional(),
   });
 
@@ -260,25 +263,27 @@ const AddBasicDetails = ({ memory, setMemory, goTo }: AddBasicDetailsProps) => {
       last_name: "",
       gender: undefined,
       date_of_birth: undefined,
-      email: "",
+      profile_photo: "",
     },
   });
 
   const onSubmit = (data: z.infer<typeof schema>) => {
     if (!memory?.phrProfile) return;
 
+    const [year, month, day] = formatDate(data.date_of_birth);
+
     setMemory((prev) => ({
       ...prev,
       phrProfile: {
         ...prev.phrProfile,
         ...data,
-        middle_name: data.middle_name ?? "",
-        last_name: data.last_name ?? "",
         email: data.email ?? "",
-        profile_photo: data.profile_photo ?? "",
+        day_of_birth: day,
+        month_of_birth: month,
+        year_of_birth: year,
       },
     }));
-    goTo("add-address");
+    goTo("add-location-details");
   };
 
   return (
@@ -315,7 +320,14 @@ const AddLocationDetails = ({ setMemory, goTo }: AddLocationDetailsProps) => {
     state_name: z.string(),
     district_code: z.number({ error: "District is required" }),
     district_name: z.string(),
-    address: z.string().trim().min(1, { error: "Address is required" }),
+    address: z
+      .string()
+      .trim()
+      .min(1, { error: "Address is required" })
+      .regex(ADDRESS_REGEX, {
+        error:
+          "Address can only contain letters, numbers, and these characters: ,.'/()-",
+      }),
     pincode: z.string().regex(PIN_CODE_REGEX, {
       error: "Enter a valid 6 digit pincode",
     }),
@@ -598,7 +610,7 @@ export const SetPassword = ({ memory }: SetPasswordProps) => {
       transaction_id: memory.transactionId,
       phr_details: {
         ...memory.phrProfile,
-        password: values.password || "",
+        password: values.password ?? "",
       },
     });
   };

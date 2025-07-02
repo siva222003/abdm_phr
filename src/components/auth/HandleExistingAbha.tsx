@@ -71,7 +71,7 @@ const HandleExistingAbhaAddress = ({
     if (memory.mode === AUTH_MODES.ABHA_NUMBER) {
       goTo("choose-abha-address");
     } else {
-      goTo("add-demographic-details");
+      goTo("add-personal-details");
     }
   }, [memory, goTo]);
 

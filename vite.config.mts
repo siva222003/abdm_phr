@@ -4,7 +4,7 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { defineConfig } from "vite";
 import checker from "vite-plugin-checker";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 export default defineConfig({
   plugins: [
@@ -21,9 +21,9 @@ export default defineConfig({
       },
     }),
     ValidateEnv({
-      validator: "zod",
+      validator: "standard",
       schema: {
-        REACT_CARE_API_URL: z.string().url(),
+        REACT_CARE_API_URL: z.url(),
       },
     }),
   ],
