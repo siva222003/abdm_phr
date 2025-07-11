@@ -36,7 +36,7 @@ import UserAvatar from "@/components/profile/UserAvatar";
 
 import { useAuthContext } from "@/hooks/useAuth";
 
-import { KYC_STATUS, PhrProfile } from "@/types/profile";
+import { KycStatuses, PhrProfile } from "@/types/profile";
 import { getProfilePhotoUrl } from "@/utils";
 
 function KYCStatusBadge({ isVerified }: { isVerified: boolean }) {
@@ -205,7 +205,7 @@ export default function Profile() {
 
   const isKYCVerified = useMemo(() => {
     if (!user) return false;
-    return user.kycStatus === KYC_STATUS.VERIFIED;
+    return user.kycStatus === KycStatuses.VERIFIED;
   }, [user]);
 
   const ContactInfoWithHandlers = (user: PhrProfile) => (

@@ -12,7 +12,7 @@ import {
 import MobileNumberOtpFlow from "@/components/auth/MobileNumberOtpFlow";
 
 import { AuthFlowTypes, INITIAL_AUTH_FORM_VALUES } from "@/types/auth";
-import { PROFILE_UPDATE_ACTIONS } from "@/types/profile";
+import { ProfileUpdateActions } from "@/types/profile";
 
 type UpdateMobileDialogProps = {
   open: boolean;
@@ -50,7 +50,7 @@ const UpdateMobileDialog = ({ open, setOpen }: UpdateMobileDialogProps) => {
           setMemory={setMemory}
           transactionId={memory.transactionId}
           onVerifyOtpSuccess={handleOtpSuccess}
-          action={PROFILE_UPDATE_ACTIONS.UPDATE_MOBILE}
+          action={ProfileUpdateActions.UPDATE_MOBILE}
         />
       </DialogContent>
     </Dialog>

@@ -14,7 +14,7 @@ import AbhaNumberOtpFlow from "@/components/auth/AbhaNumberOtpFlow";
 import { useAuthContext } from "@/hooks/useAuth";
 
 import { AuthFlowTypes, INITIAL_AUTH_FORM_VALUES } from "@/types/auth";
-import { PROFILE_UPDATE_ACTIONS } from "@/types/profile";
+import { ProfileUpdateActions } from "@/types/profile";
 
 type SelectPreferredAbhaDialogProps = {
   open: boolean;
@@ -63,7 +63,7 @@ const SelectPreferredAbhaDialog = ({
             transactionId={memory.transactionId}
             onVerifyOtpSuccess={onVerifyOtpSuccess}
             existingAbhaNumber={existingAbhaNumber}
-            action={PROFILE_UPDATE_ACTIONS.SELECT_PREFERRED_ABHA}
+            action={ProfileUpdateActions.SELECT_PREFERRED_ABHA}
           />
         </div>
       </DialogContent>

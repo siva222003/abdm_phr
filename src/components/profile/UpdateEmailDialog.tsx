@@ -12,7 +12,7 @@ import {
 import EmailOtpFlow from "@/components/auth/EmailOtpFlow";
 
 import { AuthFlowTypes, INITIAL_AUTH_FORM_VALUES } from "@/types/auth";
-import { PROFILE_UPDATE_ACTIONS } from "@/types/profile";
+import { ProfileUpdateActions } from "@/types/profile";
 
 type UpdateEmailDialogProps = {
   open: boolean;
@@ -50,7 +50,7 @@ const UpdateEmailDialog = ({ open, setOpen }: UpdateEmailDialogProps) => {
           setMemory={setMemory}
           transactionId={memory.transactionId}
           onVerifyOtpSuccess={handleOtpSuccess}
-          action={PROFILE_UPDATE_ACTIONS.UPDATE_EMAIL}
+          action={ProfileUpdateActions.UPDATE_EMAIL}
         />
       </DialogContent>
     </Dialog>

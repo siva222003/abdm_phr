@@ -250,7 +250,7 @@ const AddBasicDetails = ({ memory, setMemory, goTo }: AddBasicDetailsProps) => {
     date_of_birth: validators.dateOfBirth,
     email: z.preprocess(
       (val) => (val === "" ? undefined : val),
-      z.email({ message: "Invalid email address" }).optional(),
+      z.email({ error: "Invalid email address" }).optional(),
     ),
     profile_photo: z.string().optional(),
   });
@@ -579,7 +579,7 @@ export const SetPassword = ({ memory }: SetPasswordProps) => {
       confirmPassword: z.string().trim().optional(),
     })
     .refine((data) => data.password === data.confirmPassword, {
-      message: "Passwords do not match",
+      error: "Passwords do not match",
       path: ["confirmPassword"],
     });
 

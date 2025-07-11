@@ -73,7 +73,7 @@ export function AppSidebar() {
                   tooltip="Logout"
                   className="text-gray-600 transition font-normal hover:bg-gray-200 hover:text-red-700"
                 >
-                  <button onClick={logout}>Logout</button>
+                  <button onClick={() => logout()}>Logout</button>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>

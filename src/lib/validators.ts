@@ -57,7 +57,7 @@ export const validators = {
         return d < new Date() && d.getFullYear() >= 1900;
       },
       {
-        message: "Enter a valid birth date (1900 - today)",
+        error: "Enter a valid birth date (1900 - today)",
       },
     ),
 };

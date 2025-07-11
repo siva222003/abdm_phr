@@ -15,7 +15,7 @@ import AbhaNumberOtpFlow from "@/components/auth/AbhaNumberOtpFlow";
 import { useAuthContext } from "@/hooks/useAuth";
 
 import { AuthFlowTypes, INITIAL_AUTH_FORM_VALUES } from "@/types/auth";
-import { PROFILE_UPDATE_ACTIONS } from "@/types/profile";
+import { ProfileUpdateActions } from "@/types/profile";
 
 type AbhaUnlinkDialogProps = {
   open: boolean;
@@ -51,8 +51,6 @@ const AbhaUnlinkDialog = ({
       setMemory(INITIAL_AUTH_FORM_VALUES);
     }
   };
-
-  const { LINK, DE_LINK } = PROFILE_UPDATE_ACTIONS;
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -107,7 +105,11 @@ const AbhaUnlinkDialog = ({
               existingAbhaNumber={existingAbhaNumber}
               transactionId={memory.transactionId}
               onVerifyOtpSuccess={onVerifyOtpSuccess}
-              action={isKYCVerified ? DE_LINK : LINK}
+              action={
+                isKYCVerified
+                  ? ProfileUpdateActions.DE_LINK
+                  : ProfileUpdateActions.LINK
+              }
             />
           </>
         )}
