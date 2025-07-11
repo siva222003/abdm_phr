@@ -6,8 +6,8 @@ import { RESEND_OTP_DURATION } from "@/common/constants";
 
 import routes from "@/api";
 import {
-  AUTH_FLOW_TYPES,
-  FlowType,
+  AuthFlowType,
+  AuthFlowTypes,
   FormMemory,
   SendOtpRequest,
   VerifyOtpResponse,
@@ -17,7 +17,7 @@ import { mutate } from "@/utils/request/request";
 import { useAuthContext } from "./useAuth";
 
 export const useOtpFlow = (
-  flowType: FlowType,
+  flowType: AuthFlowType,
   setMemory: Dispatch<SetStateAction<FormMemory>>,
   onVerifyOtpSuccess: (
     data: VerifyOtpResponse,
@@ -39,7 +39,7 @@ export const useOtpFlow = (
   }, [resendCountdown]);
 
   const sendOtpMutationFn =
-    flowType === AUTH_FLOW_TYPES.ENROLLMENT
+    flowType === AuthFlowTypes.ENROLLMENT
       ? mutate(routes.register.sendOtp)
       : mutate(routes.login.sendOtp);
 
@@ -56,7 +56,7 @@ export const useOtpFlow = (
   });
 
   const verifyOtpMutationFn =
-    flowType === AUTH_FLOW_TYPES.ENROLLMENT
+    flowType === AuthFlowTypes.ENROLLMENT
       ? mutate(routes.register.verifyOtp)
       : mutate(routes.login.verifyOtp);
 

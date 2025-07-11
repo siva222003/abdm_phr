@@ -61,13 +61,13 @@ import {
 import { useAuthContext } from "@/hooks/useAuth";
 import useMultiStepForm, { InjectedStepProps } from "@/hooks/useMultiStepForm";
 
-import { DOMAIN } from "@/common/constants";
+import { DEFAULT_OTP_SYSTEM, DOMAIN } from "@/common/constants";
 
 import routes from "@/api";
 import {
-  AUTH_FLOW_TYPES,
-  AUTH_MODES,
+  AuthFlowTypes,
   AuthMode,
+  AuthModes,
   FormMemory,
   INITIAL_AUTH_FORM_VALUES,
   SendOtpRequest,
@@ -125,8 +125,8 @@ export default RegisterAbha;
 
 type RegisterProps = InjectedStepProps<FormMemory>;
 
-const { MOBILE_NUMBER, ABHA_NUMBER } = AUTH_MODES;
-const { ENROLLMENT } = AUTH_FLOW_TYPES;
+const { MOBILE_NUMBER, ABHA_NUMBER } = AuthModes;
+const { ENROLLMENT } = AuthFlowTypes;
 
 const Register = ({ memory, setMemory, goTo }: RegisterProps) => {
   const navigate = useNavigate();
@@ -145,7 +145,7 @@ const Register = ({ memory, setMemory, goTo }: RegisterProps) => {
         ...prev,
         transactionId: data.transaction_id,
         existingAbhaAddresses: data.users,
-        verifySystem: sendOtpContext?.otp_system || "abdm",
+        verifySystem: sendOtpContext?.otp_system || DEFAULT_OTP_SYSTEM,
         phrProfile: {
           ...prev.phrProfile,
           ...data.abha_number,

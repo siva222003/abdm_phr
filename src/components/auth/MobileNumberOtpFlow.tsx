@@ -21,19 +21,19 @@ import OtpInput from "@/components/auth/ui/otp-resend-input";
 
 import { useOtpFlow } from "@/hooks/useOtpFlow";
 
-import { OTP_LENGTH } from "@/common/constants";
+import { DEFAULT_OTP_SYSTEM, OTP_LENGTH } from "@/common/constants";
 
 import {
-  AUTH_FLOW_TYPES,
-  AUTH_MODES,
-  FlowType,
+  AuthFlowType,
+  AuthFlowTypes,
+  AuthModes,
   FormMemory,
   SendOtpRequest,
   VerifyOtpResponse,
 } from "@/types/auth";
 
 type MobileNumberOtpFlowProps = {
-  flowType: FlowType;
+  flowType: AuthFlowType;
   transactionId?: string;
   setMemory: Dispatch<SetStateAction<FormMemory>>;
   onVerifyOtpSuccess: (
@@ -41,9 +41,6 @@ type MobileNumberOtpFlowProps = {
     sendOtpContext?: SendOtpRequest,
   ) => void;
 };
-
-const DEFAULT_OTP_SYSTEM = "abdm";
-const { MOBILE_NUMBER } = AUTH_MODES;
 
 const MobileNumberOtpFlow = ({
   flowType,
@@ -80,7 +77,7 @@ const MobileNumberOtpFlow = ({
     sendOtpMutation.mutate({
       value: form.getValues("mobile"),
       otp_system: DEFAULT_OTP_SYSTEM,
-      type: MOBILE_NUMBER,
+      type: AuthModes.MOBILE_NUMBER,
     });
     resetCountdown();
   };
@@ -90,7 +87,7 @@ const MobileNumberOtpFlow = ({
       sendOtpMutation.mutate({
         value: values.mobile,
         otp_system: DEFAULT_OTP_SYSTEM,
-        type: MOBILE_NUMBER,
+        type: AuthModes.MOBILE_NUMBER,
       });
       resetCountdown();
       return;
@@ -102,10 +99,9 @@ const MobileNumberOtpFlow = ({
     verifyOtpMutation.mutate({
       otp: values.otp,
       transaction_id: transactionId,
-      type: MOBILE_NUMBER,
-      [flowType === AUTH_FLOW_TYPES.ENROLLMENT
-        ? "otp_system"
-        : "verify_system"]: DEFAULT_OTP_SYSTEM,
+      type: AuthModes.MOBILE_NUMBER,
+      [flowType === AuthFlowTypes.ENROLLMENT ? "otp_system" : "verify_system"]:
+        DEFAULT_OTP_SYSTEM,
     });
   };
 

@@ -1,19 +1,19 @@
 import { KycStatus, PhrEnrolDetails, PhrProfilePartial } from "./profile";
 
 // Common types for authentication and verification
-export const AUTH_MODES = {
+export const AuthModes = {
   ABHA_NUMBER: "abha-number",
   MOBILE_NUMBER: "mobile-number",
   ABHA_ADDRESS: "abha-address",
 } as const;
 
-export const AUTH_FLOW_TYPES = {
+export const AuthFlowTypes = {
   ENROLLMENT: "enrollment",
   LOGIN: "login",
 } as const;
 
-export type AuthMode = (typeof AUTH_MODES)[keyof typeof AUTH_MODES];
-export type FlowType = (typeof AUTH_FLOW_TYPES)[keyof typeof AUTH_FLOW_TYPES];
+export type AuthMode = (typeof AuthModes)[keyof typeof AuthModes];
+export type AuthFlowType = (typeof AuthFlowTypes)[keyof typeof AuthFlowTypes];
 
 export type VerifySystem = "abdm" | "aadhaar";
 export type AuthMethod = "MOBILE_OTP" | "PASSWORD" | "AADHAAR_OTP";

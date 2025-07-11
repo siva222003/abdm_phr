@@ -1,19 +1,13 @@
-const DOMAIN = "@sbx";
-const OTP_LENGTH = 6;
-const RESEND_OTP_DURATION = 60;
+export const DOMAIN = "@sbx";
+export const OTP_LENGTH = 6;
+export const RESEND_OTP_DURATION = 60;
 
-const LocalStorageKeys = {
+export const LocalStorageKeys = {
   accessToken: "access_token",
   refreshToken: "refresh_token",
   switchProfileEnabled: "switch_profile_enabled",
 } as const;
 
-const REFRESH_TOKEN_REFETCH_INTERVAL = 1000 * 60 * 5;
+export const REFRESH_TOKEN_REFETCH_INTERVAL = 1000 * 60 * 5;
 
-export {
-  DOMAIN,
-  OTP_LENGTH,
-  LocalStorageKeys,
-  RESEND_OTP_DURATION,
-  REFRESH_TOKEN_REFETCH_INTERVAL,
-};
+export const DEFAULT_OTP_SYSTEM = "abdm";

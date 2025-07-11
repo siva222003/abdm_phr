@@ -31,9 +31,9 @@ import { useOtpFlow } from "@/hooks/useOtpFlow";
 import { OTP_LENGTH } from "@/common/constants";
 
 import {
-  AUTH_FLOW_TYPES,
-  AUTH_MODES,
-  FlowType,
+  AuthFlowType,
+  AuthFlowTypes,
+  AuthModes,
   FormMemory,
   SendOtpRequest,
   VerifyOtpResponse,
@@ -41,7 +41,7 @@ import {
 import { calculateCursorPosition } from "@/utils";
 
 type AbhaNumberOtpFlowProps = {
-  flowType: FlowType;
+  flowType: AuthFlowType;
   transactionId?: string;
   setMemory: Dispatch<SetStateAction<FormMemory>>;
   onVerifyOtpSuccess: (
@@ -54,8 +54,6 @@ const OTP_METHODS = [
   { id: "abdm", label: "Mobile OTP" },
   { id: "aadhaar", label: "Aadhaar OTP" },
 ] as const;
-
-const { ABHA_NUMBER } = AUTH_MODES;
 
 const AbhaNumberOtpFlow = ({
   flowType,
@@ -125,7 +123,7 @@ const AbhaNumberOtpFlow = ({
   const handleResendOtp = () => {
     sendOtpMutation.mutate({
       value: form.getValues("abha"),
-      type: ABHA_NUMBER,
+      type: AuthModes.ABHA_NUMBER,
       otp_system: form.getValues("otpMethod"),
     });
     resetCountdown();
@@ -135,7 +133,7 @@ const AbhaNumberOtpFlow = ({
     if (!otpSent) {
       sendOtpMutation.mutate({
         value: values.abha,
-        type: ABHA_NUMBER,
+        type: AuthModes.ABHA_NUMBER,
         otp_system: values.otpMethod!,
       });
       resetCountdown();
@@ -149,10 +147,9 @@ const AbhaNumberOtpFlow = ({
     verifyOtpMutation.mutate({
       transaction_id: transactionId,
       otp: values.otp,
-      type: ABHA_NUMBER,
-      [flowType === AUTH_FLOW_TYPES.ENROLLMENT
-        ? "otp_system"
-        : "verify_system"]: values.otpMethod,
+      type: AuthModes.ABHA_NUMBER,
+      [flowType === AuthFlowTypes.ENROLLMENT ? "otp_system" : "verify_system"]:
+        values.otpMethod,
     });
   };
 
