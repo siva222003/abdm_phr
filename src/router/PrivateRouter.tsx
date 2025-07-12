@@ -8,6 +8,7 @@ import FallbackErrorPage from "@/components/errors/FallbackErrorPage";
 
 import useSidebarState from "@/hooks/useSidebarState";
 
+import Consent from "@/pages/Consent";
 import HomePage from "@/pages/HomePage";
 import Profile from "@/pages/Profile";
 
@@ -16,6 +17,7 @@ import { AppRoutes } from "./types";
 const Routes: AppRoutes = {
   "/": () => <HomePage />,
   "/profile": () => <Profile />,
+  "/consents": () => <Consent />,
 
   "/login": () => <Redirect to="/" />,
   "/register": () => <Redirect to="/" />,

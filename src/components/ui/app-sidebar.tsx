@@ -1,4 +1,4 @@
-import { Home, Inbox } from "lucide-react";
+import { Home, Inbox, Podcast } from "lucide-react";
 import { ActiveLink } from "raviger";
 
 import {
@@ -25,6 +25,11 @@ const items = [
     title: "Profile",
     url: "/profile",
     icon: <Inbox />,
+  },
+  {
+    title: "Consents",
+    url: "/consents",
+    icon: <Podcast />,
   },
 ];
 

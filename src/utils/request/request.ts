@@ -1,3 +1,4 @@
+import { sleep } from "@/utils";
 import { HTTPError } from "@/utils/request/types";
 import type { ApiCallOptions, ApiRoute } from "@/utils/request/types";
 import { getResponseBody, makeHeaders, makeUrl } from "@/utils/request/utils";
@@ -52,6 +53,17 @@ export function query<Route extends ApiRoute<unknown, unknown>>(
   return ({ signal }: { signal: AbortSignal }) =>
     callApi(route, { ...options, signal });
 }
+
+const debouncedQuery = <Route extends ApiRoute<unknown, unknown>>(
+  route: Route,
+  options?: ApiCallOptions<Route> & { debounceInterval?: number },
+) => {
+  return async ({ signal }: { signal: AbortSignal }) => {
+    await sleep(options?.debounceInterval ?? 500);
+    return query(route, { ...options })({ signal });
+  };
+};
+query.debounced = debouncedQuery;
 
 export function mutate<Route extends ApiRoute<unknown, unknown>>(
   route: Route,
