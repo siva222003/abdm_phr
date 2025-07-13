@@ -1,13 +1,12 @@
 import { Box } from "lucide-react";
 import { useQueryParams } from "raviger";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 
 import { EmptyState } from "@/components/ui/empty-state";
 
 import Page from "@/components/common/Page";
-import ConsentCards from "@/components/consent/ConsentCard";
 import { ConsentFilters } from "@/components/consent/ConsentFilters";
-import ConsentTable from "@/components/consent/ConsentTable";
+import ConsentList from "@/components/consent/ConsentList";
 
 import { useConsentData } from "@/hooks/useConsentData";
 
@@ -17,12 +16,13 @@ import {
 } from "@/common/loaders/SkeletonLoader";
 
 import {
+  CONSENT_STATUS_BY_CATEGORY,
   ConsentCategories,
   ConsentCategory,
   ConsentQueryParams,
   ConsentStatus,
-  ConsentStatusByCategory,
   ConsentStatuses,
+  ConsentType,
 } from "@/types/consent";
 
 const DEFAULT_QUERY_PARAMS: ConsentQueryParams = {
@@ -43,28 +43,34 @@ export default function Consent() {
     [qParams],
   );
 
-  const { data, isLoading, isEmpty } = useConsentData(queryParams);
+  const { data, isLoading, isEmpty, isError } = useConsentData(queryParams);
 
-  const handleCategoryChange = (category: ConsentCategory) => {
-    updateQuery({
-      ...queryParams,
-      category,
-      status: ConsentStatusByCategory[category][0],
-      offset: 0,
-    });
-  };
+  const handleCategoryChange = useCallback(
+    (category: ConsentCategory) => {
+      updateQuery({
+        ...queryParams,
+        category,
+        status: CONSENT_STATUS_BY_CATEGORY[category][0],
+        offset: 0,
+      });
+    },
+    [queryParams, updateQuery],
+  );
 
-  const handleStatusChange = (status: ConsentStatus) => {
-    updateQuery({
-      ...queryParams,
-      status,
-      offset: 0,
-    });
-  };
+  const handleStatusChange = useCallback(
+    (status: ConsentStatus) => {
+      updateQuery({
+        ...queryParams,
+        status,
+        offset: 0,
+      });
+    },
+    [queryParams, updateQuery],
+  );
 
-  const handleViewConsent = (id: string, type: "consent" | "subscription") => {
+  const handleViewConsent = useCallback((id: string, type: ConsentType) => {
     console.log(`View ${type}:`, id);
-  };
+  }, []);
 
   if (isLoading) {
     return (
@@ -87,7 +93,7 @@ export default function Consent() {
     );
   }
 
-  if (isEmpty) {
+  if (isEmpty || isError) {
     return (
       <Page title="Consents" hideTitleOnPage>
         <div className="w-full mx-auto mt-2">
@@ -117,15 +123,7 @@ export default function Consent() {
           onStatusChange={handleStatusChange}
         />
 
-        {/* Mobile Card View */}
-        <div className="md:hidden">
-          <ConsentCards data={data} onView={handleViewConsent} />
-        </div>
-
-        {/* Desktop Table View */}
-        <div className="hidden md:block">
-          <ConsentTable data={data} onView={handleViewConsent} />
-        </div>
+        <ConsentList data={data} onView={handleViewConsent} />
       </div>
     </Page>
   );

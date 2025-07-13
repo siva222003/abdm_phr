@@ -8,9 +8,9 @@ import FallbackErrorPage from "@/components/errors/FallbackErrorPage";
 
 import useSidebarState from "@/hooks/useSidebarState";
 
-import Consent from "@/pages/Consent";
 import HomePage from "@/pages/HomePage";
 import Profile from "@/pages/Profile";
+import Consent from "@/pages/consent/Consent";
 
 import { AppRoutes } from "./types";
 

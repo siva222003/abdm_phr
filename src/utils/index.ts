@@ -37,6 +37,19 @@ export const formatDate = (date: string | undefined) => {
   return [c, b, a];
 };
 
+export const formatDateTime = (date: string | undefined): string => {
+  if (!date) return "";
+
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return "";
+
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+
+  return `${day}-${month}-${year}`;
+};
+
 export const calculateCursorPosition = (
   value: string,
   selectionStart: number,
@@ -59,15 +72,12 @@ export const getProfilePhotoUrl = (profilePhoto: string | null) => {
 
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-export const formatDateTime = (date: string | undefined): string => {
-  if (!date) return "";
-
-  const d = new Date(date);
-  if (isNaN(d.getTime())) return "";
-
-  const day = String(d.getDate()).padStart(2, "0");
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const year = d.getFullYear();
-
-  return `${day}-${month}-${year}`;
-};
+export const toTitleCase = (str: string | undefined) =>
+  !str
+    ? ""
+    : str
+        .replace(/[_-]+/g, " ")
+        .replace(
+          /\w\S*/g,
+          (txt) => txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase(),
+        );

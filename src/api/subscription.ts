@@ -3,16 +3,13 @@ import {
   SubscriptionDenyRequest,
   SubscriptionEditAndApproveRequest,
   SubscriptionRequest,
-  SubscriptionRequestResponse,
   SubscriptionStatusUpdateRequest,
   SubscriptionUpdateBaseResponse,
 } from "@/types/subscription";
 import { API } from "@/utils/request/api";
 
 export const subscription = {
-  listRequests: API<SubscriptionRequestResponse>(
-    "GET /phr/subscription/requests",
-  ),
+  listRequests: API<SubscriptionRequest[]>("GET /phr/subscription/requests"),
   getRequest: API<SubscriptionRequest>(
     "GET /phr/subscription/request/{requestId}",
   ),

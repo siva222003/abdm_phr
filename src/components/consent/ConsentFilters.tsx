@@ -8,10 +8,10 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import {
+  CONSENT_STATUS_BY_CATEGORY,
   ConsentCategories,
   ConsentCategory,
   ConsentStatus,
-  ConsentStatusByCategory,
 } from "@/types/consent";
 
 interface ConsentFiltersProps {
@@ -60,7 +60,7 @@ export function ConsentFilters({
             <SelectValue placeholder="Select Status" />
           </SelectTrigger>
           <SelectContent>
-            {ConsentStatusByCategory[category]?.map((statusOption) => (
+            {CONSENT_STATUS_BY_CATEGORY[category]?.map((statusOption) => (
               <SelectItem key={statusOption} value={statusOption}>
                 {statusOption}
               </SelectItem>

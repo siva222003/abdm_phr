@@ -1,99 +1,158 @@
-// Constants
-export const ConsentCategories = {
-  REQUESTS: "REQUESTS",
-  APPROVED: "APPROVED",
+// ================================
+// ENUMS & CONSTANTS
+// ================================
+
+export enum ConsentCategories {
+  REQUESTS = "REQUESTS",
+  APPROVED = "APPROVED",
+}
+
+export enum ConsentStatuses {
+  ALL = "ALL",
+  REQUESTED = "REQUESTED",
+  GRANTED = "GRANTED",
+  DENIED = "DENIED",
+  EXPIRED = "EXPIRED",
+  REVOKED = "REVOKED",
+}
+
+export enum ConsentTypes {
+  CONSENT = "Consent",
+  SUBSCRIPTION = "Subscription",
+}
+
+export enum ConsentHITypes {
+  PRESCRIPTION = "Prescription",
+  DIAGNOSTIC_REPORT = "DiagnosticReport",
+  OP_CONSULTATION = "OPConsultation",
+  DISCHARGE_SUMMARY = "DischargeSummary",
+  IMMUNIZATION_RECORD = "ImmunizationRecord",
+  HEALTH_DOCUMENT_RECORD = "HealthDocumentRecord",
+  WELLNESS_RECORD = "WellnessRecord",
+}
+
+export enum ConsentPurposeCodes {
+  CAREMGT = "CAREMGT",
+  BTG = "BTG",
+  PUBHLTH = "PUBHLTH",
+  HPAYMT = "HPAYMT",
+  DSRCH = "DSRCH",
+  PATRQT = "PATRQT",
+}
+
+export enum ConsentAccessModes {
+  VIEW = "VIEW",
+  STORE = "STORE",
+  QUERY = "QUERY",
+  STREAM = "STREAM",
+}
+
+export enum ConsentFrequencyUnits {
+  HOUR = "HOUR",
+  DAY = "DAY",
+  WEEK = "WEEK",
+  MONTH = "MONTH",
+  YEAR = "YEAR",
+}
+
+// UI variants for badges/status colors
+export const CONSENT_STATUS_VARIANTS = {
+  [ConsentStatuses.REQUESTED]: "yellow",
+  [ConsentStatuses.GRANTED]: "green",
+  [ConsentStatuses.DENIED]: "destructive",
+  [ConsentStatuses.EXPIRED]: "secondary",
+  [ConsentStatuses.REVOKED]: "secondary",
 } as const;
 
-export const ConsentStatuses = {
-  ALL: "ALL",
-  REQUESTED: "REQUESTED",
-  GRANTED: "GRANTED",
-  DENIED: "DENIED",
-  EXPIRED: "EXPIRED",
-  REVOKED: "REVOKED",
+export const CONSENT_TYPE_VARIANTS = {
+  [ConsentTypes.CONSENT]: "blue",
+  [ConsentTypes.SUBSCRIPTION]: "purple",
 } as const;
 
-export const ConsentStatusByCategory = {
-  REQUESTS: ["ALL", "REQUESTED", "DENIED", "EXPIRED"],
-  APPROVED: ["GRANTED", "REVOKED", "EXPIRED"],
+// Business logic mappings
+export const CONSENT_STATUS_BY_CATEGORY = {
+  [ConsentCategories.REQUESTS]: [
+    ConsentStatuses.ALL,
+    ConsentStatuses.REQUESTED,
+    ConsentStatuses.DENIED,
+    ConsentStatuses.EXPIRED,
+  ],
+  [ConsentCategories.APPROVED]: [
+    ConsentStatuses.GRANTED,
+    ConsentStatuses.REVOKED,
+    ConsentStatuses.EXPIRED,
+  ],
 } as const;
 
-export const CONSENT_STATUS_COLORS = {
-  REQUESTED: "yellow",
-  DENIED: "danger",
-  GRANTED: "green",
-  EXPIRED: "secondary",
-  REVOKED: "orange",
-} as const;
+// ================================
+// TYPE DEFINITIONS
+// ================================
 
-export const CONSENT_TYPE_COLORS = {
-  consent: "blue",
-  subscription: "purple",
-} as const;
+export type ConsentCategory = ConsentCategories;
+export type ConsentStatus = ConsentStatuses;
+export type ConsentType = ConsentTypes;
+export type ConsentHIType = ConsentHITypes;
+export type ConsentPurposeCode = ConsentPurposeCodes;
+export type ConsentAccessMode = ConsentAccessModes;
+export type ConsentFrequencyUnit = ConsentFrequencyUnits;
 
-// Type Defs
-export type ConsentCategory =
-  (typeof ConsentCategories)[keyof typeof ConsentCategories];
+// ================================
+// CORE TYPES
+// ================================
 
-export type ConsentStatus =
-  (typeof ConsentStatuses)[keyof typeof ConsentStatuses];
-
-export type ConsentHIType =
-  | "Prescription"
-  | "DiagnosticReport"
-  | "OPConsultation"
-  | "DischargeSummary"
-  | "ImmunizationRecord"
-  | "HealthDocumentRecord"
-  | "WellnessRecord";
-
-export type ConsentPurpose = {
+export interface ConsentPurpose {
   text: string;
-  code: "CAREMGT" | "BTG" | "PUBHLTH" | "HPAYMT" | "DSRCH" | "PATRQT";
+  code: ConsentPurposeCode;
   refUri: string;
-};
+}
 
-export type ConsentPatient = {
+export interface ConsentPatient {
   id: string;
-};
+}
 
-export type ConsentHealthFacility = {
+export interface ConsentHealthFacility {
   id: string;
   name?: string;
   type?: string;
-};
+}
 
-type ConsentCareContext = {
+export interface ConsentCareContext {
   patientReference: string;
   careContextReference: string;
-};
+}
 
-type ConsentRequester = {
-  name: string;
+export interface ConsentRequester {
+  name?: string | null;
   identifier: {
     value: string;
     type: string;
     system: string;
   };
-};
+}
 
-export type ConsentDateRange = {
+export interface ConsentDateRange {
   from: string;
   to: string;
-};
+}
 
-type ConsentPermission = {
-  accessMode: "VIEW" | "STORE" | "QUERY" | "STREAM";
+export interface ConsentFrequency {
+  unit: ConsentFrequencyUnit;
+  value: number;
+  repeats: number;
+}
+
+export interface ConsentPermission {
+  accessMode: ConsentAccessMode;
   dateRange: ConsentDateRange;
   dataEraseAt: string;
-  frequency: {
-    unit: "HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR";
-    value: number;
-    repeats: number;
-  };
-};
+  frequency: ConsentFrequency;
+}
 
-export type ConsentRequest = {
+// ================================
+// API TYPES
+// ================================
+
+export interface ConsentRequest {
   requestId: string;
   purpose: ConsentPurpose;
   patient: ConsentPatient;
@@ -106,9 +165,9 @@ export type ConsentRequest = {
   lastUpdated: string;
   hiType: ConsentHIType[];
   permission: ConsentPermission;
-};
+}
 
-export type ConsentArtefact = {
+export interface ConsentArtefact {
   status: ConsentStatus;
   consentDetail: {
     consentId: string;
@@ -124,58 +183,59 @@ export type ConsentArtefact = {
     permission: ConsentPermission;
   };
   signature: string;
-};
+}
 
-// API Types
-export type PaginationResponse = {
-  size: number;
-  limit: number;
-  offset: number;
-};
-
-export type ConsentRequestsResponse = {
-  requests: ConsentRequest[];
-} & PaginationResponse;
-
-export type ConsentArtefactsResponse = {
-  consentArtefacts: ConsentArtefact[];
-} & PaginationResponse;
-
-export type ConsentApproveRequest = {
+export interface ConsentApproveRequest {
   consents: {
     hiTypes: ConsentHIType[];
     hip: ConsentHealthFacility;
     careContexts: ConsentCareContext[];
     permission: ConsentPermission;
   }[];
-};
+}
 
-export type ConsentDenyRequest = {
+export interface ConsentDenyRequest {
   reason?: string;
-};
+}
 
-export type ConsentRevokeRequest = {
+export interface ConsentRevokeRequest {
   consents: string[];
-};
+}
 
-export type ConsentUpdateBaseResponse = {
+export interface ConsentUpdateBaseResponse {
   detail: string;
-};
+}
 
-// Common Base Types
-export type ConsentBase = {
+// ================================
+// UTILITY TYPES
+// ================================
+
+// Unified type for UI components
+export interface ConsentBase {
   id: string;
-  type: "consent" | "subscription";
+  type: ConsentType;
   requester: string;
   purpose: string;
   fromDate: string;
   toDate: string;
   status: ConsentStatus;
-};
+}
 
-export type ConsentQueryParams = {
+export interface ConsentQueryParams {
   category: ConsentCategory;
   status: ConsentStatus;
   limit: number;
   offset: number;
-};
+}
+
+// ================================
+// UTILITY FUNCTIONS
+// ================================
+
+export function isConsentExpired(consent: ConsentBase): boolean {
+  return consent.status === ConsentStatuses.EXPIRED;
+}
+
+export function isConsentActive(consent: ConsentBase): boolean {
+  return consent.status === ConsentStatuses.GRANTED;
+}

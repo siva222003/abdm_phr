@@ -6,14 +6,13 @@ import {
   ConsentPurpose,
   ConsentStatus,
 } from "@/types/consent";
-import { PaginationResponse } from "@/types/consent";
 
 // Type Defs
 export type SubscriptionCategory = "LINK" | "DATA";
 export type SubscriptionRequestType = "HIU" | "HEALTH_LOCKER";
 
 export type SubscriptionRequest = {
-  subscriptionId: string;
+  subscriptionId?: string;
   requestId: string;
   createdAt: string;
   lastUpdated: string;
@@ -28,7 +27,7 @@ export type SubscriptionRequest = {
 };
 
 export type SubscriptionSource = {
-  hip: ConsentHealthFacility;
+  hip?: ConsentHealthFacility;
   categories: SubscriptionCategory[];
   hiTypes: ConsentHIType[];
   period: ConsentDateRange;
@@ -47,10 +46,6 @@ export type SubscriptionArtefact = {
 };
 
 // API Types
-export type SubscriptionRequestResponse = {
-  requests: SubscriptionRequest[];
-} & PaginationResponse;
-
 export type SubscriptionEditAndApproveRequest = {
   isApplicableForAllHIPs: boolean;
   includedSources: SubscriptionSource[];
