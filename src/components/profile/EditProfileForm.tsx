@@ -15,6 +15,8 @@ import {
   LocationDetailsSection,
 } from "@/components/profile/ProfileFormSections";
 
+import { GENDERS } from "@/common/constants";
+
 import routes from "@/api";
 import { PhrProfile } from "@/types/profile";
 import { formatDate } from "@/utils";
@@ -30,7 +32,7 @@ const schema = z.object({
   first_name: z.string().trim().min(1, "First name is required"),
   middle_name: z.string().trim().optional(),
   last_name: z.string().trim().optional(),
-  gender: z.enum(["M", "F", "O"], {
+  gender: z.enum(GENDERS, {
     error: "Gender is required",
   }),
   date_of_birth: validators.dateOfBirth,
