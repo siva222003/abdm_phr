@@ -7,10 +7,6 @@ import {
   ConsentStatus,
 } from "@/types/consent";
 
-// ================================
-// CORE TYPES
-// ================================
-
 export type SubscriptionCategory = "LINK" | "DATA";
 export type SubscriptionRequestType = "HIU" | "HEALTH_LOCKER";
 
@@ -47,10 +43,6 @@ export interface SubscriptionArtefact {
   requester: ConsentHealthFacility;
   includedSources: SubscriptionSource[];
 }
-
-// ================================
-// API SPECIFIC TYPES
-// ================================
 
 export interface SubscriptionEditAndApproveRequest {
   isApplicableForAllHIPs: boolean;

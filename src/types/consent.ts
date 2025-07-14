@@ -1,7 +1,3 @@
-// ================================
-// ENUMS & CONSTANTS
-// ================================
-
 export enum ConsentCategories {
   REQUESTS = "REQUESTS",
   APPROVED = "APPROVED",
@@ -31,7 +27,6 @@ export enum ConsentHITypes {
   WELLNESS_RECORD = "WellnessRecord",
 }
 
-// UI variants for badges/status colors
 export const CONSENT_STATUS_VARIANTS = {
   [ConsentStatuses.REQUESTED]: "yellow",
   [ConsentStatuses.GRANTED]: "green",
@@ -45,7 +40,6 @@ export const CONSENT_TYPE_VARIANTS = {
   [ConsentTypes.SUBSCRIPTION]: "purple",
 } as const;
 
-// Business logic mappings
 export const CONSENT_STATUS_BY_CATEGORY = {
   [ConsentCategories.REQUESTS]: [
     ConsentStatuses.ALL,
@@ -59,10 +53,6 @@ export const CONSENT_STATUS_BY_CATEGORY = {
     ConsentStatuses.EXPIRED,
   ],
 } as const;
-
-// ================================
-// CORE TYPES
-// ================================
 
 export type ConsentCategory = ConsentCategories;
 export type ConsentStatus = ConsentStatuses;
@@ -159,10 +149,6 @@ export interface ConsentArtefact {
   signature: string;
 }
 
-// ================================
-// API SPECIFIC TYPES
-// ================================
-
 export interface ConsentApproveRequest {
   consents: {
     hiTypes: ConsentHIType[];
@@ -184,11 +170,6 @@ export interface ConsentUpdateBaseResponse {
   detail: string;
 }
 
-// ================================
-// UTILITY TYPES
-// ================================
-
-// Unified type for UI components
 export interface ConsentBase {
   id: string;
   type: ConsentType;
@@ -205,10 +186,6 @@ export interface ConsentQueryParams {
   limit: number;
   offset: number;
 }
-
-// ================================
-// UTILITY FUNCTIONS
-// ================================
 
 export function isConsentExpired(consent: ConsentBase): boolean {
   return consent.status === ConsentStatuses.EXPIRED;
