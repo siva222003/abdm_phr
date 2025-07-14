@@ -31,30 +31,6 @@ export enum ConsentHITypes {
   WELLNESS_RECORD = "WellnessRecord",
 }
 
-export enum ConsentPurposeCodes {
-  CAREMGT = "CAREMGT",
-  BTG = "BTG",
-  PUBHLTH = "PUBHLTH",
-  HPAYMT = "HPAYMT",
-  DSRCH = "DSRCH",
-  PATRQT = "PATRQT",
-}
-
-export enum ConsentAccessModes {
-  VIEW = "VIEW",
-  STORE = "STORE",
-  QUERY = "QUERY",
-  STREAM = "STREAM",
-}
-
-export enum ConsentFrequencyUnits {
-  HOUR = "HOUR",
-  DAY = "DAY",
-  WEEK = "WEEK",
-  MONTH = "MONTH",
-  YEAR = "YEAR",
-}
-
 // UI variants for badges/status colors
 export const CONSENT_STATUS_VARIANTS = {
   [ConsentStatuses.REQUESTED]: "yellow",
@@ -85,20 +61,22 @@ export const CONSENT_STATUS_BY_CATEGORY = {
 } as const;
 
 // ================================
-// TYPE DEFINITIONS
+// CORE TYPES
 // ================================
 
 export type ConsentCategory = ConsentCategories;
 export type ConsentStatus = ConsentStatuses;
 export type ConsentType = ConsentTypes;
 export type ConsentHIType = ConsentHITypes;
-export type ConsentPurposeCode = ConsentPurposeCodes;
-export type ConsentAccessMode = ConsentAccessModes;
-export type ConsentFrequencyUnit = ConsentFrequencyUnits;
-
-// ================================
-// CORE TYPES
-// ================================
+export type ConsentPurposeCode =
+  | "CAREMGT"
+  | "BTG"
+  | "PUBHLTH"
+  | "HPAYMT"
+  | "DSRCH"
+  | "PATRQT";
+export type ConsentAccessMode = "VIEW" | "STORE" | "QUERY" | "STREAM";
+export type ConsentFrequencyUnit = "HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR";
 
 export interface ConsentPurpose {
   text: string;
@@ -148,10 +126,6 @@ export interface ConsentPermission {
   frequency: ConsentFrequency;
 }
 
-// ================================
-// API TYPES
-// ================================
-
 export interface ConsentRequest {
   requestId: string;
   purpose: ConsentPurpose;
@@ -184,6 +158,10 @@ export interface ConsentArtefact {
   };
   signature: string;
 }
+
+// ================================
+// API SPECIFIC TYPES
+// ================================
 
 export interface ConsentApproveRequest {
   consents: {

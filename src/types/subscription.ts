@@ -7,11 +7,14 @@ import {
   ConsentStatus,
 } from "@/types/consent";
 
-// Type Defs
+// ================================
+// CORE TYPES
+// ================================
+
 export type SubscriptionCategory = "LINK" | "DATA";
 export type SubscriptionRequestType = "HIU" | "HEALTH_LOCKER";
 
-export type SubscriptionRequest = {
+export interface SubscriptionRequest {
   subscriptionId?: string;
   requestId: string;
   createdAt: string;
@@ -24,17 +27,17 @@ export type SubscriptionRequest = {
   period: ConsentDateRange;
   status: ConsentStatus;
   requestType: SubscriptionRequestType;
-};
+}
 
-export type SubscriptionSource = {
+export interface SubscriptionSource {
   hip?: ConsentHealthFacility;
   categories: SubscriptionCategory[];
   hiTypes: ConsentHIType[];
   period: ConsentDateRange;
   status: ConsentStatus;
-};
+}
 
-export type SubscriptionArtefact = {
+export interface SubscriptionArtefact {
   subscriptionId: string;
   purpose: ConsentPurpose;
   status: ConsentStatus;
@@ -43,23 +46,26 @@ export type SubscriptionArtefact = {
   patient: ConsentPatient;
   requester: ConsentHealthFacility;
   includedSources: SubscriptionSource[];
-};
+}
 
-// API Types
-export type SubscriptionEditAndApproveRequest = {
+// ================================
+// API SPECIFIC TYPES
+// ================================
+
+export interface SubscriptionEditAndApproveRequest {
   isApplicableForAllHIPs: boolean;
   includedSources: SubscriptionSource[];
   excludedSources?: SubscriptionSource[];
-};
+}
 
-export type SubscriptionDenyRequest = {
+export interface SubscriptionDenyRequest {
   reason?: string;
-};
+}
 
-export type SubscriptionStatusUpdateRequest = {
+export interface SubscriptionStatusUpdateRequest {
   enabled: boolean;
-};
+}
 
-export type SubscriptionUpdateBaseResponse = {
+export interface SubscriptionUpdateBaseResponse {
   detail: string;
-};
+}
