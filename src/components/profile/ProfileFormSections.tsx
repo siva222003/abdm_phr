@@ -26,6 +26,8 @@ import { Textarea } from "@/components/ui/textarea";
 
 import ValidationHelper from "@/components/common/ValidationHelper";
 
+import { GENDER_CHOICES } from "@/common/constants";
+
 import routes from "@/api";
 import { query } from "@/utils/request/request";
 
@@ -55,12 +57,6 @@ const BASIC_FIELDS = [
     required: false,
   },
 ];
-
-const GENDER_OPTIONS = [
-  { value: "M", label: "Male" },
-  { value: "F", label: "Female" },
-  { value: "O", label: "Other" },
-] as const;
 
 export const BasicDetailsSection = ({
   form,
@@ -102,8 +98,8 @@ export const BasicDetailsSection = ({
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {GENDER_OPTIONS.map(({ value, label }) => (
-                    <SelectItem key={value} value={value}>
+                  {GENDER_CHOICES.map(({ id, label }) => (
+                    <SelectItem key={id} value={id}>
                       {label}
                     </SelectItem>
                   ))}

@@ -1,136 +1,118 @@
-import { KycStatus, PhrEnrolDetails, PhrProfilePartial } from "./profile";
+import { AUTH_METHODS, DEFAULT_AUTH_METHOD } from "@/common/constants";
 
-// Common types for authentication and verification
-export const AuthModes = {
-  ABHA_NUMBER: "abha-number",
-  MOBILE_NUMBER: "mobile-number",
-  ABHA_ADDRESS: "abha-address",
-} as const;
+import { PhrEnrolDetails, PhrProfilePartial, User } from "./profile";
 
-export const AuthFlowTypes = {
-  ENROLLMENT: "enrollment",
-  LOGIN: "login",
-} as const;
+export enum AuthModes {
+  ABHA_NUMBER = "abha-number",
+  MOBILE_NUMBER = "mobile-number",
+  ABHA_ADDRESS = "abha-address",
+  EMAIL = "email",
+}
 
-export type AuthMode = (typeof AuthModes)[keyof typeof AuthModes];
-export type AuthFlowType = (typeof AuthFlowTypes)[keyof typeof AuthFlowTypes];
+export enum AuthFlowTypes {
+  ENROLLMENT = "enrollment",
+  LOGIN = "login",
+}
 
-export type VerifySystem = "abdm" | "aadhaar";
-export type AuthMethod = "MOBILE_OTP" | "PASSWORD" | "AADHAAR_OTP";
+export type AuthMode = AuthModes;
+export type AuthFlowType = AuthFlowTypes;
+export type AuthMethod = (typeof AUTH_METHODS)[number];
 
-export type User = {
-  abhaAddress: string;
-  fullName: string;
-  abhaNumber: string;
-  status: string;
-  kycStatus: KycStatus;
-};
+export interface FormMemory {
+  transactionId: string;
+  mode: AuthMode;
+  verifySystem: AuthMethod;
+  existingAbhaAddresses?: User[];
+  phrProfile: PhrEnrolDetails;
+}
 
-// Verification specific types
-export type SendOtpRequest = {
+export interface SendOtpRequest {
   value: string;
   type: AuthMode;
-  otp_system?: VerifySystem;
-  verify_system?: VerifySystem;
-};
+  otp_system?: AuthMethod;
+  verify_system?: AuthMethod;
+}
 
-export type SendOtpResponse = {
-  transaction_id: string;
-  detail: string;
-};
-
-export type VerifyOtpRequest = {
+export interface VerifyOtpRequest extends Omit<SendOtpRequest, "value"> {
   otp: string;
   transaction_id: string;
-} & Omit<SendOtpRequest, "value">;
+}
 
-export type VerifyOtpResponse = SendOtpResponse & {
-  users: User[];
-  abha_number?: PhrProfilePartial;
-};
-
-export type VerifyPasswordRequest = {
+export interface VerifyPasswordRequest {
   password: string;
   abha_address: string;
   type: "abha-address";
   verify_system: "password";
-};
+}
 
-export type VerifyUserRequest = {
+export interface VerifyUserRequest {
   abha_address: string;
   transaction_id: string;
   type: AuthMode;
-  verify_system: VerifySystem;
-};
+  verify_system: AuthMethod;
+}
 
-export type VerifyAuthResponse = {
-  abha_number: PhrProfilePartial;
-  switchProfileEnabled: boolean;
-  access_token: string;
-  refresh_token: string;
-};
-
-// Login specific types
-export type CheckAuthMethodsRequest = {
+export interface CheckAuthMethodsRequest {
   abha_address: string;
-  verify_system: VerifySystem | "password";
-};
+  verify_system: AuthMethod;
+}
 
-export type CheckAuthMethodsResponse = {
-  auth_methods: AuthMethod[];
-};
-
-export type RefreshAccessTokenRequest = {
+export interface RefreshAccessTokenRequest {
   refresh: string;
-};
+}
 
-export type RefreshAccessTokenResponse = Omit<
-  VerifyAuthResponse,
-  "abha_number" | "switchProfileEnabled"
->;
-
-// Enrolment specific types
-export type AbhaAddressSuggestionsRequest = {
+export interface AbhaAddressSuggestionsRequest {
   transaction_id: string;
   first_name: string;
   year_of_birth: string;
   last_name?: string;
   month_of_birth?: string;
   day_of_birth?: string;
-};
+}
 
-export type AbhaAddressSuggestionsResponse = {
-  abha_addresses: string[];
-  transaction_id: string;
-};
-
-export type AbhaAddressExistsRequest = {
+export interface AbhaAddressExistsRequest {
   abha_address: string;
-};
+}
 
-export type AbhaAddressExistsResponse = {
-  exists: boolean;
-};
-
-export type AbhaAddressEnrolRequest = {
+export interface AbhaAddressEnrolRequest {
   transaction_id: string;
   phr_details: PhrEnrolDetails;
-};
+}
 
-// Form memory type to store state during the auth flow
-export type FormMemory = {
-  transactionId: string;
-  mode: AuthMode;
-  verifySystem: VerifySystem;
-  existingAbhaAddresses?: User[];
-  phrProfile: PhrEnrolDetails;
-};
+export interface SendOtpResponse {
+  transaction_id: string;
+  detail: string;
+}
 
-// Common Auth Constants
+export interface VerifyOtpResponse extends SendOtpResponse {
+  users: User[];
+  abha_number?: PhrProfilePartial;
+}
+
+export interface VerifyAuthResponse {
+  abha_number: PhrProfilePartial;
+  switchProfileEnabled: boolean;
+  access_token: string;
+  refresh_token: string;
+}
+
+export interface CheckAuthMethodsResponse {
+  auth_methods: ["MOBILE_OTP", "PASSWORD", "AADHAAR_OTP"];
+}
+
+export interface AbhaAddressSuggestionsResponse {
+  abha_addresses: string[];
+  transaction_id: string;
+}
+
+export interface AbhaAddressExistsResponse {
+  exists: boolean;
+}
+
 export const INITIAL_AUTH_FORM_VALUES: FormMemory = {
   transactionId: "",
-  mode: "mobile-number",
-  verifySystem: "abdm",
+  mode: AuthModes.MOBILE_NUMBER,
+  verifySystem: DEFAULT_AUTH_METHOD,
   existingAbhaAddresses: [],
   phrProfile: {
     abha_address: "",

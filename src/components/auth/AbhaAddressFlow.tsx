@@ -26,12 +26,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import OtpInput from "@/components/auth/ui/otp-resend-input";
+import OtpResendInput from "@/components/common/OtpResendInput";
 
 import { useAuthContext } from "@/hooks/useAuth";
 import { useOtpFlow } from "@/hooks/useOtpFlow";
 
-import { DOMAIN, OTP_LENGTH } from "@/common/constants";
+import {
+  AUTH_METHODS,
+  AUTH_METHOD_CHOICES,
+  DOMAIN,
+  OTP_LENGTH,
+} from "@/common/constants";
 
 import routes from "@/api";
 import {
@@ -40,7 +45,6 @@ import {
   FormMemory,
   SendOtpRequest,
   VerifyOtpResponse,
-  VerifySystem,
 } from "@/types/auth";
 import { mutate } from "@/utils/request/request";
 
@@ -54,12 +58,6 @@ type AbhaAddressFlowProps = {
   ) => void;
 };
 
-const OTP_METHODS = [
-  { id: "abdm", label: "Mobile OTP" },
-  { id: "aadhaar", label: "Aadhaar OTP" },
-  { id: "password", label: "Password" },
-] as const;
-
 const AbhaAddressFlow = ({
   flowType,
   transactionId,
@@ -71,7 +69,7 @@ const AbhaAddressFlow = ({
       abhaAddress: z.string().regex(ABHA_ADDRESS_REGEX, {
         error: "Enter a valid ABHA address",
       }),
-      otpMethod: z.enum(["abdm", "aadhaar", "password"], {
+      otpMethod: z.enum(AUTH_METHODS, {
         error: "Please select a method to validate",
       }),
       otp: z.string().optional(),
@@ -114,7 +112,7 @@ const AbhaAddressFlow = ({
     sendOtpMutation.mutate({
       value: form.getValues("abhaAddress"),
       type: AuthModes.ABHA_ADDRESS,
-      otp_system: form.getValues("otpMethod") as VerifySystem,
+      otp_system: form.getValues("otpMethod"),
     });
     resetCountdown();
   };
@@ -234,9 +232,9 @@ const AbhaAddressFlow = ({
                     <SelectValue placeholder="Select a method" />
                   </SelectTrigger>
                   <SelectContent>
-                    {OTP_METHODS.map((method) => (
-                      <SelectItem key={method.id} value={method.id}>
-                        {method.label}
+                    {AUTH_METHOD_CHOICES.map((choice) => (
+                      <SelectItem key={choice.id} value={choice.id}>
+                        {choice.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -255,7 +253,7 @@ const AbhaAddressFlow = ({
               <FormItem>
                 <FormLabel>OTP</FormLabel>
                 <FormControl>
-                  <OtpInput
+                  <OtpResendInput
                     maxLength={OTP_LENGTH}
                     isOtpValid={isOtpValid}
                     otpValue={otpValue}

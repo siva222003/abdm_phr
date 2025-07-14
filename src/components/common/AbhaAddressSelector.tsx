@@ -18,8 +18,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import { User } from "@/types/auth";
-import { KYC_STATUS, KycStatus } from "@/types/profile";
+import { KycStatus, KycStatuses, User } from "@/types/profile";
 
 interface AbhaAddressSelectorProps {
   addresses: User[];
@@ -88,7 +87,7 @@ function AddressItem({
         <Tooltip>
           <TooltipTrigger asChild>
             <div>
-              {kycStatus === KYC_STATUS.VERIFIED ? (
+              {kycStatus === KycStatuses.VERIFIED ? (
                 <CheckCircle2 className="text-primary-500 size-5" />
               ) : (
                 <TriangleAlert className="text-yellow-500 size-5" />
@@ -97,7 +96,7 @@ function AddressItem({
           </TooltipTrigger>
           <TooltipContent className="text-white">
             <p>
-              {kycStatus === KYC_STATUS.VERIFIED
+              {kycStatus === KycStatuses.VERIFIED
                 ? "KYC Verified"
                 : "KYC Pending"}
             </p>

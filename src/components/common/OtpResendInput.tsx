@@ -9,7 +9,7 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 
-interface OtpInputProps {
+interface OtpResendInputProps {
   maxLength?: number;
   isOtpValid: boolean;
   otpValue: string | undefined;
@@ -19,7 +19,7 @@ interface OtpInputProps {
   disabled?: boolean;
 }
 
-const OtpInput = ({
+const OtpResendInput = ({
   maxLength = 6,
   isOtpValid,
   otpValue = "",
@@ -27,7 +27,7 @@ const OtpInput = ({
   resendCountdown,
   onResend,
   disabled,
-}: OtpInputProps) => (
+}: OtpResendInputProps) => (
   <>
     <InputOTP
       maxLength={maxLength}
@@ -70,4 +70,4 @@ const OtpInput = ({
   </>
 );
 
-export default OtpInput;
+export default OtpResendInput;

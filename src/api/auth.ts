@@ -7,7 +7,6 @@ import {
   CheckAuthMethodsRequest,
   CheckAuthMethodsResponse,
   RefreshAccessTokenRequest,
-  RefreshAccessTokenResponse,
   SendOtpRequest,
   SendOtpResponse,
   VerifyAuthResponse,
@@ -62,8 +61,8 @@ export const login = {
     "POST /phr/health_id/login/check_auth_methods/",
     true,
   ),
-  refreshAccessToken: API<
-    RefreshAccessTokenResponse,
-    RefreshAccessTokenRequest
-  >("POST /phr/health_id/refresh_token/", true),
+  refreshAccessToken: API<VerifyAuthResponse, RefreshAccessTokenRequest>(
+    "POST /phr/health_id/refresh_token/",
+    true,
+  ),
 };

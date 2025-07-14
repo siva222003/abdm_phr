@@ -1,14 +1,23 @@
-export type Gender = "M" | "F" | "O";
+import { GENDERS } from "@/common/constants";
+
+export enum KycStatuses {
+  VERIFIED = "VERIFIED",
+  PENDING = "PENDING",
+}
+
+export type Gender = (typeof GENDERS)[number];
 export type BoolString = "true" | "false";
+export type KycStatus = KycStatuses;
 
-export const KYC_STATUS = {
-  VERIFIED: "VERIFIED",
-  PENDING: "PENDING",
-} as const;
+export interface User {
+  abhaAddress: string;
+  fullName: string;
+  abhaNumber: string;
+  status: string;
+  kycStatus: KycStatus;
+}
 
-export type KycStatus = (typeof KYC_STATUS)[keyof typeof KYC_STATUS];
-
-type BasicProfileFields = {
+interface BasicProfileFields {
   address: string;
   first_name: string;
   middle_name?: string | null;
@@ -20,9 +29,9 @@ type BasicProfileFields = {
   district_code: string;
   state_code: string;
   profile_photo?: string | null;
-};
+}
 
-export type PhrEnrolDetails = BasicProfileFields & {
+export interface PhrEnrolDetails extends BasicProfileFields {
   abha_address: string;
   day_of_birth?: string;
   month_of_birth?: string;
@@ -30,17 +39,17 @@ export type PhrEnrolDetails = BasicProfileFields & {
   district_name: string;
   state_name: string;
   password: string;
-};
+}
 
-export type PhrProfilePartial = BasicProfileFields & {
+export interface PhrProfilePartial extends BasicProfileFields {
   health_id: string | null;
   name: string;
   date_of_birth: string;
   district: string;
   state: string;
-};
+}
 
-export type PhrProfile = {
+export interface PhrProfile {
   abhaAddress: string;
   abhaNumber?: string;
   fullName: string;
@@ -64,5 +73,6 @@ export type PhrProfile = {
   mobileVerified: BoolString;
   emailVerified: BoolString;
   kycStatus: KycStatus;
+  preferredAbhaAddress?: string;
   status: string;
-};
+}

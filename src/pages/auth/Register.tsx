@@ -61,7 +61,7 @@ import {
 import { useAuthContext } from "@/hooks/useAuth";
 import useMultiStepForm, { InjectedStepProps } from "@/hooks/useMultiStepForm";
 
-import { DEFAULT_OTP_SYSTEM, DOMAIN } from "@/common/constants";
+import { DEFAULT_AUTH_METHOD, DOMAIN, GENDERS } from "@/common/constants";
 
 import routes from "@/api";
 import {
@@ -145,7 +145,7 @@ const Register = ({ memory, setMemory, goTo }: RegisterProps) => {
         ...prev,
         transactionId: data.transaction_id,
         existingAbhaAddresses: data.users,
-        verifySystem: sendOtpContext?.otp_system || DEFAULT_OTP_SYSTEM,
+        verifySystem: sendOtpContext?.otp_system || DEFAULT_AUTH_METHOD,
         phrProfile: {
           ...prev.phrProfile,
           ...data.abha_number,
@@ -248,7 +248,7 @@ const AddBasicDetails = ({ memory, setMemory, goTo }: AddBasicDetailsProps) => {
     first_name: z.string().trim().min(2, "First name is required"),
     middle_name: z.string().trim().optional(),
     last_name: z.string().trim().optional(),
-    gender: z.enum(["M", "F", "O"], {
+    gender: z.enum(GENDERS, {
       error: "Gender is required",
     }),
     date_of_birth: validators.dateOfBirth,

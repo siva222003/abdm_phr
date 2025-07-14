@@ -24,11 +24,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import OtpInput from "@/components/auth/ui/otp-resend-input";
+import OtpResendInput from "@/components/common/OtpResendInput";
 
 import { useOtpFlow } from "@/hooks/useOtpFlow";
 
-import { OTP_LENGTH } from "@/common/constants";
+import {
+  AUTH_METHODS,
+  AUTH_METHOD_CHOICES,
+  OTP_LENGTH,
+} from "@/common/constants";
 
 import {
   AuthFlowType,
@@ -50,11 +54,6 @@ type AbhaNumberOtpFlowProps = {
   ) => void;
 };
 
-const OTP_METHODS = [
-  { id: "abdm", label: "Mobile OTP" },
-  { id: "aadhaar", label: "Aadhaar OTP" },
-] as const;
-
 const AbhaNumberOtpFlow = ({
   flowType,
   transactionId,
@@ -65,7 +64,7 @@ const AbhaNumberOtpFlow = ({
     abha: z.string().regex(ABHA_NUMBER_REGEX, {
       error: "Enter a valid 14 digit ABHA number",
     }),
-    otpMethod: z.enum(["abdm", "aadhaar"], {
+    otpMethod: z.enum(AUTH_METHODS, {
       error: "Please select an OTP method",
     }),
     otp: z.string().optional(),
@@ -134,7 +133,7 @@ const AbhaNumberOtpFlow = ({
       sendOtpMutation.mutate({
         value: values.abha,
         type: AuthModes.ABHA_NUMBER,
-        otp_system: values.otpMethod!,
+        otp_system: values.otpMethod,
       });
       resetCountdown();
       return;
@@ -148,7 +147,7 @@ const AbhaNumberOtpFlow = ({
       transaction_id: transactionId,
       otp: values.otp,
       type: AuthModes.ABHA_NUMBER,
-      [flowType === AuthFlowTypes.ENROLLMENT ? "otp_system" : "verify_system"]:
+      [flowType === AuthFlowTypes.LOGIN ? "verify_system" : "otp_system"]:
         values.otpMethod,
     });
   };
@@ -195,9 +194,11 @@ const AbhaNumberOtpFlow = ({
                     <SelectValue placeholder="Select a method" />
                   </SelectTrigger>
                   <SelectContent>
-                    {OTP_METHODS.map((method) => (
-                      <SelectItem key={method.id} value={method.id}>
-                        {method.label}
+                    {AUTH_METHOD_CHOICES.filter(
+                      (choice) => choice.id !== "password",
+                    ).map((choice) => (
+                      <SelectItem key={choice.id} value={choice.id}>
+                        {choice.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -216,7 +217,7 @@ const AbhaNumberOtpFlow = ({
               <FormItem>
                 <FormLabel>OTP</FormLabel>
                 <FormControl>
-                  <OtpInput
+                  <OtpResendInput
                     maxLength={OTP_LENGTH}
                     isOtpValid={isOtpValid}
                     otpValue={otpValue}
