@@ -15,15 +15,16 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-import OtpInput from "@/components/auth/ui/otp-resend-input";
+import OtpResendInput from "@/components/common/OtpResendInput";
 
 import { useOtpFlow } from "@/hooks/useOtpFlow";
 
-import { DEFAULT_OTP_SYSTEM, OTP_LENGTH } from "@/common/constants";
+import { DEFAULT_AUTH_METHOD, OTP_LENGTH } from "@/common/constants";
 
 import {
   AuthFlowType,
   AuthFlowTypes,
+  AuthModes,
   FormMemory,
   SendOtpRequest,
   VerifyOtpResponse,
@@ -74,8 +75,8 @@ const EmailOtpFlow: FC<EmailOtpFlowProps> = ({
   const handleResendOtp = () => {
     sendOtpMutation.mutate({
       value: form.getValues("email"),
-      otp_system: DEFAULT_OTP_SYSTEM,
-      type: "email",
+      otp_system: DEFAULT_AUTH_METHOD,
+      type: AuthModes.EMAIL,
     });
     resetCountdown();
   };
@@ -84,8 +85,8 @@ const EmailOtpFlow: FC<EmailOtpFlowProps> = ({
     if (!otpSent) {
       sendOtpMutation.mutate({
         value: values.email,
-        otp_system: DEFAULT_OTP_SYSTEM,
-        type: "email",
+        otp_system: DEFAULT_AUTH_METHOD,
+        type: AuthModes.EMAIL,
       });
       resetCountdown();
       return;
@@ -97,9 +98,9 @@ const EmailOtpFlow: FC<EmailOtpFlowProps> = ({
     verifyOtpMutation.mutate({
       otp: values.otp,
       transaction_id: transactionId,
-      type: "email",
+      type: AuthModes.EMAIL,
       [flowType === AuthFlowTypes.LOGIN ? "verify_system" : "otp_system"]:
-        DEFAULT_OTP_SYSTEM,
+        DEFAULT_AUTH_METHOD,
       action,
     });
   };
@@ -137,7 +138,7 @@ const EmailOtpFlow: FC<EmailOtpFlowProps> = ({
               <FormItem>
                 <FormLabel>OTP</FormLabel>
                 <FormControl>
-                  <OtpInput
+                  <OtpResendInput
                     maxLength={OTP_LENGTH}
                     isOtpValid={isOtpValid}
                     otpValue={otpValue}

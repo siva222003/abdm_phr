@@ -17,7 +17,7 @@ import AbhaAddressSelector from "@/components/common/AbhaAddressSelector";
 import { useAuthContext } from "@/hooks/useAuth";
 
 import routes from "@/api";
-import { User } from "@/types/auth";
+import { User } from "@/types/profile";
 import { mutate, query } from "@/utils/request/request";
 
 type SwitchProfileProps = {
