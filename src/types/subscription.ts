@@ -2,6 +2,7 @@ import {
   ConsentDateRange,
   ConsentHIType,
   ConsentHealthFacility,
+  ConsentLinks,
   ConsentPatient,
   ConsentPurpose,
   ConsentStatus,
@@ -42,6 +43,16 @@ export interface SubscriptionArtefact {
   patient: ConsentPatient;
   requester: ConsentHealthFacility;
   includedSources: SubscriptionSource[];
+}
+
+export interface SubscriptionRequestResponse {
+  request: SubscriptionRequest;
+  links: ConsentLinks[];
+}
+
+export interface SubscriptionArtefactResponse {
+  artefact: SubscriptionArtefact;
+  links: ConsentLinks[];
 }
 
 export interface SubscriptionEditAndApproveRequest {

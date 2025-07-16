@@ -1,8 +1,9 @@
 import {
-  SubscriptionArtefact,
+  SubscriptionArtefactResponse,
   SubscriptionDenyRequest,
   SubscriptionEditAndApproveRequest,
   SubscriptionRequest,
+  SubscriptionRequestResponse,
   SubscriptionStatusUpdateRequest,
   SubscriptionUpdateBaseResponse,
 } from "@/types/subscription";
@@ -10,10 +11,10 @@ import { API } from "@/utils/request/api";
 
 export const subscription = {
   listRequests: API<SubscriptionRequest[]>("GET /phr/subscription/requests"),
-  getRequest: API<SubscriptionRequest>(
+  getRequest: API<SubscriptionRequestResponse>(
     "GET /phr/subscription/request/{requestId}",
   ),
-  getArtefact: API<SubscriptionArtefact>(
+  getArtefact: API<SubscriptionArtefactResponse>(
     "GET /phr/subscription/artefact/{artefactId}",
   ),
   approve: API<

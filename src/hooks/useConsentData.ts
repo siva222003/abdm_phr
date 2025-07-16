@@ -1,159 +1,261 @@
 import { useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
 
 import routes from "@/api";
 import {
   ConsentArtefact,
+  ConsentArtefactResponse,
   ConsentBase,
   ConsentCategories,
+  ConsentLinks,
   ConsentQueryParams,
   ConsentRequest,
+  ConsentRequestResponse,
   ConsentStatuses,
+  ConsentType,
   ConsentTypes,
 } from "@/types/consent";
-import { SubscriptionRequest } from "@/types/subscription";
+import {
+  SubscriptionArtefact,
+  SubscriptionArtefactResponse,
+  SubscriptionRequest,
+  SubscriptionRequestResponse,
+} from "@/types/subscription";
 import { query } from "@/utils/request/request";
 
-const transformConsentRequest = (consent: ConsentRequest): ConsentBase => ({
+const transformConsentRequest = (
+  consent: ConsentRequest,
+  links: ConsentLinks[] = [],
+): ConsentBase => ({
   id: consent.requestId,
   type: ConsentTypes.CONSENT,
-  requester: consent.requester.name || "-",
-  purpose: consent.purpose.text,
-  fromDate: consent.permission.dateRange.from,
-  toDate: consent.permission.dateRange.to,
+  requester: consent.requester?.name || "-",
+  purpose: consent.purpose?.text || "-",
+  fromDate: consent.permission?.dateRange?.from || "",
+  toDate: consent.permission?.dateRange?.to || "",
   status: consent.status,
+
+  // information required for consent details page
+  hiTypes: consent.hiType || [],
+  links,
 });
 
-const transformConsentArtefact = ({
-  consentDetail,
-  status,
-}: ConsentArtefact): ConsentBase => ({
-  id: consentDetail.consentId,
-  type: ConsentTypes.CONSENT,
-  requester: consentDetail.requester.name || "-",
-  purpose: consentDetail.purpose.text,
-  fromDate: consentDetail.permission.dateRange.from,
-  toDate: consentDetail.permission.dateRange.to,
-  status,
+const transformConsentArtefact = (
+  artefact: ConsentArtefact,
+  links: ConsentLinks[] = [],
+): ConsentBase => ({
+  id: artefact.consentDetail?.consentId || "",
+  type: ConsentTypes.ARTEFACT,
+  requester: artefact.consentDetail?.requester?.name || "-",
+  purpose: artefact.consentDetail?.purpose?.text || "-",
+  fromDate: artefact.consentDetail?.permission?.dateRange?.from || "",
+  toDate: artefact.consentDetail?.permission?.dateRange?.to || "",
+  status: artefact.status,
+
+  // information required for consent details page
+  hiTypes: artefact.consentDetail?.hiTypes || [],
+  links,
 });
 
 const transformSubscriptionRequest = (
   request: SubscriptionRequest,
+  category: ConsentCategories,
+  links: ConsentLinks[] = [],
 ): ConsentBase => ({
-  id: request.subscriptionId || request.requestId,
+  id:
+    category === ConsentCategories.APPROVED
+      ? request.subscriptionId!
+      : request.requestId,
   type: ConsentTypes.SUBSCRIPTION,
-  requester: request.hiu.name || "-",
-  purpose: request.purpose.text,
-  fromDate: request.period.from,
-  toDate: request.period.to,
+  requester: request.hiu?.name || "-",
+  purpose: request.purpose?.text || "-",
+  fromDate: request.period?.from || "",
+  toDate: request.period?.to || "",
   status: request.status,
+
+  // information required for consent details page
+  hiTypes: [],
+  subscriptionCategories: request.categories || [],
+  links,
 });
 
-const getQueryKey = (key: string, params: ConsentQueryParams) => [
-  key,
-  params.limit,
-  params.offset,
-  params.status,
-  params.category,
-];
+const transformSubscriptionArtefact = (
+  artefact: SubscriptionArtefact,
+  links: ConsentLinks[] = [],
+): ConsentBase => ({
+  id: artefact.subscriptionId,
+  type: ConsentTypes.SUBSCRIPTION_ARTEFACT,
+  requester: artefact.requester?.name || "-",
+  purpose: artefact.purpose?.text || "-",
+  fromDate: artefact.includedSources?.[0]?.period?.from || "",
+  toDate: artefact.includedSources?.[0]?.period?.to || "",
+  status: artefact.status,
+
+  // information required for consent details page
+  hiTypes: artefact.includedSources?.[0]?.hiTypes || [],
+  subscriptionCategories: artefact.includedSources?.[0]?.categories || [],
+  links,
+});
 
 const getQueryParams = (params: ConsentQueryParams) => ({
   queryParams: {
-    limit: params.limit,
-    offset: params.offset,
     status: params.status,
+    offset: params.offset,
+    limit: params.limit,
   },
 });
 
-export function useConsentData(params: ConsentQueryParams) {
-  const {
-    data: consentsResponse = [],
-    isLoading: isLoadingRequests,
-    isError: isRequestsError,
-  } = useQuery({
-    queryKey: getQueryKey("consentsRequests", params),
-    queryFn: query.debounced(
-      routes.consent.listRequests,
-      getQueryParams(params),
-    ),
-    enabled: params.category === ConsentCategories.REQUESTS,
-  });
+export function useConsentList(params: ConsentQueryParams) {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: [
+      "consents",
+      params.category,
+      params.status,
+      params.offset,
+      params.limit,
+    ],
+    queryFn: async ({ signal }) => {
+      const consents: ConsentBase[] = [];
 
-  const {
-    data: consentsArtefactsResponse = [],
-    isLoading: isLoadingArtefacts,
-    isError: isArtefactsError,
-  } = useQuery({
-    queryKey: getQueryKey("consentsArtefacts", params),
-    queryFn: query.debounced(
-      routes.consent.listArtefacts,
-      getQueryParams(params),
-    ),
-    enabled: params.category === ConsentCategories.APPROVED,
-  });
+      if (params.category === ConsentCategories.REQUESTS) {
+        const consentRequests: ConsentRequest[] = await query.debounced(
+          routes.consent.listRequests,
+          getQueryParams(params),
+        )({ signal });
 
-  const {
-    data: subscriptionRequestsResponse = [],
-    isLoading: isLoadingSubscriptions,
-    isError: isSubscriptionsError,
-  } = useQuery({
-    queryKey: getQueryKey("subscriptionRequests", params),
-    queryFn: query.debounced(
-      routes.subscription.listRequests,
-      getQueryParams(params),
-    ),
-  });
+        if (Array.isArray(consentRequests)) {
+          consents.push(
+            ...consentRequests.map((req) => transformConsentRequest(req)),
+          );
+        }
+      }
 
-  const isLoading =
-    isLoadingRequests || isLoadingArtefacts || isLoadingSubscriptions;
-  const isError = isRequestsError || isArtefactsError || isSubscriptionsError;
+      if (params.category === ConsentCategories.APPROVED) {
+        const consentArtefacts: ConsentArtefact[] = await query.debounced(
+          routes.consent.listArtefacts,
+          getQueryParams(params),
+        )({ signal });
 
-  const isValidResponse = (response: any) => Array.isArray(response);
+        if (Array.isArray(consentArtefacts)) {
+          consents.push(
+            ...consentArtefacts.map((art) => transformConsentArtefact(art)),
+          );
+        }
+      }
 
-  const data = useMemo(() => {
-    const consents: ConsentBase[] = [];
+      const subscriptionRequests: SubscriptionRequest[] = await query.debounced(
+        routes.subscription.listRequests,
+        getQueryParams(params),
+      )({ signal });
 
-    if (isValidResponse(consentsResponse)) {
-      consents.push(...consentsResponse.map(transformConsentRequest));
-    }
+      if (Array.isArray(subscriptionRequests)) {
+        let requestsToProcess = subscriptionRequests;
 
-    if (isValidResponse(consentsArtefactsResponse)) {
-      consents.push(...consentsArtefactsResponse.map(transformConsentArtefact));
-    }
+        if (
+          params.category === ConsentCategories.APPROVED &&
+          params.status === ConsentStatuses.EXPIRED
+        ) {
+          requestsToProcess = subscriptionRequests.filter(
+            (request) => !!request.subscriptionId,
+          );
+        }
 
-    if (isValidResponse(subscriptionRequestsResponse)) {
-      let requestsToProcess = subscriptionRequestsResponse;
-
-      if (
-        params.category === ConsentCategories.APPROVED &&
-        params.status === ConsentStatuses.EXPIRED
-      ) {
-        requestsToProcess = subscriptionRequestsResponse.filter(
-          (request) => !!request.subscriptionId,
+        consents.push(
+          ...requestsToProcess.map((req) =>
+            transformSubscriptionRequest(req, params.category),
+          ),
         );
       }
 
-      consents.push(...requestsToProcess.map(transformSubscriptionRequest));
-    }
-
-    return {
-      consents,
-      totalCount: consents.length,
-    };
-  }, [
-    consentsResponse,
-    consentsArtefactsResponse,
-    subscriptionRequestsResponse,
-    params.category,
-    params.status,
-  ]);
-
-  const isEmpty = data.totalCount === 0;
+      return {
+        consents,
+        totalCount: consents.length,
+      };
+    },
+  });
 
   return {
     data,
     isLoading,
-    isEmpty,
+    isError,
+    isEmpty: (data?.totalCount || 0) === 0,
+  };
+}
+
+interface ConsentDetailParams {
+  id: string;
+  requestType: ConsentType;
+}
+
+export function useConsentDetail(params: ConsentDetailParams) {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["consents", params.id],
+    queryFn: async ({ signal }) => {
+      let consent: ConsentBase | null = null;
+
+      if (params.requestType === ConsentTypes.CONSENT) {
+        const consentRequests: ConsentRequestResponse = await query(
+          routes.consent.getRequest,
+          {
+            pathParams: {
+              requestId: params.id,
+            },
+          },
+        )({ signal });
+
+        consent = transformConsentRequest(consentRequests.request);
+      }
+
+      if (params.requestType === ConsentTypes.ARTEFACT) {
+        const consentArtefacts: ConsentArtefactResponse = await query(
+          routes.consent.getArtefact,
+          {
+            pathParams: {
+              artefactId: params.id,
+            },
+          },
+        )({ signal });
+
+        consent = transformConsentArtefact(consentArtefacts.artefact);
+      }
+
+      if (params.requestType === ConsentTypes.SUBSCRIPTION) {
+        const subscriptionRequests: SubscriptionRequestResponse = await query(
+          routes.subscription.getRequest,
+          {
+            pathParams: {
+              requestId: params.id,
+            },
+          },
+        )({ signal });
+
+        consent = transformSubscriptionRequest(
+          subscriptionRequests.request,
+          ConsentCategories.REQUESTS,
+        );
+      }
+
+      if (params.requestType === ConsentTypes.SUBSCRIPTION_ARTEFACT) {
+        const subscriptionArtefacts: SubscriptionArtefactResponse = await query(
+          routes.subscription.getArtefact,
+          {
+            pathParams: {
+              artefactId: params.id,
+            },
+          },
+        )({ signal });
+
+        consent = transformSubscriptionArtefact(subscriptionArtefacts.artefact);
+      }
+
+      return {
+        consent,
+      };
+    },
+  });
+
+  return {
+    data,
+    isLoading,
     isError,
   };
 }

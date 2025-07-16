@@ -96,7 +96,9 @@ function ConsentTable({ data, onView }: ConsentListProps) {
             <TableCell>{consent.purpose}</TableCell>
             <TableCell>
               <Badge variant={CONSENT_TYPE_VARIANTS[consent.type]}>
-                {consent.type}
+                {consent.type.includes("subscription")
+                  ? "Subscription"
+                  : "Consent"}
               </Badge>
             </TableCell>
             <TableCell>

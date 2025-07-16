@@ -1,5 +1,5 @@
 import { Box } from "lucide-react";
-import { useQueryParams } from "raviger";
+import { navigate, useQueryParams } from "raviger";
 import { useCallback, useMemo } from "react";
 
 import { EmptyState } from "@/components/ui/empty-state";
@@ -8,7 +8,7 @@ import Page from "@/components/common/Page";
 import { ConsentFilters } from "@/components/consent/ConsentFilters";
 import ConsentList from "@/components/consent/ConsentList";
 
-import { useConsentData } from "@/hooks/useConsentData";
+import { useConsentList } from "@/hooks/useConsentData";
 
 import {
   CardGridSkeleton,
@@ -23,6 +23,7 @@ import {
   ConsentStatus,
   ConsentStatuses,
   ConsentType,
+  ConsentTypes,
 } from "@/types/consent";
 
 const DEFAULT_QUERY_PARAMS: ConsentQueryParams = {
@@ -33,7 +34,7 @@ const DEFAULT_QUERY_PARAMS: ConsentQueryParams = {
 };
 
 export default function Consent() {
-  const [qParams, updateQuery] = useQueryParams<ConsentQueryParams>();
+  const [qParams, setQParams] = useQueryParams<ConsentQueryParams>();
 
   const queryParams = useMemo(
     () => ({
@@ -43,34 +44,44 @@ export default function Consent() {
     [qParams],
   );
 
-  const { data, isLoading, isEmpty, isError } = useConsentData(queryParams);
+  const { data, isLoading, isEmpty, isError } = useConsentList(queryParams);
 
   const handleCategoryChange = useCallback(
     (category: ConsentCategory) => {
-      updateQuery({
+      setQParams({
         ...queryParams,
         category,
         status: CONSENT_STATUS_BY_CATEGORY[category][0],
         offset: 0,
       });
     },
-    [queryParams, updateQuery],
+    [queryParams, setQParams],
   );
 
   const handleStatusChange = useCallback(
     (status: ConsentStatus) => {
-      updateQuery({
+      setQParams({
         ...queryParams,
         status,
         offset: 0,
       });
     },
-    [queryParams, updateQuery],
+    [queryParams, setQParams],
   );
 
-  const handleViewConsent = useCallback((id: string, type: ConsentType) => {
-    console.log(`View ${type}:`, id);
-  }, []);
+  const handleViewConsent = useCallback(
+    (id: string, type: ConsentType) => {
+      if (
+        queryParams.category === ConsentCategories.APPROVED &&
+        type === ConsentTypes.SUBSCRIPTION
+      ) {
+        navigate(`/consents/${id}/${ConsentTypes.SUBSCRIPTION_ARTEFACT}`);
+      } else {
+        navigate(`/consents/${id}/${type}`);
+      }
+    },
+    [navigate, queryParams.category],
+  );
 
   if (isLoading) {
     return (
@@ -123,7 +134,10 @@ export default function Consent() {
           onStatusChange={handleStatusChange}
         />
 
-        <ConsentList data={data} onView={handleViewConsent} />
+        <ConsentList
+          data={{ consents: data?.consents || [] }}
+          onView={handleViewConsent}
+        />
       </div>
     </Page>
   );

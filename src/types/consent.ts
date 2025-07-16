@@ -13,8 +13,10 @@ export enum ConsentStatuses {
 }
 
 export enum ConsentTypes {
-  CONSENT = "Consent",
-  SUBSCRIPTION = "Subscription",
+  CONSENT = "consent",
+  ARTEFACT = "artefact",
+  SUBSCRIPTION = "subscription",
+  SUBSCRIPTION_ARTEFACT = "subscription-artefact",
 }
 
 export enum ConsentHITypes {
@@ -38,6 +40,8 @@ export const CONSENT_STATUS_VARIANTS = {
 export const CONSENT_TYPE_VARIANTS = {
   [ConsentTypes.CONSENT]: "blue",
   [ConsentTypes.SUBSCRIPTION]: "purple",
+  [ConsentTypes.ARTEFACT]: "blue",
+  [ConsentTypes.SUBSCRIPTION_ARTEFACT]: "purple",
 } as const;
 
 export const CONSENT_STATUS_BY_CATEGORY = {
@@ -58,19 +62,10 @@ export type ConsentCategory = ConsentCategories;
 export type ConsentStatus = ConsentStatuses;
 export type ConsentType = ConsentTypes;
 export type ConsentHIType = ConsentHITypes;
-export type ConsentPurposeCode =
-  | "CAREMGT"
-  | "BTG"
-  | "PUBHLTH"
-  | "HPAYMT"
-  | "DSRCH"
-  | "PATRQT";
-export type ConsentAccessMode = "VIEW" | "STORE" | "QUERY" | "STREAM";
-export type ConsentFrequencyUnit = "HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR";
 
 export interface ConsentPurpose {
   text: string;
-  code: ConsentPurposeCode;
+  code: "CAREMGT" | "BTG" | "PUBHLTH" | "HPAYMT" | "DSRCH" | "PATRQT";
   refUri: string;
 }
 
@@ -104,13 +99,13 @@ export interface ConsentDateRange {
 }
 
 export interface ConsentFrequency {
-  unit: ConsentFrequencyUnit;
+  unit: "HOUR" | "DAY" | "WEEK" | "MONTH" | "YEAR";
   value: number;
   repeats: number;
 }
 
 export interface ConsentPermission {
-  accessMode: ConsentAccessMode;
+  accessMode: "VIEW" | "STORE" | "QUERY" | "STREAM";
   dateRange: ConsentDateRange;
   dataEraseAt: string;
   frequency: ConsentFrequency;
@@ -149,6 +144,20 @@ export interface ConsentArtefact {
   signature: string;
 }
 
+export interface ConsentLinks extends ConsentCareContext {
+  display?: string;
+}
+
+export interface ConsentRequestResponse {
+  request: ConsentRequest;
+  links: ConsentLinks[];
+}
+
+export interface ConsentArtefactResponse {
+  artefact: ConsentArtefact;
+  links: ConsentLinks[];
+}
+
 export interface ConsentApproveRequest {
   consents: {
     hiTypes: ConsentHIType[];
@@ -178,6 +187,11 @@ export interface ConsentBase {
   fromDate: string;
   toDate: string;
   status: ConsentStatus;
+
+  //detail specific info
+  hiTypes: ConsentHIType[];
+  links?: ConsentLinks[];
+  subscriptionCategories?: ("LINK" | "DATA")[];
 }
 
 export interface ConsentQueryParams {

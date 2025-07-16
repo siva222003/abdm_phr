@@ -11,6 +11,8 @@ import useSidebarState from "@/hooks/useSidebarState";
 import HomePage from "@/pages/HomePage";
 import Profile from "@/pages/Profile";
 import Consent from "@/pages/consent/Consent";
+import ConsentDetail from "@/pages/consent/ConsentDetail";
+import { ConsentType, ConsentTypes } from "@/types/consent";
 
 import { AppRoutes } from "./types";
 
@@ -19,6 +21,11 @@ const Routes: AppRoutes = {
   "/profile": () => <Profile />,
   "/consents": () => <Consent />,
 
+  "/consents/:id/:type": ({ type, id }) => {
+    if (Object.values(ConsentTypes).includes(type as ConsentType)) {
+      return <ConsentDetail id={id} type={type as ConsentType} />;
+    }
+  },
   "/login": () => <Redirect to="/" />,
   "/register": () => <Redirect to="/" />,
 };
