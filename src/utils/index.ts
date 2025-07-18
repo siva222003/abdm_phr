@@ -1,4 +1,11 @@
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+
 import { LocalStorageKeys } from "@/common/constants";
+
+dayjs.extend(utc);
+
+type DateLike = Parameters<typeof dayjs>[0];
 
 export const TokenStorage = {
   getAccessToken: () => localStorage.getItem(LocalStorageKeys.accessToken),
@@ -22,32 +29,30 @@ export const TokenStorage = {
   },
 };
 
-export const formatDate = (date: string | undefined) => {
-  if (!date) return ["", "", ""];
+export const dateQueryString = (
+  date: DateLike,
+  withTime: boolean = false,
+): string => {
+  const parsed =
+    typeof date === "string"
+      ? dayjs(date, ["DD-MM-YYYY", "YYYY-MM-DD"], true)
+      : dayjs(date);
 
-  const parts = date.split("-");
-  if (parts.length !== 3) return ["", "", ""];
-
-  const [a, b, c] = parts;
-
-  if (a.length === 4) {
-    return [a, b, c];
-  }
-
-  return [c, b, a];
+  if (!parsed.isValid()) return "";
+  return parsed.format(withTime ? "YYYY-MM-DD HH:mm:ss" : "YYYY-MM-DD");
 };
 
-export const formatDateTime = (date: string | undefined): string => {
-  if (!date) return "";
+export const toIsoUtcString = (date: DateLike): string => {
+  if (!date || !dayjs(date).isValid()) return "";
+  return dayjs.utc(date).toISOString();
+};
 
-  const d = new Date(date);
-  if (isNaN(d.getTime())) return "";
-
-  const day = String(d.getDate()).padStart(2, "0");
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const year = d.getFullYear();
-
-  return `${day}-${month}-${year}`;
+export const formatReadableDateTime = (
+  date: DateLike,
+  showTime: boolean = false,
+): string => {
+  if (!date || !dayjs(date).isValid()) return "";
+  return dayjs(date).format(showTime ? "MMM D, YYYY h:mm A" : "MMM D, YYYY");
 };
 
 export const calculateCursorPosition = (

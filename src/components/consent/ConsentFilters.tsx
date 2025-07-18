@@ -10,15 +10,14 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   CONSENT_STATUS_BY_CATEGORY,
   ConsentCategories,
-  ConsentCategory,
-  ConsentStatus,
+  ConsentStatuses,
 } from "@/types/consent";
 
 interface ConsentFiltersProps {
-  category: ConsentCategory;
-  status: ConsentStatus;
-  onCategoryChange: (category: ConsentCategory) => void;
-  onStatusChange: (status: ConsentStatus) => void;
+  category: ConsentCategories;
+  status: ConsentStatuses | "ALL";
+  onCategoryChange: (category: ConsentCategories) => void;
+  onStatusChange: (status: ConsentStatuses | "ALL") => void;
 }
 
 export function ConsentFilters({
@@ -39,7 +38,9 @@ export function ConsentFilters({
       <div className="flex items-center gap-3 my-4 max-sm:flex-col">
         <Tabs
           value={category}
-          onValueChange={(value) => onCategoryChange(value as ConsentCategory)}
+          onValueChange={(value) =>
+            onCategoryChange(value as ConsentCategories)
+          }
           className="max-sm:w-full w-1/2"
         >
           <TabsList className="max-sm:flex w-full">
@@ -54,7 +55,9 @@ export function ConsentFilters({
 
         <Select
           value={status}
-          onValueChange={(value) => onStatusChange(value as ConsentStatus)}
+          onValueChange={(value) =>
+            onStatusChange(value as ConsentStatuses | "ALL")
+          }
         >
           <SelectTrigger className="sm:max-w-1/5 border-gray-300">
             <SelectValue placeholder="Select Status" />

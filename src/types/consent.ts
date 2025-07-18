@@ -1,10 +1,11 @@
+import * as LucideIcons from "lucide-react";
+
 export enum ConsentCategories {
   REQUESTS = "REQUESTS",
   APPROVED = "APPROVED",
 }
 
 export enum ConsentStatuses {
-  ALL = "ALL",
   REQUESTED = "REQUESTED",
   GRANTED = "GRANTED",
   DENIED = "DENIED",
@@ -29,24 +30,9 @@ export enum ConsentHITypes {
   WELLNESS_RECORD = "WellnessRecord",
 }
 
-export const CONSENT_STATUS_VARIANTS = {
-  [ConsentStatuses.REQUESTED]: "yellow",
-  [ConsentStatuses.GRANTED]: "green",
-  [ConsentStatuses.DENIED]: "destructive",
-  [ConsentStatuses.EXPIRED]: "secondary",
-  [ConsentStatuses.REVOKED]: "secondary",
-} as const;
-
-export const CONSENT_TYPE_VARIANTS = {
-  [ConsentTypes.CONSENT]: "blue",
-  [ConsentTypes.SUBSCRIPTION]: "purple",
-  [ConsentTypes.ARTEFACT]: "blue",
-  [ConsentTypes.SUBSCRIPTION_ARTEFACT]: "purple",
-} as const;
-
 export const CONSENT_STATUS_BY_CATEGORY = {
   [ConsentCategories.REQUESTS]: [
-    ConsentStatuses.ALL,
+    "ALL",
     ConsentStatuses.REQUESTED,
     ConsentStatuses.DENIED,
     ConsentStatuses.EXPIRED,
@@ -58,10 +44,30 @@ export const CONSENT_STATUS_BY_CATEGORY = {
   ],
 } as const;
 
-export type ConsentCategory = ConsentCategories;
-export type ConsentStatus = ConsentStatuses;
-export type ConsentType = ConsentTypes;
-export type ConsentHIType = ConsentHITypes;
+export const CONSENT_TYPE_VARIANTS = {
+  [ConsentTypes.CONSENT]: "blue",
+  [ConsentTypes.SUBSCRIPTION]: "purple",
+  [ConsentTypes.ARTEFACT]: "blue",
+  [ConsentTypes.SUBSCRIPTION_ARTEFACT]: "purple",
+} as const;
+
+export const CONSENT_STATUS_VARIANTS = {
+  [ConsentStatuses.REQUESTED]: "yellow",
+  [ConsentStatuses.GRANTED]: "green",
+  [ConsentStatuses.DENIED]: "destructive",
+  [ConsentStatuses.EXPIRED]: "secondary",
+  [ConsentStatuses.REVOKED]: "secondary",
+} as const;
+
+export const CONSENT_HI_TYPES_ICONS = {
+  [ConsentHITypes.PRESCRIPTION]: LucideIcons.FileText,
+  [ConsentHITypes.DIAGNOSTIC_REPORT]: LucideIcons.Microscope,
+  [ConsentHITypes.OP_CONSULTATION]: LucideIcons.Stethoscope,
+  [ConsentHITypes.DISCHARGE_SUMMARY]: LucideIcons.ClipboardList,
+  [ConsentHITypes.IMMUNIZATION_RECORD]: LucideIcons.Syringe,
+  [ConsentHITypes.HEALTH_DOCUMENT_RECORD]: LucideIcons.FilePlus,
+  [ConsentHITypes.WELLNESS_RECORD]: LucideIcons.HeartPulse,
+} as const;
 
 export interface ConsentPurpose {
   text: string;
@@ -82,6 +88,7 @@ export interface ConsentHealthFacility {
 export interface ConsentCareContext {
   patientReference: string;
   careContextReference: string;
+  display?: string; // optional display name for care context comes when the care context is fetched from the HIP
 }
 
 export interface ConsentRequester {
@@ -119,15 +126,15 @@ export interface ConsentRequest {
   hiu: ConsentHealthFacility;
   careContexts?: ConsentCareContext[];
   requester: ConsentRequester;
-  status: ConsentStatus;
+  status: ConsentStatuses;
   createdAt: string;
   lastUpdated: string;
-  hiType: ConsentHIType[];
+  hiTypes: ConsentHITypes[];
   permission: ConsentPermission;
 }
 
 export interface ConsentArtefact {
-  status: ConsentStatus;
+  status: ConsentStatuses;
   consentDetail: {
     consentId: string;
     purpose: ConsentPurpose;
@@ -138,14 +145,15 @@ export interface ConsentArtefact {
     requester: ConsentRequester;
     createdAt: string;
     lastUpdated: string;
-    hiTypes: ConsentHIType[];
+    hiTypes: ConsentHITypes[];
     permission: ConsentPermission;
   };
   signature: string;
 }
 
-export interface ConsentLinks extends ConsentCareContext {
-  display?: string;
+export interface ConsentLinks {
+  hip: ConsentHealthFacility;
+  careContexts: ConsentCareContext[];
 }
 
 export interface ConsentRequestResponse {
@@ -160,7 +168,7 @@ export interface ConsentArtefactResponse {
 
 export interface ConsentApproveRequest {
   consents: {
-    hiTypes: ConsentHIType[];
+    hiTypes: ConsentHITypes[];
     hip: ConsentHealthFacility;
     careContexts: ConsentCareContext[];
     permission: ConsentPermission;
@@ -179,32 +187,29 @@ export interface ConsentUpdateBaseResponse {
   detail: string;
 }
 
+//Base consent type for all the consent types
+
+enum SubscriptionCategories {
+  LINK = "LINK",
+  DATA = "DATA",
+}
+
 export interface ConsentBase {
   id: string;
-  type: ConsentType;
+  type: ConsentTypes;
   requester: string;
   purpose: string;
   fromDate: string;
   toDate: string;
-  status: ConsentStatus;
+  status: ConsentStatuses;
 
   //detail specific info
-  hiTypes: ConsentHIType[];
-  links?: ConsentLinks[];
-  subscriptionCategories?: ("LINK" | "DATA")[];
+  hiTypes: ConsentHITypes[];
+  links: ConsentLinks[];
+  dataEraseAt?: string; //only for consent
+  subscriptionCategories?: SubscriptionCategories[]; //only for subscription
 }
 
-export interface ConsentQueryParams {
-  category: ConsentCategory;
-  status: ConsentStatus;
-  limit: number;
-  offset: number;
-}
-
-export function isConsentExpired(consent: ConsentBase): boolean {
-  return consent.status === ConsentStatuses.EXPIRED;
-}
-
-export function isConsentActive(consent: ConsentBase): boolean {
-  return consent.status === ConsentStatuses.GRANTED;
-}
+//helper functions
+export const isSubscription = (type: ConsentTypes) =>
+  type.includes("subscription");

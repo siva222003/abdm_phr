@@ -75,7 +75,7 @@ import {
   VerifyOtpResponse,
 } from "@/types/auth";
 import { AbhaAddressSuggestionsResponse } from "@/types/auth";
-import { formatDate } from "@/utils";
+import { dateQueryString } from "@/utils";
 import { mutate } from "@/utils/request/request";
 
 const RegisterAbha = () => {
@@ -137,7 +137,9 @@ const Register = ({ memory, setMemory, goTo }: RegisterProps) => {
       mobileNumber = sendOtpContext.value;
     }
 
-    const [year, month, day] = formatDate(data.abha_number?.date_of_birth);
+    const [year = "", month = "", day = ""] = dateQueryString(
+      data.abha_number?.date_of_birth,
+    ).split("-");
 
     setMemory((prev) => ({
       ...prev,
@@ -271,7 +273,9 @@ const AddBasicDetails = ({ memory, setMemory, goTo }: AddBasicDetailsProps) => {
   const onSubmit = (data: z.infer<typeof schema>) => {
     if (!memory?.phrProfile) return;
 
-    const [year, month, day] = formatDate(data.date_of_birth);
+    const [year = "", month = "", day = ""] = dateQueryString(
+      data.date_of_birth,
+    ).split("-");
 
     setMemory((prev) => ({
       ...prev,

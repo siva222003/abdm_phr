@@ -1,5 +1,5 @@
 import { Box } from "lucide-react";
-import { navigate, useQueryParams } from "raviger";
+import { useQueryParams } from "raviger";
 import { useCallback, useMemo } from "react";
 
 import { EmptyState } from "@/components/ui/empty-state";
@@ -18,18 +18,20 @@ import {
 import {
   CONSENT_STATUS_BY_CATEGORY,
   ConsentCategories,
-  ConsentCategory,
-  ConsentQueryParams,
-  ConsentStatus,
   ConsentStatuses,
-  ConsentType,
-  ConsentTypes,
 } from "@/types/consent";
+
+export interface ConsentQueryParams {
+  category: ConsentCategories;
+  status: ConsentStatuses | "ALL";
+  limit: number;
+  offset: number;
+}
 
 const DEFAULT_QUERY_PARAMS: ConsentQueryParams = {
   category: ConsentCategories.REQUESTS,
-  status: ConsentStatuses.ALL,
-  limit: 10,
+  status: "ALL",
+  limit: 15,
   offset: 0,
 };
 
@@ -47,7 +49,7 @@ export default function Consent() {
   const { data, isLoading, isEmpty, isError } = useConsentList(queryParams);
 
   const handleCategoryChange = useCallback(
-    (category: ConsentCategory) => {
+    (category: ConsentCategories) => {
       setQParams({
         ...queryParams,
         category,
@@ -59,7 +61,7 @@ export default function Consent() {
   );
 
   const handleStatusChange = useCallback(
-    (status: ConsentStatus) => {
+    (status: ConsentStatuses | "ALL") => {
       setQParams({
         ...queryParams,
         status,
@@ -67,20 +69,6 @@ export default function Consent() {
       });
     },
     [queryParams, setQParams],
-  );
-
-  const handleViewConsent = useCallback(
-    (id: string, type: ConsentType) => {
-      if (
-        queryParams.category === ConsentCategories.APPROVED &&
-        type === ConsentTypes.SUBSCRIPTION
-      ) {
-        navigate(`/consents/${id}/${ConsentTypes.SUBSCRIPTION_ARTEFACT}`);
-      } else {
-        navigate(`/consents/${id}/${type}`);
-      }
-    },
-    [navigate, queryParams.category],
   );
 
   if (isLoading) {
@@ -134,10 +122,7 @@ export default function Consent() {
           onStatusChange={handleStatusChange}
         />
 
-        <ConsentList
-          data={{ consents: data?.consents || [] }}
-          onView={handleViewConsent}
-        />
+        <ConsentList data={data?.consents || []} />
       </div>
     </Page>
   );

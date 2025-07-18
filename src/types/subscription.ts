@@ -1,15 +1,17 @@
 import {
   ConsentDateRange,
-  ConsentHIType,
+  ConsentHITypes,
   ConsentHealthFacility,
   ConsentLinks,
   ConsentPatient,
   ConsentPurpose,
-  ConsentStatus,
+  ConsentStatuses,
 } from "@/types/consent";
 
-export type SubscriptionCategory = "LINK" | "DATA";
-export type SubscriptionRequestType = "HIU" | "HEALTH_LOCKER";
+export enum SubscriptionCategories {
+  LINK = "LINK",
+  DATA = "DATA",
+}
 
 export interface SubscriptionRequest {
   subscriptionId?: string;
@@ -20,24 +22,24 @@ export interface SubscriptionRequest {
   patient: ConsentPatient;
   hiu: ConsentHealthFacility;
   hips?: ConsentHealthFacility[];
-  categories: SubscriptionCategory[];
+  categories: SubscriptionCategories[];
   period: ConsentDateRange;
-  status: ConsentStatus;
-  requestType: SubscriptionRequestType;
+  status: ConsentStatuses;
+  requestType: "HIU" | "HEALTH_LOCKER";
 }
 
 export interface SubscriptionSource {
   hip?: ConsentHealthFacility;
-  categories: SubscriptionCategory[];
-  hiTypes: ConsentHIType[];
+  categories: SubscriptionCategories[];
+  hiTypes: ConsentHITypes[];
   period: ConsentDateRange;
-  status: ConsentStatus;
+  status: ConsentStatuses;
 }
 
 export interface SubscriptionArtefact {
   subscriptionId: string;
   purpose: ConsentPurpose;
-  status: ConsentStatus;
+  status: ConsentStatuses;
   dateCreated: string;
   dateGranted: string;
   patient: ConsentPatient;

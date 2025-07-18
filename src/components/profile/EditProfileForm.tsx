@@ -19,7 +19,7 @@ import { GENDERS } from "@/common/constants";
 
 import routes from "@/api";
 import { PhrProfile } from "@/types/profile";
-import { formatDate } from "@/utils";
+import { dateQueryString } from "@/utils";
 import { mutate } from "@/utils/request/request";
 
 type EditProfileFormProps = {
@@ -69,7 +69,7 @@ export default function EditProfileForm({
       middle_name: userData.middleName || "",
       last_name: userData.lastName || "",
       gender: userData.gender,
-      date_of_birth: formatDate(userData.dateOfBirth).join("-"),
+      date_of_birth: dateQueryString(userData.dateOfBirth),
       state_code: Number(userData.stateCode),
       district_code: Number(userData.districtCode),
       state_name: userData.stateName,
@@ -90,7 +90,9 @@ export default function EditProfileForm({
   });
 
   const onSubmit = (values: FormData) => {
-    const [year, month, day] = formatDate(values.date_of_birth);
+    const [year = "", month = "", day = ""] = dateQueryString(
+      values.date_of_birth,
+    ).split("-");
 
     updateProfileMutation.mutate({
       ...values,

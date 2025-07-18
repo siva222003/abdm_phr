@@ -9,7 +9,7 @@ import AvatarEditModal from "@/components/profile/AvatarEditModal";
 
 import routes from "@/api";
 import { PhrProfile } from "@/types/profile";
-import { formatDate, getProfilePhotoUrl } from "@/utils";
+import { getProfilePhotoUrl } from "@/utils";
 import { mutate } from "@/utils/request/request";
 
 export default function UserAvatar(userData: PhrProfile) {
@@ -27,7 +27,9 @@ export default function UserAvatar(userData: PhrProfile) {
   });
 
   const handlePhotoUpdate = (profilePhoto: string) => {
-    const [year, month, day] = formatDate(userData.dateOfBirth);
+    const [year = "", month = "", day = ""] = userData.dateOfBirth
+      .split("-")
+      .reverse();
 
     updateProfileMutation.mutate({
       first_name: userData.firstName,

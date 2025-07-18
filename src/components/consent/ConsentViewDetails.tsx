@@ -1,6 +1,7 @@
-import { ChevronDown, FileText } from "lucide-react";
+import { Building2, ChevronDown, FileText, Info } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+
 import {
   Card,
   CardContent,
@@ -13,10 +14,31 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
-export function ConsentBasicDetails() {
+import {
+  CONSENT_HI_TYPES_ICONS,
+  ConsentHITypes,
+  ConsentLinks,
+} from "@/types/consent";
+import { SubscriptionCategories } from "@/types/subscription";
+import { formatReadableDateTime, toTitleCase } from "@/utils";
+
+export function ConsentBasicDetails({
+  requester,
+  purpose,
+  requestType,
+}: {
+  requester: string;
+  purpose: string;
+  requestType: "Subscription" | "Consent";
+}) {
   return (
-    <Card className="gap-4">
+    <Card className="rounded-lg">
       <CardHeader>
         <CardTitle className="text-lg">Basic Information</CardTitle>
         <CardDescription>
@@ -26,24 +48,34 @@ export function ConsentBasicDetails() {
       <CardContent className="space-y-4">
         <div>
           <p className="text-sm text-gray-500">Requester</p>
-          <p className="text-base text-gray-900 font-medium">John Doe</p>
+          <p className="text-base text-gray-900 font-medium">{requester}</p>
         </div>
         <div>
           <p className="text-sm text-gray-500">Purpose of Request</p>
-          <p className="text-base text-gray-900 font-medium">Self</p>
+          <p className="text-base text-gray-900 font-medium">{purpose}</p>
         </div>
-        <div className="space-y-1">
+        <div>
           <p className="text-sm text-gray-500">Request Type</p>
-          <Badge variant="secondary">Subscription</Badge>
+          <p className="text-base text-gray-900 font-medium">
+            {toTitleCase(requestType)}
+          </p>
         </div>
       </CardContent>
     </Card>
   );
 }
 
-export function ConsentDurationDetails() {
+export function ConsentDurationDetails({
+  fromDate,
+  toDate,
+  dataEraseAt,
+}: {
+  fromDate: string;
+  toDate: string;
+  dataEraseAt: string | undefined;
+}) {
   return (
-    <Card className="gap-4">
+    <Card className="rounded-lg">
       <CardHeader>
         <CardTitle className="text-lg">Consent Duration</CardTitle>
         <CardDescription>
@@ -54,23 +86,42 @@ export function ConsentDurationDetails() {
         <div>
           <p className="text-sm text-gray-500">Valid From</p>
           <p className="text-base text-gray-900 font-medium">
-            Jan 1, 2025 10:00:00 AM
+            {formatReadableDateTime(fromDate, true)}
           </p>
         </div>
         <div>
           <p className="text-sm text-gray-500">Valid To</p>
           <p className="text-base text-gray-900 font-medium">
-            Jan 1, 2025 10:00:00 AM
+            {formatReadableDateTime(toDate, true)}
           </p>
         </div>
+        {dataEraseAt && (
+          <div>
+            <div className="flex gap-2 items-center">
+              <p className="text-sm text-gray-500">Data Erasure Date</p>
+              <Tooltip>
+                <TooltipTrigger className="cursor-pointer" asChild>
+                  <Info className="size-4 text-gray-500" />
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="text-white">
+                  The date on which shared health data will be permanently
+                  erased.
+                </TooltipContent>
+              </Tooltip>
+            </div>
+            <p className="text-base text-gray-900 font-medium">
+              {formatReadableDateTime(dataEraseAt, true)}
+            </p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
 }
 
-export function ConsentHealthInformationTypes() {
+export function ConsentHITypesDetails({ types }: { types: ConsentHITypes[] }) {
   return (
-    <Card className="gap-4">
+    <Card className="rounded-lg">
       <CardHeader>
         <CardTitle className="text-lg">
           Requested Health Information Types
@@ -80,35 +131,31 @@ export function ConsentHealthInformationTypes() {
           requested.
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-2">
-          {[
-            "Prescription",
-            "Medical History",
-            "Lab Results",
-            "Medications",
-            "Allergies",
-            "Procedures",
-            "Imaging",
-            "Other",
-          ].map((type, index) => (
+      <CardContent className="space-y-2">
+        {types.map((type, index) => {
+          const Icon = CONSENT_HI_TYPES_ICONS[type] || FileText;
+          return (
             <div
               key={index}
-              className="flex items-center gap-3 p-3 bg-secondary-100 rounded-lg border border-secondary-200"
+              className="flex items-center gap-3 p-2.5 bg-gray-50 rounded-md border border-gray-200"
             >
-              <FileText className="size-4" />
-              <span className="text-sm font-medium">{type}</span>
+              <Icon className="size-4 text-gray-500" />
+              <span className="text-sm font-medium text-gray-800">{type}</span>
             </div>
-          ))}
-        </div>
+          );
+        })}
       </CardContent>
     </Card>
   );
 }
 
-export function SubscriptionCategories() {
+export function SubscriptionCategoriesDetails({
+  categories,
+}: {
+  categories: SubscriptionCategories[];
+}) {
   return (
-    <Card className="gap-4">
+    <Card className="rounded-lg">
       <CardHeader>
         <CardTitle className="text-lg">Subscription Categories</CardTitle>
         <CardDescription>
@@ -117,35 +164,45 @@ export function SubscriptionCategories() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-          <div className="w-2 h-2 mt-1 bg-blue-500 rounded-full" />
-          <div>
-            <p className="text-base font-medium text-gray-900">LINK</p>
-            <p className="text-sm text-gray-600">
-              Enables the HIU to receive notifications when new care contexts
-              are linked to a patient.
-            </p>
+        {categories.map((category, index) => (
+          <div
+            key={index}
+            className="flex items-start gap-3 p-4 bg-gray-50 rounded-md border border-gray-200"
+          >
+            <div
+              className={cn(
+                "size-2 mt-1 rounded-full",
+                category === SubscriptionCategories.LINK
+                  ? "bg-blue-500"
+                  : "bg-primary",
+              )}
+            />
+            <div>
+              <p className="text-base font-medium text-gray-900">
+                {toTitleCase(category)}
+              </p>
+              <p className="text-sm text-gray-600">
+                {category === SubscriptionCategories.LINK
+                  ? "Enables the HIU to receive notifications when new care contexts are linked to a patient."
+                  : "Enables the HIU to receive health information for existing care contexts already linked to a patient."}
+              </p>
+            </div>
           </div>
-        </div>
-
-        <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-          <div className="w-2 h-2 mt-1 bg-green-500 rounded-full" />
-          <div>
-            <p className="text-base font-medium text-gray-900">DATA</p>
-            <p className="text-sm text-gray-600">
-              Enables the HIU to receive health information for existing care
-              contexts already linked to a patient.
-            </p>
-          </div>
-        </div>
+        ))}
       </CardContent>
     </Card>
   );
 }
 
-export function ConsentHIPs() {
+export function ConsentHIPDetails({
+  showContexts = true,
+  hips,
+}: {
+  showContexts?: boolean;
+  hips: ConsentLinks[];
+}) {
   return (
-    <Card>
+    <Card className="rounded-lg">
       <CardHeader>
         <CardTitle className="text-lg">Health Information Providers</CardTitle>
         <CardDescription>
@@ -154,39 +211,52 @@ export function ConsentHIPs() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {[
-          {
-            name: "Facility 1",
-            careContexts: ["Context 1", "Context 2"],
-          },
-        ].map((facility, facilityIndex) => (
-          <Collapsible key={facilityIndex} className="space-y-2">
-            <CollapsibleTrigger className="flex items-center justify-between w-full p-2 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-colors">
-              <div className="flex items-center gap-3 px-2">
-                <h3 className="text-left">{facility.name}</h3>
-                <Badge
-                  variant="outline"
-                  className="border-indigo-200 bg-indigo-50 text-indigo-700"
-                >
-                  {facility.careContexts.length} contexts
-                </Badge>
-              </div>
-              <ChevronDown className="h-4 w-4 text-gray-500 transition-transform duration-200 data-[state=open]:rotate-180" />
-            </CollapsibleTrigger>
-
-            <CollapsibleContent className="ml-4 space-y-2">
-              {facility.careContexts.map((context, contextIndex) => (
-                <div
-                  key={contextIndex}
-                  className="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200 shadow-sm"
-                >
-                  <div className="w-1.5 h-1.5 bg-gray-400 rounded-full"></div>
-                  <span className="text-sm text-gray-700 font-medium">
-                    {context}
-                  </span>
+        {hips.map((facility, index) => (
+          <Collapsible key={index} disabled={!showContexts}>
+            <div className="bg-white border border-gray-100 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+              <CollapsibleTrigger className="flex items-center justify-between w-full p-4 text-left">
+                <div className="flex items-center gap-3">
+                  <div className="size-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <Building2 className="size-4 text-primary" />
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-gray-800">
+                      {facility.hip.name || "N/A"}
+                    </span>
+                    {showContexts && (
+                      <p className="text-xs text-gray-500">
+                        {facility.careContexts.length} care contexts available
+                      </p>
+                    )}
+                  </div>
                 </div>
-              ))}
-            </CollapsibleContent>
+                {showContexts && (
+                  <ChevronDown className="size-4 text-gray-400 transition-transform data-[state=open]:rotate-180" />
+                )}
+              </CollapsibleTrigger>
+              <CollapsibleContent className="px-4 pb-4 border-t border-gray-50">
+                {showContexts && facility.careContexts?.length > 0 && (
+                  <div className="pt-3 space-y-2">
+                    {[
+                      ...facility.careContexts.map((context) => {
+                        if (context.display) {
+                          return context.display;
+                        }
+                        return context.careContextReference;
+                      }),
+                    ].map((item, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center gap-3 py-2 px-3 bg-gray-50 rounded-md"
+                      >
+                        <div className="size-2 bg-primary rounded-full"></div>
+                        <span className="text-sm text-gray-700">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CollapsibleContent>
+            </div>
           </Collapsible>
         ))}
       </CardContent>

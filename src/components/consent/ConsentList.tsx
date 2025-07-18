@@ -1,4 +1,5 @@
 import { Eye, EyeIcon } from "lucide-react";
+import { navigate } from "raviger";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,20 +14,19 @@ import {
   TableRow,
 } from "@/components/common/Table";
 
-import { ConsentBase, ConsentType } from "@/types/consent";
+import { ConsentBase, isSubscription } from "@/types/consent";
 import { CONSENT_STATUS_VARIANTS } from "@/types/consent";
 import { CONSENT_TYPE_VARIANTS } from "@/types/consent";
-import { formatDateTime, toTitleCase } from "@/utils";
+import { formatReadableDateTime, toTitleCase } from "@/utils";
 
 interface ConsentListProps {
-  data: { consents: ConsentBase[] };
-  onView: (id: string, type: ConsentType) => void;
+  data: ConsentBase[];
 }
 
-function ConsentCard({ data, onView }: ConsentListProps) {
+function ConsentCard({ data }: ConsentListProps) {
   return (
     <div className="grid gap-4">
-      {data.consents.map((consent) => (
+      {data.map((consent) => (
         <Card key={consent.id}>
           <CardHeader className="pb-3">
             <div className="flex items-start justify-between">
@@ -41,7 +41,9 @@ function ConsentCard({ data, onView }: ConsentListProps) {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => onView(consent.id, consent.type)}
+                onClick={() =>
+                  navigate(`/consents/${consent.id}/${consent.type}`)
+                }
               >
                 <Eye className="size-4" />
               </Button>
@@ -75,7 +77,7 @@ function ConsentCard({ data, onView }: ConsentListProps) {
   );
 }
 
-function ConsentTable({ data, onView }: ConsentListProps) {
+function ConsentTable({ data }: ConsentListProps) {
   return (
     <Table>
       <TableHeader>
@@ -90,34 +92,28 @@ function ConsentTable({ data, onView }: ConsentListProps) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {data.consents.map((consent) => (
+        {data.map((consent) => (
           <TableRow key={consent.id}>
             <TableCell>{consent.requester}</TableCell>
             <TableCell>{consent.purpose}</TableCell>
             <TableCell>
               <Badge variant={CONSENT_TYPE_VARIANTS[consent.type]}>
-                {consent.type.includes("subscription")
-                  ? "Subscription"
-                  : "Consent"}
+                {isSubscription(consent.type) ? "Subscription" : "Consent"}
               </Badge>
             </TableCell>
             <TableCell>
-              <Badge
-                variant={
-                  CONSENT_STATUS_VARIANTS[
-                    consent.status as keyof typeof CONSENT_STATUS_VARIANTS
-                  ]
-                }
-              >
+              <Badge variant={CONSENT_STATUS_VARIANTS[consent.status]}>
                 {toTitleCase(consent.status)}
               </Badge>
             </TableCell>
-            <TableCell>{formatDateTime(consent.fromDate)}</TableCell>
-            <TableCell>{formatDateTime(consent.toDate)}</TableCell>
+            <TableCell>{formatReadableDateTime(consent.fromDate)}</TableCell>
+            <TableCell>{formatReadableDateTime(consent.toDate)}</TableCell>
             <TableCell>
               <Button
                 variant="outline"
-                onClick={() => onView(consent.id, consent.type)}
+                onClick={() =>
+                  navigate(`/consents/${consent.id}/${consent.type}`)
+                }
               >
                 <EyeIcon />
                 View
@@ -130,14 +126,14 @@ function ConsentTable({ data, onView }: ConsentListProps) {
   );
 }
 
-export default function ConsentList({ data, onView }: ConsentListProps) {
+export default function ConsentList({ data }: ConsentListProps) {
   return (
     <>
       <div className="md:hidden">
-        <ConsentCard data={data} onView={onView} />
+        <ConsentCard data={data} />
       </div>
       <div className="hidden md:block">
-        <ConsentTable data={data} onView={onView} />
+        <ConsentTable data={data} />
       </div>
     </>
   );
