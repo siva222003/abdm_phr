@@ -1,6 +1,6 @@
 import { Box } from "lucide-react";
 import { useQueryParams } from "raviger";
-import { useCallback, useMemo } from "react";
+import { useEffect } from "react";
 
 import { EmptyState } from "@/components/ui/empty-state";
 
@@ -10,6 +10,7 @@ import ConsentList from "@/components/consent/ConsentList";
 
 import { useConsentList } from "@/hooks/useConsentData";
 
+import { CONSENT_LIST_LIMIT } from "@/common/constants";
 import {
   CardGridSkeleton,
   TableSkeleton,
@@ -21,66 +22,67 @@ import {
   ConsentStatuses,
 } from "@/types/consent";
 
-export interface ConsentQueryParams {
+interface ConsentQueryParams {
   category: ConsentCategories;
-  status: ConsentStatuses | "ALL";
+  status: ConsentStatuses;
   limit: number;
   offset: number;
 }
 
 const DEFAULT_QUERY_PARAMS: ConsentQueryParams = {
   category: ConsentCategories.REQUESTS,
-  status: "ALL",
-  limit: 15,
+  status: ConsentStatuses.REQUESTED,
+  limit: CONSENT_LIST_LIMIT,
   offset: 0,
 };
 
 export default function Consent() {
   const [qParams, setQParams] = useQueryParams<ConsentQueryParams>();
 
-  const queryParams = useMemo(
-    () => ({
-      ...DEFAULT_QUERY_PARAMS,
+  useEffect(() => {
+    const finalParams = { ...DEFAULT_QUERY_PARAMS, ...qParams };
+
+    if (
+      !qParams.category ||
+      !qParams.status ||
+      !qParams.limit ||
+      typeof qParams.offset !== "number"
+    ) {
+      setQParams(finalParams);
+    }
+  }, [qParams]);
+
+  const { data, isLoading, isEmpty, isError } = useConsentList(qParams);
+
+  const handleCategoryChange = (category: ConsentCategories) => {
+    setQParams({
       ...qParams,
-    }),
-    [qParams],
-  );
+      category,
+      status: CONSENT_STATUS_BY_CATEGORY[category][0],
+      offset: 0,
+    });
+  };
 
-  const { data, isLoading, isEmpty, isError } = useConsentList(queryParams);
+  const handleStatusChange = (status: ConsentStatuses) => {
+    setQParams({
+      ...qParams,
+      status,
+      offset: 0,
+    });
+  };
 
-  const handleCategoryChange = useCallback(
-    (category: ConsentCategories) => {
-      setQParams({
-        ...queryParams,
-        category,
-        status: CONSENT_STATUS_BY_CATEGORY[category][0],
-        offset: 0,
-      });
-    },
-    [queryParams, setQParams],
-  );
-
-  const handleStatusChange = useCallback(
-    (status: ConsentStatuses | "ALL") => {
-      setQParams({
-        ...queryParams,
-        status,
-        offset: 0,
-      });
-    },
-    [queryParams, setQParams],
-  );
+  const filterProps = {
+    category: qParams.category,
+    status: qParams.status,
+    onCategoryChange: handleCategoryChange,
+    onStatusChange: handleStatusChange,
+  };
 
   if (isLoading) {
     return (
       <Page title="Consents" hideTitleOnPage>
         <div className="w-full mx-auto mt-2">
-          <ConsentFilters
-            category={queryParams.category}
-            status={queryParams.status}
-            onCategoryChange={handleCategoryChange}
-            onStatusChange={handleStatusChange}
-          />
+          <ConsentFilters {...filterProps} />
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 md:hidden">
             <CardGridSkeleton count={4} />
           </div>
@@ -96,12 +98,7 @@ export default function Consent() {
     return (
       <Page title="Consents" hideTitleOnPage>
         <div className="w-full mx-auto mt-2">
-          <ConsentFilters
-            category={queryParams.category}
-            status={queryParams.status}
-            onCategoryChange={handleCategoryChange}
-            onStatusChange={handleStatusChange}
-          />
+          <ConsentFilters {...filterProps} />
           <EmptyState
             icon={<Box className="size-6" />}
             title="No consents found"
@@ -115,14 +112,8 @@ export default function Consent() {
   return (
     <Page title="Consents" hideTitleOnPage>
       <div className="w-full mx-auto mt-2">
-        <ConsentFilters
-          category={queryParams.category}
-          status={queryParams.status}
-          onCategoryChange={handleCategoryChange}
-          onStatusChange={handleStatusChange}
-        />
-
-        <ConsentList data={data?.consents || []} />
+        <ConsentFilters {...filterProps} />
+        <ConsentList data={data} />
       </div>
     </Page>
   );

@@ -35,7 +35,7 @@ function ConsentCard({ data }: ConsentListProps) {
                   {consent.type}
                 </CardTitle>
                 <Badge variant="outline" className="mt-1">
-                  {consent.status}
+                  {toTitleCase(consent.status)}
                 </Badge>
               </div>
               <Button

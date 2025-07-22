@@ -52,3 +52,5 @@ export const GENDERS = GENDER_CHOICES.map(
 
 export const MAX_FILE_SIZE_KB = 100;
 export const ALLOWED_FILE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
+
+export const CONSENT_LIST_LIMIT = 8;

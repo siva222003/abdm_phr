@@ -32,7 +32,6 @@ export enum ConsentHITypes {
 
 export const CONSENT_STATUS_BY_CATEGORY = {
   [ConsentCategories.REQUESTS]: [
-    "ALL",
     ConsentStatuses.REQUESTED,
     ConsentStatuses.DENIED,
     ConsentStatuses.EXPIRED,
@@ -187,13 +186,13 @@ export interface ConsentUpdateBaseResponse {
   detail: string;
 }
 
-//Base consent type for all the consent types
-
+//temporary enum for subscription categories
 enum SubscriptionCategories {
   LINK = "LINK",
   DATA = "DATA",
 }
 
+//Base consent type for all the consent types
 export interface ConsentBase {
   id: string;
   type: ConsentTypes;

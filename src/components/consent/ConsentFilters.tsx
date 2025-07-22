@@ -15,9 +15,9 @@ import {
 
 interface ConsentFiltersProps {
   category: ConsentCategories;
-  status: ConsentStatuses | "ALL";
+  status: ConsentStatuses;
   onCategoryChange: (category: ConsentCategories) => void;
-  onStatusChange: (status: ConsentStatuses | "ALL") => void;
+  onStatusChange: (status: ConsentStatuses) => void;
 }
 
 export function ConsentFilters({
@@ -55,9 +55,7 @@ export function ConsentFilters({
 
         <Select
           value={status}
-          onValueChange={(value) =>
-            onStatusChange(value as ConsentStatuses | "ALL")
-          }
+          onValueChange={(value) => onStatusChange(value as ConsentStatuses)}
         >
           <SelectTrigger className="sm:max-w-1/5 border-gray-300">
             <SelectValue placeholder="Select Status" />

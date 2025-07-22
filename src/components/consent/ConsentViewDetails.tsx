@@ -1,4 +1,4 @@
-import { Building2, ChevronDown, FileText, Info } from "lucide-react";
+import { Building2, ChevronDown, FileText } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -14,11 +14,6 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 import {
   CONSENT_HI_TYPES_ICONS,
@@ -97,18 +92,7 @@ export function ConsentDurationDetails({
         </div>
         {dataEraseAt && (
           <div>
-            <div className="flex gap-2 items-center">
-              <p className="text-sm text-gray-500">Data Erasure Date</p>
-              <Tooltip>
-                <TooltipTrigger className="cursor-pointer" asChild>
-                  <Info className="size-4 text-gray-500" />
-                </TooltipTrigger>
-                <TooltipContent side="bottom" className="text-white">
-                  The date on which shared health data will be permanently
-                  erased.
-                </TooltipContent>
-              </Tooltip>
-            </div>
+            <p className="text-sm text-gray-500">Data Erasure Date</p>
             <p className="text-base text-gray-900 font-medium">
               {formatReadableDateTime(dataEraseAt, true)}
             </p>

@@ -41,6 +41,7 @@
     "react-dom": "^19.1.0",
     "react-easy-crop": "^5.4.2",
     "react-hook-form": "^7.57.0",
+    "react-intersection-observer": "^9.16.0",
     "sonner": "^2.0.5",
     "tailwind-merge": "^3.3.0",
     "tailwindcss": "^4.1.8",

@@ -2,7 +2,6 @@ import { useMutation } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
 import { navigate } from "raviger";
-import { Dispatch, SetStateAction } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -18,22 +17,22 @@ import {
 import routes from "@/api";
 import { mutate } from "@/utils/request/request";
 
-type ConsentConfirmDialogProps = {
+type ConsentDenyDialogProps = {
   open: boolean;
-  setOpen: Dispatch<SetStateAction<boolean>>;
+  closeModal: () => void;
   requestId: string;
 };
 
-const ConsentConfirmDialog = ({
+const ConsentDenyDialog = ({
   open,
-  setOpen,
+  closeModal,
   requestId,
-}: ConsentConfirmDialogProps) => {
+}: ConsentDenyDialogProps) => {
   const queryClient = useQueryClient();
 
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
-      setOpen(false);
+      closeModal();
     }
   };
 
@@ -44,13 +43,13 @@ const ConsentConfirmDialog = ({
       },
     }),
     onSuccess: () => {
-      toast.success("Consent denied successfully");
-      setOpen(false);
+      toast.success("Consent approved successfully");
+      closeModal();
       queryClient.invalidateQueries({ queryKey: ["consents"] });
       navigate("/consents?category=REQUESTS&status=DENIED&limit=15&offset=0");
     },
     onError: () => {
-      toast.error("Failed to deny consent");
+      toast.error("Failed to approve consent");
     },
   });
 
@@ -62,10 +61,10 @@ const ConsentConfirmDialog = ({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Unlink ABHA Number</DialogTitle>
+          <DialogTitle>Approve Consent</DialogTitle>
           <DialogDescription className="space-y-2 pb-4">
             <div>
-              Do you really want to deny this consent? This action cannot be
+              Do you really want to approve this consent? This action cannot be
               undone.
             </div>
           </DialogDescription>
@@ -74,7 +73,7 @@ const ConsentConfirmDialog = ({
           <Button
             variant="outline"
             disabled={denyConsentMutation.isPending}
-            onClick={() => setOpen(false)}
+            onClick={closeModal}
           >
             Cancel
           </Button>
@@ -86,7 +85,7 @@ const ConsentConfirmDialog = ({
             {denyConsentMutation.isPending ? (
               <>
                 <Loader2Icon className="mr-2 size-4 animate-spin" />
-                Denying...
+                Approve...
               </>
             ) : (
               "Confirm"
@@ -98,4 +97,4 @@ const ConsentConfirmDialog = ({
   );
 };
 
-export default ConsentConfirmDialog;
+export default ConsentDenyDialog;

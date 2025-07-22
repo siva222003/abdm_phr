@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 
 import routes from "@/api";
 import {
@@ -27,7 +28,7 @@ import { query } from "@/utils/request/request";
 
 interface ConsentListParams {
   category: ConsentCategories;
-  status: ConsentStatuses | "ALL";
+  status: ConsentStatuses;
   limit: number;
   offset: number;
 }
@@ -35,24 +36,6 @@ interface ConsentListParams {
 interface ConsentDetailParams {
   id: string;
   requestType: ConsentTypes;
-}
-
-interface ConsentListResponse {
-  consents: ConsentBase[];
-  totalCount: number;
-}
-
-interface UseConsentListReturn {
-  data: ConsentListResponse | undefined;
-  isLoading: boolean;
-  isError: boolean;
-  isEmpty: boolean;
-}
-
-interface UseConsentDetailReturn {
-  data: ConsentBase | null | undefined;
-  isLoading: boolean;
-  isError: boolean;
 }
 
 // ============================================================================
@@ -178,8 +161,6 @@ const fetchConsentRequests = async (
   params: ConsentListParams,
   signal: AbortSignal,
 ): Promise<ConsentBase[]> => {
-  if (params.category !== ConsentCategories.REQUESTS) return [];
-
   const consentRequests: ConsentRequest[] = await query.debounced(
     routes.consent.listRequests,
     buildQueryParams(params),
@@ -200,8 +181,6 @@ const fetchConsentArtefacts = async (
   params: ConsentListParams,
   signal: AbortSignal,
 ): Promise<ConsentBase[]> => {
-  if (params.category !== ConsentCategories.APPROVED) return [];
-
   const consentArtefacts: ConsentArtefact[] = await query.debounced(
     routes.consent.listArtefacts,
     buildQueryParams(params),
@@ -267,10 +246,12 @@ const fetchSubscriptionRequests = async (
  * });
  * ```
  */
-export function useConsentList(
-  params: ConsentListParams,
-): UseConsentListReturn {
-  const { data, isLoading, isError } = useQuery({
+export function useConsentList(params: ConsentListParams) {
+  const {
+    data: consentData,
+    isLoading: consentLoading,
+    isError: consentError,
+  } = useQuery({
     queryKey: [
       "consents",
       params.category,
@@ -279,33 +260,46 @@ export function useConsentList(
       params.limit,
     ],
     queryFn: async ({ signal }) => {
-      // Fetch all relevant consent data in parallel
-      const [consentRequests, consentArtefacts, subscriptionRequests] =
-        await Promise.all([
-          fetchConsentRequests(params, signal),
-          fetchConsentArtefacts(params, signal),
-          fetchSubscriptionRequests(params, signal),
-        ]);
+      if (params.category === ConsentCategories.REQUESTS) {
+        return fetchConsentRequests(params, signal);
+      }
 
-      // Combine all consent data
-      const allConsents = [
-        ...consentRequests,
-        ...consentArtefacts,
-        ...subscriptionRequests,
-      ];
+      if (params.category === ConsentCategories.APPROVED) {
+        return fetchConsentArtefacts(params, signal);
+      }
 
-      return {
-        consents: allConsents,
-        totalCount: allConsents.length,
-      };
+      return [];
     },
   });
 
+  const {
+    data: subscriptionData,
+    isLoading: subscriptionLoading,
+    isError: subscriptionError,
+  } = useQuery({
+    queryKey: [
+      "subscriptions",
+      params.category,
+      params.status,
+      params.offset,
+      params.limit,
+    ],
+    queryFn: async ({ signal }) => {
+      return fetchSubscriptionRequests(params, signal);
+    },
+  });
+
+  const data = useMemo(() => {
+    if (!consentData?.length && !subscriptionData?.length) return [];
+
+    return [...(consentData || []), ...(subscriptionData || [])];
+  }, [consentData, subscriptionData]);
+
   return {
     data,
-    isLoading,
-    isError,
-    isEmpty: (data?.totalCount || 0) === 0,
+    isLoading: consentLoading || subscriptionLoading,
+    isError: consentError || subscriptionError,
+    isEmpty: data.length === 0,
   };
 }
 
@@ -329,9 +323,7 @@ export function useConsentList(
  * });
  * ```
  */
-export function useConsentDetail(
-  params: ConsentDetailParams,
-): UseConsentDetailReturn {
+export function useConsentDetail(params: ConsentDetailParams) {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["consents", params.id, params.requestType],
     queryFn: async ({ signal }) => {
