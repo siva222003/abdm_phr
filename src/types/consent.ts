@@ -30,7 +30,10 @@ export enum ConsentHITypes {
   WELLNESS_RECORD = "WellnessRecord",
 }
 
-export const CONSENT_STATUS_BY_CATEGORY = {
+export const CONSENT_STATUS_BY_CATEGORY: Record<
+  ConsentCategories,
+  ConsentStatuses[]
+> = {
   [ConsentCategories.REQUESTS]: [
     ConsentStatuses.REQUESTED,
     ConsentStatuses.DENIED,

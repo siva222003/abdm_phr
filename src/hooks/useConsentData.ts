@@ -113,8 +113,10 @@ const transformSubscriptionRequest = (
   request: SubscriptionRequest,
   links: ConsentLinks[] = [],
 ): ConsentBase => ({
-  id: request.requestId,
-  type: ConsentTypes.SUBSCRIPTION,
+  id: request.subscriptionId || request.requestId,
+  type: request.subscriptionId
+    ? ConsentTypes.SUBSCRIPTION_ARTEFACT
+    : ConsentTypes.SUBSCRIPTION,
   requester: request.hiu?.name || "-",
   purpose: request.purpose?.text || "-",
   fromDate: request.period?.from || "",

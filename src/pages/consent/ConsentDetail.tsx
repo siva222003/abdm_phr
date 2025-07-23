@@ -1,5 +1,4 @@
 import { ArrowLeftIcon } from "lucide-react";
-import { navigate } from "raviger";
 import { useEffect, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +19,7 @@ import ConsentEnableDialog from "@/components/consent/dialogs/ConsentEnableDialo
 import ConsentRevokeDialog from "@/components/consent/dialogs/ConsentRevokeDialog";
 
 import { useConsentDetail } from "@/hooks/useConsentData";
+import { useNavigation } from "@/hooks/useNavigation";
 
 import {
   CONSENT_STATUS_VARIANTS,
@@ -69,13 +69,14 @@ function LoadingSkeleton() {
 }
 
 function ErrorFallback() {
+  const { goBack } = useNavigation();
   return (
     <div className="container mx-auto max-w-3xl py-8 text-center space-y-4">
       <h1 className="text-2xl font-bold text-gray-900">Something went wrong</h1>
       <p className="text-gray-600">
         Unable to load consent details. Please try again later.
       </p>
-      <Button variant="outline" onClick={() => navigate("/consents")}>
+      <Button variant="outline" onClick={() => goBack("/consents")}>
         <ArrowLeftIcon className="size-4 mr-2" />
         Back to Consents
       </Button>
@@ -90,6 +91,8 @@ export default function ConsentDetail({ id, type }: ConsentDetailProps) {
   const [denyDialogOpen, setDenyDialogOpen] = useState(false);
   const [revokeDialogOpen, setRevokeDialogOpen] = useState(false);
   const [enableDialogOpen, setEnableDialogOpen] = useState(false);
+
+  const { goBack } = useNavigation();
 
   const { data, isLoading, isError } = useConsentDetail({
     id,
@@ -134,7 +137,7 @@ export default function ConsentDetail({ id, type }: ConsentDetailProps) {
         <Button
           variant="outline"
           className="mb-2"
-          onClick={() => navigate("/consents")}
+          onClick={() => goBack("/consents")}
         >
           <ArrowLeftIcon className="size-4" />
           Back
@@ -249,25 +252,27 @@ export default function ConsentDetail({ id, type }: ConsentDetailProps) {
       <ConsentApproveDialog
         requestId={finalData.id}
         open={approveDialogOpen}
-        closeModal={() => setApproveDialogOpen(false)}
+        setOpen={setApproveDialogOpen}
       />
 
       <ConsentDenyDialog
         requestId={finalData.id}
         open={denyDialogOpen}
-        closeModal={() => setDenyDialogOpen(false)}
+        setOpen={setDenyDialogOpen}
+        isSubscription={isSubscriptionType}
       />
 
       <ConsentRevokeDialog
         requestId={finalData.id}
         open={revokeDialogOpen}
-        closeModal={() => setRevokeDialogOpen(false)}
+        setOpen={setRevokeDialogOpen}
+        isSubscription={isSubscriptionType}
       />
 
       <ConsentEnableDialog
         requestId={finalData.id}
         open={enableDialogOpen}
-        closeModal={() => setEnableDialogOpen(false)}
+        setOpen={setEnableDialogOpen}
       />
     </Page>
   );

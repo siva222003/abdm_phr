@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
 import { navigate } from "raviger";
+import { Dispatch, SetStateAction } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -17,22 +18,22 @@ import {
 import routes from "@/api";
 import { mutate } from "@/utils/request/request";
 
-type ConsentDenyDialogProps = {
+type ConsentApproveDialogProps = {
   open: boolean;
-  closeModal: () => void;
+  setOpen: Dispatch<SetStateAction<boolean>>;
   requestId: string;
 };
 
-const ConsentDenyDialog = ({
+const ConsentApproveDialog = ({
   open,
-  closeModal,
+  setOpen,
   requestId,
-}: ConsentDenyDialogProps) => {
+}: ConsentApproveDialogProps) => {
   const queryClient = useQueryClient();
 
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
-      closeModal();
+      setOpen(false);
     }
   };
 
@@ -44,7 +45,7 @@ const ConsentDenyDialog = ({
     }),
     onSuccess: () => {
       toast.success("Consent approved successfully");
-      closeModal();
+      setOpen(false);
       queryClient.invalidateQueries({ queryKey: ["consents"] });
       navigate("/consents?category=REQUESTS&status=DENIED&limit=15&offset=0");
     },
@@ -73,7 +74,7 @@ const ConsentDenyDialog = ({
           <Button
             variant="outline"
             disabled={denyConsentMutation.isPending}
-            onClick={closeModal}
+            onClick={() => setOpen(false)}
           >
             Cancel
           </Button>
@@ -97,4 +98,4 @@ const ConsentDenyDialog = ({
   );
 };
 
-export default ConsentDenyDialog;
+export default ConsentApproveDialog;

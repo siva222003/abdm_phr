@@ -68,7 +68,7 @@ export interface SubscriptionDenyRequest {
 }
 
 export interface SubscriptionStatusUpdateRequest {
-  enabled: boolean;
+  enable: boolean;
 }
 
 export interface SubscriptionUpdateBaseResponse {

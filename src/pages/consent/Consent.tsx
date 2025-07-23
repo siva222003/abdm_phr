@@ -36,21 +36,31 @@ const DEFAULT_QUERY_PARAMS: ConsentQueryParams = {
   offset: 0,
 };
 
+const normalizeQueryParams = (
+  qParams: Partial<ConsentQueryParams>,
+): ConsentQueryParams => {
+  const category = qParams.category || DEFAULT_QUERY_PARAMS.category;
+
+  let status = qParams.status;
+  if (!status || !CONSENT_STATUS_BY_CATEGORY[category]?.includes(status)) {
+    status =
+      CONSENT_STATUS_BY_CATEGORY[category]?.[0] || DEFAULT_QUERY_PARAMS.status;
+  }
+
+  return {
+    category,
+    status,
+    limit: qParams.limit || DEFAULT_QUERY_PARAMS.limit,
+    offset: qParams.offset || DEFAULT_QUERY_PARAMS.offset,
+  };
+};
+
 export default function Consent() {
   const [qParams, setQParams] = useQueryParams<ConsentQueryParams>();
 
   useEffect(() => {
-    const finalParams = { ...DEFAULT_QUERY_PARAMS, ...qParams };
-
-    if (
-      !qParams.category ||
-      !qParams.status ||
-      !qParams.limit ||
-      typeof qParams.offset !== "number"
-    ) {
-      setQParams(finalParams);
-    }
-  }, [qParams]);
+    setQParams(normalizeQueryParams(qParams));
+  }, []);
 
   const { data, isLoading, isEmpty, isError } = useConsentList(qParams);
 

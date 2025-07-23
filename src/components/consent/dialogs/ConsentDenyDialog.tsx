@@ -1,5 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
 import { navigate } from "raviger";
 import { toast } from "sonner";
@@ -17,75 +16,76 @@ import {
 import routes from "@/api";
 import { mutate } from "@/utils/request/request";
 
-type ConsentDenyDialogProps = {
+interface ConsentDenyDialogProps {
   open: boolean;
-  closeModal: () => void;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   requestId: string;
-};
+  isSubscription: boolean;
+}
 
-const ConsentDenyDialog = ({
+export default function ConsentDenyDialog({
   open,
-  closeModal,
+  setOpen,
   requestId,
-}: ConsentDenyDialogProps) => {
+  isSubscription,
+}: ConsentDenyDialogProps) {
   const queryClient = useQueryClient();
 
-  const handleOpenChange = (isOpen: boolean) => {
-    if (!isOpen) {
-      closeModal();
-    }
-  };
-
-  const denyConsentMutation = useMutation({
-    mutationFn: mutate(routes.consent.deny, {
-      pathParams: {
-        requestId: requestId,
-      },
-    }),
-    onSuccess: () => {
-      toast.success("Consent denied successfully");
-      closeModal();
-      queryClient.invalidateQueries({ queryKey: ["consents"] });
-      navigate("/consents?category=REQUESTS&status=DENIED&limit=15&offset=0");
+  const denyMutation = useMutation({
+    mutationFn: () => {
+      const route = isSubscription
+        ? routes.subscription.deny
+        : routes.consent.deny;
+      return mutate(route, {
+        pathParams: { requestId },
+      })({});
     },
-    onError: () => {
-      toast.error("Failed to deny consent");
+    onSuccess: (data) => {
+      toast.success(data.detail);
+      setOpen(false);
+
+      queryClient.invalidateQueries({
+        queryKey: ["consents", requestId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [isSubscription ? "subscriptions" : "consents"],
+      });
+
+      navigate("/consents?category=REQUESTS&status=DENIED");
     },
   });
 
-  const handleConfirm = () => {
-    denyConsentMutation.mutate({});
-  };
-
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Deny Consent</DialogTitle>
+          <DialogTitle>
+            Deny {isSubscription ? "Subscription" : "Consent"}
+          </DialogTitle>
           <DialogDescription className="space-y-2 pb-4">
-            <div>
-              Do you really want to deny this consent? This action cannot be
-              undone.
-            </div>
+            Do you really want to deny this{" "}
+            {isSubscription ? "subscription" : "consent"}? This action cannot be
+            undone.
           </DialogDescription>
         </DialogHeader>
+
         <DialogFooter>
           <Button
             variant="outline"
-            disabled={denyConsentMutation.isPending}
-            onClick={closeModal}
+            disabled={denyMutation.isPending}
+            onClick={() => setOpen(false)}
           >
             Cancel
           </Button>
           <Button
             variant="destructive"
-            disabled={denyConsentMutation.isPending}
-            onClick={handleConfirm}
+            disabled={denyMutation.isPending}
+            onClick={() => denyMutation.mutate()}
           >
-            {denyConsentMutation.isPending ? (
+            {denyMutation.isPending ? (
               <>
                 <Loader2Icon className="mr-2 size-4 animate-spin" />
-                Deny...
+                Denying...
               </>
             ) : (
               "Confirm"
@@ -95,6 +95,4 @@ const ConsentDenyDialog = ({
       </DialogContent>
     </Dialog>
   );
-};
-
-export default ConsentDenyDialog;
+}
