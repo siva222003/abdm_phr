@@ -73,16 +73,42 @@ function handleStructuredErrors(cause: StructuredError) {
     return;
   }
 
-  for (const value of Object.values(cause)) {
-    if (Array.isArray(value)) {
-      value.forEach((err) => toast.error(err));
-      return;
-    }
-    if (typeof value === "string") {
-      toast.error(value);
-      return;
-    }
+  const errorMessages = extractErrorMessages(cause);
+
+  if (errorMessages.length > 0) {
+    errorMessages.forEach((message) => toast.error(message));
+  } else {
+    toast.error("Validation error occurred");
   }
+}
+
+function extractErrorMessages(obj: any, path: string[] = []): string[] {
+  const messages: string[] = [];
+
+  if (typeof obj === "string") {
+    return [obj];
+  }
+
+  if (Array.isArray(obj)) {
+    obj.forEach((item, index) => {
+      if (typeof item === "string") {
+        messages.push(item);
+      } else {
+        messages.push(
+          ...extractErrorMessages(item, [...path, index.toString()]),
+        );
+      }
+    });
+    return messages;
+  }
+
+  if (typeof obj === "object" && obj !== null) {
+    Object.entries(obj).forEach(([key, value]) => {
+      messages.push(...extractErrorMessages(value, [...path, key]));
+    });
+  }
+
+  return messages;
 }
 
 type PydanticError = {

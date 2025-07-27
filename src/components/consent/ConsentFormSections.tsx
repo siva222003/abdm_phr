@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import { Check, ChevronDown, Minus } from "lucide-react";
-import { useState } from "react";
+import { useMemo } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -20,58 +20,49 @@ import { dateQueryString, toTitleCase } from "@/utils";
 export function ConsentDurationSection({
   fromDate,
   toDate,
-  dataEraseAt = "",
-  onFromDateChange,
-  onToDateChange,
-  onDataEraseAtChange,
+  dataEraseAt,
+  onDateChange,
 }: {
   fromDate: string;
   toDate: string;
-  dataEraseAt?: string;
-  onFromDateChange: (date: string) => void;
-  onToDateChange: (date: string) => void;
-  onDataEraseAtChange: (date: string) => void;
+  dataEraseAt: string;
+  onDateChange: (
+    date: string,
+    key: "fromDate" | "toDate" | "dataEraseAt",
+  ) => void;
 }) {
   return (
     <div className="space-y-4 rounded-lg border border-gray-200 p-4">
       <h3 className="text-lg font-medium">Consent Duration</h3>
-      <div
-        className={cn(
-          "grid grid-cols-1 sm:grid-cols-2 gap-4",
-          !dataEraseAt && "mb-2",
-        )}
-      >
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label className="text-s">Valid From</Label>
+          <Label>Valid From</Label>
           <Input
             type="date"
             value={dateQueryString(fromDate)}
-            onChange={(e) => onFromDateChange(e.target.value)}
+            onChange={(e) => onDateChange(e.target.value, "fromDate")}
           />
         </div>
         <div className="space-y-2">
-          <Label className="text-s">Valid To</Label>
+          <Label>Valid To</Label>
           <Input
             type="date"
             min={dayjs().format("YYYY-MM-DD")}
             value={dateQueryString(toDate)}
-            onChange={(e) => onToDateChange(e.target.value)}
+            onChange={(e) => onDateChange(e.target.value, "toDate")}
           />
         </div>
       </div>
 
       {dataEraseAt && (
         <div className="space-y-2">
-          <Label className="text-s">Data Erase At</Label>
+          <Label>Data Erase At</Label>
           <Input
             type="datetime-local"
             min={dayjs().format("YYYY-MM-DDTHH:mm")}
             value={dateQueryString(dataEraseAt, true)}
-            onChange={(e) => onDataEraseAtChange(e.target.value)}
+            onChange={(e) => onDateChange(e.target.value, "dataEraseAt")}
           />
-          <p className="text-sm text-gray-500 ml-1">
-            Data will be erased after the specified date and time.
-          </p>
         </div>
       )}
     </div>
@@ -86,29 +77,28 @@ export function HITypeSelector({
   onSelectionChange: (types: ConsentHITypes[]) => void;
 }) {
   return (
-    <div className="space-y-4 rounded-lg border border-gray-200 p-4 shadow-sm bg-white">
-      <h3 className="text-lg font-semibold text-gray-800">
-        Health Information Types
-      </h3>
+    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm space-y-5">
+      <h3 className="text-lg font-medium">Health Information Types</h3>
 
-      <div className="space-y-2">
+      <div className="grid gap-3">
         {Object.values(ConsentHITypes).map((type) => {
           const isChecked = selectedTypes.includes(type);
 
           return (
             <Label
               key={type}
-              className={`flex items-center gap-3 rounded-md border p-2.5 transition-colors cursor-pointer ${
+              className={cn(
+                "flex items-center gap-3 rounded-md border p-3 transition-all cursor-pointer",
                 isChecked
-                  ? "border-primary-300"
-                  : "border-gray-100 hover:bg-gray-50"
-              }`}
+                  ? "border-primary/40 bg-primary/5"
+                  : "border-gray-200 hover:bg-gray-50",
+              )}
             >
               <Checkbox
                 checked={isChecked}
                 onCheckedChange={() =>
                   onSelectionChange(
-                    selectedTypes.includes(type)
+                    isChecked
                       ? selectedTypes.filter((t) => t !== type)
                       : [...selectedTypes, type],
                   )
@@ -132,223 +122,259 @@ export function SubscriptionCategoriesSelector({
   onSelectionChange: (categories: SubscriptionCategories[]) => void;
 }) {
   return (
-    <div className="space-y-5 rounded-lg border border-gray-200 p-4">
+    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm space-y-5">
       <h3 className="text-lg font-medium">Subscription Categories</h3>
 
-      {selectedCategories.map((item, index) => (
-        <Label
-          key={index}
-          className="flex items-start gap-3 rounded-lg border border-gray-200 p-4"
-        >
-          <Checkbox
-            checked={selectedCategories.includes(item)}
-            onCheckedChange={() =>
-              onSelectionChange(
-                selectedCategories.includes(item)
-                  ? selectedCategories.filter((c) => c !== item)
-                  : [...selectedCategories, item],
-              )
-            }
-            className="data-[state=checked]:bg-primary data-[state=checked]:border-primary text-white"
-          />
-          <div className="grid gap-1 font-normal">
-            <p className="text-sm font-medium leading-none">
-              {toTitleCase(item)}
-            </p>
-            <p className="text-sm text-muted-foreground">
-              {item === SubscriptionCategories.LINK
-                ? "Enables HIU to receive new care context links"
-                : "Enables HIU to access data on existing care contexts"}
-            </p>
-          </div>
-        </Label>
-      ))}
+      <div className="grid gap-3">
+        {Object.values(SubscriptionCategories).map((item) => {
+          const isChecked = selectedCategories.includes(item);
+
+          return (
+            <Label
+              key={item}
+              className={cn(
+                "flex items-start gap-3 rounded-md border p-3 transition-all cursor-pointer",
+                isChecked
+                  ? "border-primary/40 bg-primary/5"
+                  : "border-gray-200 hover:bg-gray-50",
+              )}
+            >
+              <Checkbox
+                checked={isChecked}
+                onCheckedChange={() =>
+                  onSelectionChange(
+                    isChecked
+                      ? selectedCategories.filter((c) => c !== item)
+                      : [...selectedCategories, item],
+                  )
+                }
+                className="data-[state=checked]:bg-primary data-[state=checked]:border-primary text-white mt-1"
+              />
+              <div className="flex flex-col gap-0.5">
+                <span className="text-sm font-medium text-gray-900">
+                  {toTitleCase(item)}
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  {item === SubscriptionCategories.LINK
+                    ? "Enables HIU to receive new care context links"
+                    : "Enables HIU to access data on existing care contexts"}
+                </span>
+              </div>
+            </Label>
+          );
+        })}
+      </div>
     </div>
   );
 }
 
-export function HipSelector({ hips }: { hips: ConsentLinks[] }) {
-  const [selectedHips, setSelectedHips] = useState<Set<string>>(
-    new Set(hips.map((h) => h.hip.id)),
+export function HipSelector({
+  hips,
+  selectedHips,
+  onSelectionChange,
+  showContexts,
+}: {
+  hips: ConsentLinks[];
+  selectedHips: ConsentLinks[];
+  onSelectionChange: (hips: ConsentLinks[]) => void;
+  showContexts: boolean;
+}) {
+  const selectedHipsMap = useMemo(
+    () => new Map(selectedHips.map((hip) => [hip.hip.id, hip])),
+    [selectedHips],
   );
-  const [selectedContexts, setSelectedContexts] = useState<Set<string>>(
-    new Set(
-      hips.flatMap((h) => h.careContexts.map((c) => c.careContextReference)),
-    ),
-  );
 
-  const toggleHip = (hipId: string) => {
-    const hip = hips.find((h) => h.hip.id === hipId);
-    if (!hip) return;
+  const getHipState = (hip: ConsentLinks) => {
+    const selectedHip = selectedHipsMap.get(hip.hip.id);
 
-    const newContexts = new Set(selectedContexts);
-    const newHips = new Set(selectedHips);
-
-    if (newHips.has(hipId)) {
-      hip.careContexts.forEach((ctx) =>
-        newContexts.delete(ctx.careContextReference),
-      );
-      newHips.delete(hipId);
-    } else {
-      hip.careContexts.forEach((ctx) =>
-        newContexts.add(ctx.careContextReference),
-      );
-      newHips.add(hipId);
+    if (!showContexts || !hip.careContexts?.length) {
+      return selectedHip ? "checked" : "unchecked";
     }
 
-    setSelectedContexts(newContexts);
-    setSelectedHips(newHips);
-  };
+    if (!selectedHip?.careContexts?.length) return "unchecked";
 
-  const toggleContext = (hipId: string, contextId: string) => {
-    const hip = hips.find((h) => h.hip.id === hipId);
-    if (!hip) return;
-
-    const newContexts = new Set(selectedContexts);
-    newContexts.has(contextId)
-      ? newContexts.delete(contextId)
-      : newContexts.add(contextId);
-
-    const allSelected = hip.careContexts.every((ctx) =>
-      newContexts.has(ctx.careContextReference),
-    );
-    const noneSelected = hip.careContexts.every(
-      (ctx) => !newContexts.has(ctx.careContextReference),
-    );
-
-    const newHips = new Set(selectedHips);
-    if (allSelected) newHips.add(hipId);
-    else if (noneSelected) newHips.delete(hipId);
-
-    setSelectedContexts(newContexts);
-    setSelectedHips(newHips);
-  };
-
-  const getHipState = (hipId: string) => {
-    const hip = hips.find((h) => h.hip.id === hipId);
-    if (!hip) return "unchecked";
-
-    const selectedCount = hip.careContexts.filter((ctx) =>
-      selectedContexts.has(ctx.careContextReference),
-    ).length;
-    const total = hip.careContexts.length;
+    const selectedCount = selectedHip.careContexts.length;
+    const totalCount = hip.careContexts.length;
 
     if (selectedCount === 0) return "unchecked";
-    if (selectedCount === total) return "checked";
+    if (selectedCount === totalCount) return "checked";
     return "indeterminate";
   };
 
+  const isContextSelected = (hipId: string, contextRef: string) => {
+    const selectedHip = selectedHipsMap.get(hipId);
+    return (
+      selectedHip?.careContexts?.some(
+        (ctx) => ctx.careContextReference === contextRef,
+      ) ?? false
+    );
+  };
+
+  const toggleHip = (hip: ConsentLinks) => {
+    const hipId = hip.hip.id;
+    const isSelected = selectedHipsMap.has(hipId);
+
+    if (isSelected) {
+      onSelectionChange(selectedHips.filter((h) => h.hip.id !== hipId));
+    } else {
+      const newHip: ConsentLinks = {
+        hip: hip.hip,
+        careContexts: showContexts ? hip.careContexts : undefined,
+      };
+      onSelectionChange([...selectedHips, newHip]);
+    }
+  };
+
+  const toggleContext = (hip: ConsentLinks, contextRef: string) => {
+    if (!showContexts || !hip.careContexts) return;
+
+    const hipId = hip.hip.id;
+    const targetContext = hip.careContexts.find(
+      (ctx) => ctx.careContextReference === contextRef,
+    );
+    if (!targetContext) return;
+
+    const selectedHip = selectedHipsMap.get(hipId);
+    const currentContexts = selectedHip?.careContexts || [];
+    const isSelected = currentContexts.some(
+      (ctx) => ctx.careContextReference === contextRef,
+    );
+
+    const newContexts = isSelected
+      ? currentContexts.filter((ctx) => ctx.careContextReference !== contextRef)
+      : [...currentContexts, targetContext];
+
+    const updatedHip: ConsentLinks = {
+      hip: hip.hip,
+      careContexts: newContexts.length > 0 ? newContexts : undefined,
+    };
+
+    const newSelectedHips =
+      newContexts.length > 0
+        ? selectedHips.map((h) => (h.hip.id === hipId ? updatedHip : h))
+        : selectedHips.filter((h) => h.hip.id !== hipId);
+
+    if (newContexts.length > 0 && !selectedHipsMap.has(hipId)) {
+      newSelectedHips.push(updatedHip);
+    }
+
+    onSelectionChange(newSelectedHips);
+  };
+
   return (
-    <div className="space-y-4 rounded-lg border border-gray-200 p-4">
+    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm space-y-5">
       <h3 className="text-lg font-medium">HIPs and Care Contexts</h3>
 
       {hips.map((hip) => {
         const hipId = hip.hip.id;
-        const hipState = getHipState(hipId);
-        const selectedCount = hip.careContexts.filter((ctx) =>
-          selectedContexts.has(ctx.careContextReference),
-        ).length;
+        const hipState = getHipState(hip);
+        const selectedHip = selectedHipsMap.get(hipId);
+        const selectedContextCount = selectedHip?.careContexts?.length || 0;
 
         return (
-          <Collapsible key={hipId}>
+          <Collapsible
+            key={hipId}
+            disabled={!showContexts || !hip.careContexts?.length}
+          >
             <div
-              className={`bg-white border rounded-lg shadow-sm transition-all ${
-                hipState === "checked"
-                  ? "border-primary/50 shadow-sm shadow-primary/10"
-                  : hipState === "indeterminate"
-                    ? "border-primary/20 shadow-primary/5"
-                    : "border-gray-100 hover:shadow-md"
-              }`}
+              className={cn(
+                "bg-white border rounded-md transition-all",
+                hipState === "checked" &&
+                  "border-primary/50 shadow-sm shadow-primary/10",
+                hipState === "indeterminate" &&
+                  "border-primary/20 shadow-primary/5",
+                hipState === "unchecked" && "border-gray-200 hover:shadow-md",
+              )}
             >
-              <div className="px-4">
-                <CollapsibleTrigger asChild>
-                  <div className="flex items-center justify-between cursor-pointer w-full py-4 rounded-lg transition">
-                    <div className="flex items-center gap-3">
-                      <Label className="flex items-center gap-3 cursor-pointer">
-                        <div className="relative">
-                          <input
-                            type="checkbox"
-                            checked={hipState === "checked"}
-                            onChange={() => toggleHip(hipId)}
-                            className="sr-only"
-                          />
-                          <div
-                            className={`w-5 h-5 rounded border-2 transition-all flex items-center justify-center ${
-                              hipState === "checked" ||
-                              hipState === "indeterminate"
-                                ? "bg-primary border-primary text-white"
-                                : "border-gray-300 hover:border-gray-400"
-                            }`}
-                          >
-                            {hipState === "checked" && (
-                              <Check className="w-4 h-4" />
-                            )}
-                            {hipState === "indeterminate" && (
-                              <Minus className="w-4 h-4" />
-                            )}
-                          </div>
-                        </div>
-                      </Label>
-
-                      <div className="flex-1 min-w-0">
-                        <span className="text-sm font-medium text-foreground block truncate">
-                          {hip.hip.name}
-                        </span>
-                        {selectedCount > 0 && (
-                          <p className="text-xs text-muted-foreground">
-                            {selectedCount} contexts selected
-                          </p>
-                        )}
-                      </div>
+              <CollapsibleTrigger asChild>
+                <div className="flex items-center justify-between w-full p-4 cursor-pointer">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={cn(
+                        "size-5 rounded border-2 transition-all flex items-center justify-center cursor-pointer",
+                        hipState === "checked" || hipState === "indeterminate"
+                          ? "bg-primary border-primary text-white"
+                          : "border-gray-300 hover:border-gray-400",
+                      )}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleHip(hip);
+                      }}
+                    >
+                      {hipState === "checked" && <Check className="size-4" />}
+                      {hipState === "indeterminate" && (
+                        <Minus className="size-4" />
+                      )}
                     </div>
 
-                    <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform data-[state=open]:rotate-180" />
+                    <div className="flex-1 min-w-0">
+                      <span className="text-sm font-medium block truncate">
+                        {hip.hip.name || "N/A"}
+                      </span>
+                      {showContexts &&
+                        hip.careContexts &&
+                        selectedContextCount > 0 && (
+                          <p className="text-xs text-muted-foreground">
+                            {selectedContextCount} of {hip.careContexts.length}{" "}
+                            contexts selected
+                          </p>
+                        )}
+                    </div>
                   </div>
-                </CollapsibleTrigger>
 
-                <CollapsibleContent className="py-4 border-t border-gray-200">
-                  <div className="grid gap-2">
+                  {showContexts && hip.careContexts?.length && (
+                    <ChevronDown className="size-4 text-muted-foreground transition-transform data-[state=open]:rotate-180" />
+                  )}
+                </div>
+              </CollapsibleTrigger>
+
+              {showContexts && hip.careContexts && (
+                <CollapsibleContent className="px-4 pb-4 border-t border-gray-200">
+                  <div className="pt-4 space-y-2">
                     {hip.careContexts.map((ctx) => {
-                      const isSelected = selectedContexts.has(
+                      const isSelected = isContextSelected(
+                        hipId,
                         ctx.careContextReference,
                       );
                       return (
-                        <Label
+                        <div
                           key={ctx.careContextReference}
-                          className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                          className={cn(
+                            "flex items-center gap-3 p-3 rounded-md border cursor-pointer transition-all",
                             isSelected
                               ? "border-primary/40 bg-primary/5"
-                              : "border-gray-100 hover:border-gray-200 hover:bg-gray-50"
-                          }`}
+                              : "border-gray-200 hover:border-gray-200 hover:bg-gray-50",
+                          )}
+                          onClick={() =>
+                            toggleContext(hip, ctx.careContextReference)
+                          }
                         >
-                          <input
-                            type="checkbox"
-                            checked={isSelected}
-                            onChange={() =>
-                              toggleContext(hipId, ctx.careContextReference)
-                            }
-                            className="sr-only"
-                          />
                           <div
-                            className={`w-4 h-4 rounded border-2 transition-all flex items-center justify-center ${
+                            className={cn(
+                              "size-5 rounded border-2 transition-all flex items-center justify-center",
                               isSelected
                                 ? "bg-primary border-primary text-white"
-                                : "border-gray-300 hover:border-gray-400"
-                            }`}
+                                : "border-gray-300",
+                            )}
                           >
-                            {isSelected && <Check className="w-3 h-3" />}
+                            {isSelected && <Check className="size-3" />}
                           </div>
                           <span
-                            className={`text-sm ${isSelected ? "text-primary font-medium" : "text-gray-700"}`}
+                            className={cn(
+                              "text-sm",
+                              isSelected
+                                ? "text-primary font-medium"
+                                : "text-gray-700",
+                            )}
                           >
                             {ctx.display || ctx.careContextReference}
                           </span>
-                        </Label>
+                        </div>
                       );
                     })}
                   </div>
                 </CollapsibleContent>
-              </div>
+              )}
             </div>
           </Collapsible>
         );

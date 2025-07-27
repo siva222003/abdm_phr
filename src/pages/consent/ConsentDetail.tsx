@@ -1,5 +1,7 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeftIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,11 +11,13 @@ import {
   ConsentBasicDetails,
   ConsentDurationDetails,
   ConsentHIPDetails,
-  ConsentHITypesDetails,
-  SubscriptionCategoriesDetails,
+  ConsentHITypeDetails,
+  SubscriptionCategoryDetails,
 } from "@/components/consent/ConsentViewDetails";
 import EditConsentSheet from "@/components/consent/EditConsentSheet";
-import ConsentApproveDialog from "@/components/consent/dialogs/ConsentApproveDialog";
+import ConsentApproveDialog, {
+  buildSubscriptionPayload,
+} from "@/components/consent/dialogs/ConsentApproveDialog";
 import ConsentDenyDialog from "@/components/consent/dialogs/ConsentDenyDialog";
 import ConsentEnableDialog from "@/components/consent/dialogs/ConsentEnableDialog";
 import ConsentRevokeDialog from "@/components/consent/dialogs/ConsentRevokeDialog";
@@ -21,6 +25,7 @@ import ConsentRevokeDialog from "@/components/consent/dialogs/ConsentRevokeDialo
 import { useConsentDetail } from "@/hooks/useConsentData";
 import { useNavigation } from "@/hooks/useNavigation";
 
+import routes from "@/api";
 import {
   CONSENT_STATUS_VARIANTS,
   ConsentBase,
@@ -29,6 +34,7 @@ import {
   isSubscription,
 } from "@/types/consent";
 import { toTitleCase } from "@/utils";
+import { mutate } from "@/utils/request/request";
 
 interface ConsentDetailProps {
   id: string;
@@ -85,6 +91,8 @@ function ErrorFallback() {
 }
 
 export default function ConsentDetail({ id, type }: ConsentDetailProps) {
+  const queryClient = useQueryClient();
+
   const [editedData, setEditedData] = useState<ConsentBase | null>(null);
   const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
   const [approveDialogOpen, setApproveDialogOpen] = useState(false);
@@ -102,15 +110,24 @@ export default function ConsentDetail({ id, type }: ConsentDetailProps) {
   const finalData = editedData || data;
   const actions = finalData ? getVisibleActions(finalData) : null;
 
+  const editSubscriptionMutationFn = mutate(routes.subscription.edit, {
+    pathParams: { subscriptionId: id },
+  });
+  const editSubscriptionMutation = useMutation({
+    mutationFn: editSubscriptionMutationFn,
+    onSuccess: (data) => {
+      toast.success(data.detail);
+      setIsEditSheetOpen(false);
+
+      queryClient.invalidateQueries({ queryKey: ["consents", id] });
+    },
+  });
+
   useEffect(() => {
     if (data) {
       setEditedData(data);
     }
   }, [data]);
-
-  const handleConsentUpdate = (updatedData: ConsentBase) => {
-    setEditedData(updatedData);
-  };
 
   if (isLoading) {
     return (
@@ -127,6 +144,21 @@ export default function ConsentDetail({ id, type }: ConsentDetailProps) {
       </Page>
     );
   }
+
+  const handleConsentUpdate = (updatedData: ConsentBase) => {
+    if (
+      isSubscription(finalData.type) &&
+      finalData.status === ConsentStatuses.GRANTED
+    ) {
+      editSubscriptionMutation.mutate({
+        hiuId: finalData.hiu.id,
+        subscription: buildSubscriptionPayload(updatedData),
+      });
+    } else {
+      setEditedData(updatedData);
+      toast.success("Consent updated successfully");
+    }
+  };
 
   const isSubscriptionType = isSubscription(finalData.type);
 
@@ -162,7 +194,7 @@ export default function ConsentDetail({ id, type }: ConsentDetailProps) {
         <div className="space-y-6">
           <ConsentBasicDetails
             requester={finalData.requester}
-            purpose={finalData.purpose}
+            purpose={finalData.purpose.text}
             requestType={isSubscriptionType ? "Subscription" : "Consent"}
           />
 
@@ -173,11 +205,11 @@ export default function ConsentDetail({ id, type }: ConsentDetailProps) {
           />
 
           {finalData.hiTypes.length > 0 && (
-            <ConsentHITypesDetails types={finalData.hiTypes} />
+            <ConsentHITypeDetails types={finalData.hiTypes} />
           )}
 
           {isSubscriptionType && finalData.subscriptionCategories && (
-            <SubscriptionCategoriesDetails
+            <SubscriptionCategoryDetails
               categories={finalData.subscriptionCategories}
             />
           )}
@@ -244,15 +276,17 @@ export default function ConsentDetail({ id, type }: ConsentDetailProps) {
       <EditConsentSheet
         open={isEditSheetOpen}
         setOpen={setIsEditSheetOpen}
-        consentType={finalData.type}
         data={finalData}
         onUpdate={handleConsentUpdate}
+        isLoading={editSubscriptionMutation.isPending}
       />
 
       <ConsentApproveDialog
+        data={finalData}
         requestId={finalData.id}
         open={approveDialogOpen}
         setOpen={setApproveDialogOpen}
+        isSubscription={isSubscriptionType}
       />
 
       <ConsentDenyDialog

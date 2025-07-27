@@ -1,7 +1,8 @@
 import {
+  SubscriptionApproveRequest,
   SubscriptionArtefactResponse,
   SubscriptionDenyRequest,
-  SubscriptionEditAndApproveRequest,
+  SubscriptionEditRequest,
   SubscriptionRequest,
   SubscriptionRequestResponse,
   SubscriptionStatusUpdateRequest,
@@ -17,10 +18,9 @@ export const subscription = {
   getArtefact: API<SubscriptionArtefactResponse>(
     "GET /phr/subscription/artefact/{artefactId}",
   ),
-  approve: API<
-    SubscriptionUpdateBaseResponse,
-    SubscriptionEditAndApproveRequest
-  >("POST /phr/subscription/request/{requestId}/approve"),
+  approve: API<SubscriptionUpdateBaseResponse, SubscriptionApproveRequest>(
+    "POST /phr/subscription/request/{requestId}/approve",
+  ),
   deny: API<SubscriptionUpdateBaseResponse, SubscriptionDenyRequest>(
     "POST /phr/subscription/request/{requestId}/deny",
   ),
@@ -28,7 +28,7 @@ export const subscription = {
     SubscriptionUpdateBaseResponse,
     SubscriptionStatusUpdateRequest
   >("POST /phr/subscription/{subscriptionId}/update_status"),
-  edit: API<SubscriptionUpdateBaseResponse, SubscriptionEditAndApproveRequest>(
-    "POST /phr/subscription/{subscriptionId}/edit",
+  edit: API<SubscriptionUpdateBaseResponse, SubscriptionEditRequest>(
+    "PUT /phr/subscription/{subscriptionId}/edit",
   ),
 };

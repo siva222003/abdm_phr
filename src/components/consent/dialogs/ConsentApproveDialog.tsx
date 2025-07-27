@@ -1,8 +1,6 @@
-import { useMutation } from "@tanstack/react-query";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
 import { navigate } from "raviger";
-import { Dispatch, SetStateAction } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -16,77 +14,127 @@ import {
 } from "@/components/ui/dialog";
 
 import routes from "@/api";
+import {
+  ConsentApproveRequest,
+  ConsentBase,
+  ConsentLinks,
+} from "@/types/consent";
+import { SubscriptionApproveRequest } from "@/types/subscription";
 import { mutate } from "@/utils/request/request";
 
 type ConsentApproveDialogProps = {
   open: boolean;
-  setOpen: Dispatch<SetStateAction<boolean>>;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   requestId: string;
+  data: ConsentBase;
+  isSubscription: boolean;
+};
+
+const buildConsentPayload = (data: ConsentBase): ConsentApproveRequest => ({
+  consents: data.links.map((link) => ({
+    hip: link.hip,
+    careContexts: link.careContexts!,
+    hiTypes: data.hiTypes,
+    permission: {
+      ...data.rawPermission!,
+      dateRange: {
+        from: data.fromDate,
+        to: data.toDate,
+      },
+    },
+  })),
+});
+
+export const buildSubscriptionPayload = (
+  data: ConsentBase,
+): SubscriptionApproveRequest => {
+  const isAllHIPs = data.availableLinks?.length === data.links.length;
+
+  const sourcePayload = (link: ConsentLinks | null) => ({
+    hip: link ? link.hip : null,
+    categories: data.subscriptionCategories!,
+    hiTypes: data.hiTypes,
+    period: {
+      from: data.fromDate,
+      to: data.toDate,
+    },
+    purpose: data.purpose,
+  });
+
+  return {
+    isApplicableForAllHIPs: isAllHIPs,
+    includedSources: isAllHIPs
+      ? [sourcePayload(null)]
+      : data.links.map(sourcePayload),
+    excludedSources: isAllHIPs
+      ? []
+      : data.availableLinks
+          ?.filter(({ hip }) => !data.links.some((l) => l.hip.id === hip.id))
+          .map(sourcePayload),
+  };
 };
 
 const ConsentApproveDialog = ({
   open,
   setOpen,
   requestId,
+  data,
+  isSubscription,
 }: ConsentApproveDialogProps) => {
   const queryClient = useQueryClient();
 
-  const handleOpenChange = (isOpen: boolean) => {
-    if (!isOpen) {
-      setOpen(false);
-    }
-  };
+  const mutation = useMutation({
+    mutationFn: () => {
+      const payload = isSubscription
+        ? buildSubscriptionPayload(data)
+        : buildConsentPayload(data);
 
-  const denyConsentMutation = useMutation({
-    mutationFn: mutate(routes.consent.deny, {
-      pathParams: {
-        requestId: requestId,
-      },
-    }),
-    onSuccess: () => {
-      toast.success("Consent approved successfully");
-      setOpen(false);
-      queryClient.invalidateQueries({ queryKey: ["consents"] });
-      navigate("/consents?category=REQUESTS&status=DENIED&limit=15&offset=0");
+      return mutate(
+        isSubscription ? routes.subscription.approve : routes.consent.approve,
+        {
+          pathParams: { requestId },
+        },
+      )(payload);
     },
-    onError: () => {
-      toast.error("Failed to approve consent");
+    onSuccess: (data) => {
+      toast.success(data.detail);
+      setOpen(false);
+
+      queryClient.invalidateQueries({ queryKey: ["consents", requestId] });
+      queryClient.invalidateQueries({
+        queryKey: [isSubscription ? "subscriptions" : "consents"],
+      });
+
+      navigate("/consents?category=APPROVED&status=GRANTED");
     },
   });
 
-  const handleConfirm = () => {
-    denyConsentMutation.mutate({});
-  };
-
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Approve Consent</DialogTitle>
-          <DialogDescription className="space-y-2 pb-4">
-            <div>
-              Do you really want to approve this consent? This action cannot be
-              undone.
-            </div>
+          <DialogDescription>
+            Are you sure you want to approve this consent?
           </DialogDescription>
         </DialogHeader>
+
         <DialogFooter>
           <Button
             variant="outline"
-            disabled={denyConsentMutation.isPending}
             onClick={() => setOpen(false)}
+            disabled={mutation.isPending}
           >
             Cancel
           </Button>
           <Button
-            variant="destructive"
-            disabled={denyConsentMutation.isPending}
-            onClick={handleConfirm}
+            onClick={() => mutation.mutate()}
+            disabled={mutation.isPending}
           >
-            {denyConsentMutation.isPending ? (
+            {mutation.isPending ? (
               <>
                 <Loader2Icon className="mr-2 size-4 animate-spin" />
-                Approve...
+                Approving...
               </>
             ) : (
               "Confirm"

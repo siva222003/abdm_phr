@@ -79,7 +79,6 @@ const AbhaUnlinkDialog = ({
               <Button
                 variant="destructive"
                 onClick={() => {
-                  console.log("Unlinking Abha profile");
                   setIsConfirmed(true);
                 }}
               >

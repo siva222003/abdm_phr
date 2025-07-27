@@ -37,7 +37,7 @@ export function ConsentFilters({
 
       <div className="flex items-center gap-3 my-4 max-sm:flex-col">
         <Tabs
-          value={category}
+          value={category ?? ConsentCategories.REQUESTS}
           onValueChange={(value) =>
             onCategoryChange(value as ConsentCategories)
           }
@@ -54,7 +54,7 @@ export function ConsentFilters({
         </Tabs>
 
         <Select
-          value={status}
+          value={status ?? ConsentStatuses.REQUESTED}
           onValueChange={(value) => onStatusChange(value as ConsentStatuses)}
         >
           <SelectTrigger className="sm:max-w-1/5 border-gray-300">

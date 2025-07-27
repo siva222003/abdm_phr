@@ -103,7 +103,7 @@ export function ConsentDurationDetails({
   );
 }
 
-export function ConsentHITypesDetails({ types }: { types: ConsentHITypes[] }) {
+export function ConsentHITypeDetails({ types }: { types: ConsentHITypes[] }) {
   return (
     <Card className="rounded-lg">
       <CardHeader>
@@ -133,7 +133,7 @@ export function ConsentHITypesDetails({ types }: { types: ConsentHITypes[] }) {
   );
 }
 
-export function SubscriptionCategoriesDetails({
+export function SubscriptionCategoryDetails({
   categories,
 }: {
   categories: SubscriptionCategories[];
@@ -179,10 +179,10 @@ export function SubscriptionCategoriesDetails({
 }
 
 export function ConsentHIPDetails({
-  showContexts = true,
+  showContexts,
   hips,
 }: {
-  showContexts?: boolean;
+  showContexts: boolean;
   hips: ConsentLinks[];
 }) {
   return (
@@ -207,7 +207,7 @@ export function ConsentHIPDetails({
                     <span className="text-sm font-medium text-gray-800">
                       {facility.hip.name || "N/A"}
                     </span>
-                    {showContexts && (
+                    {showContexts && facility.careContexts && (
                       <p className="text-xs text-gray-500">
                         {facility.careContexts.length} care contexts available
                       </p>
@@ -219,22 +219,17 @@ export function ConsentHIPDetails({
                 )}
               </CollapsibleTrigger>
               <CollapsibleContent className="px-4 pb-4 border-t border-gray-50">
-                {showContexts && facility.careContexts?.length > 0 && (
+                {showContexts && facility.careContexts && (
                   <div className="pt-3 space-y-2">
-                    {[
-                      ...facility.careContexts.map((context) => {
-                        if (context.display) {
-                          return context.display;
-                        }
-                        return context.careContextReference;
-                      }),
-                    ].map((item, index) => (
+                    {facility.careContexts.map((context, index) => (
                       <div
                         key={index}
                         className="flex items-center gap-3 py-2 px-3 bg-gray-50 rounded-md"
                       >
                         <div className="size-2 bg-primary rounded-full"></div>
-                        <span className="text-sm text-gray-700">{item}</span>
+                        <span className="text-sm text-gray-700">
+                          {context.display || context.careContextReference}
+                        </span>
                       </div>
                     ))}
                   </div>

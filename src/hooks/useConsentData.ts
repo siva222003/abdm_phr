@@ -71,14 +71,17 @@ const transformConsentRequest = (
 ): ConsentBase => ({
   id: consent.requestId,
   type: ConsentTypes.CONSENT,
-  requester: consent.requester?.name || "-",
-  purpose: consent.purpose?.text || "-",
-  fromDate: consent.permission?.dateRange?.from || "",
-  toDate: consent.permission?.dateRange?.to || "",
+  requester: consent.requester.name || "-",
+  hiu: consent.hiu,
+  purpose: consent.purpose,
+  fromDate: consent.permission.dateRange?.from || "",
+  toDate: consent.permission.dateRange?.to || "",
   status: consent.status,
-  hiTypes: consent.hiTypes || [],
+  hiTypes: consent.hiTypes,
   links,
-  dataEraseAt: consent.permission?.dataEraseAt || "",
+
+  dataEraseAt: consent.permission.dataEraseAt || "",
+  rawPermission: consent.permission,
 });
 
 /**
@@ -88,65 +91,78 @@ const transformConsentRequest = (
  * @returns Standardized ConsentBase object
  */
 const transformConsentArtefact = (
-  artefact: ConsentArtefact,
+  { status, consentDetail }: ConsentArtefact,
   links: ConsentLinks[] = [],
 ): ConsentBase => ({
-  id: artefact.consentDetail?.consentId || "",
+  id: consentDetail?.consentId,
   type: ConsentTypes.ARTEFACT,
-  requester: artefact.consentDetail?.requester?.name || "-",
-  purpose: artefact.consentDetail?.purpose?.text || "-",
-  fromDate: artefact.consentDetail?.permission?.dateRange?.from || "",
-  toDate: artefact.consentDetail?.permission?.dateRange?.to || "",
-  status: artefact.status,
-  hiTypes: artefact.consentDetail?.hiTypes || [],
+  requester: consentDetail.requester.name || "-",
+  hiu: consentDetail.hiu,
+  purpose: consentDetail.purpose,
+  fromDate: consentDetail.permission.dateRange?.from || "",
+  toDate: consentDetail.permission.dateRange?.to || "",
+  status,
+  hiTypes: consentDetail.hiTypes,
   links,
-  dataEraseAt: artefact.consentDetail?.permission?.dataEraseAt || "",
+
+  dataEraseAt: consentDetail.permission.dataEraseAt || "",
+  rawPermission: consentDetail.permission,
 });
 
 /**
  * Transforms a SubscriptionRequest from the API into a standardized ConsentBase format
  * @param request - Raw subscription request from API
  * @param links - Optional consent links data
+ * @param availableLinks - Optional available consent links data
  * @returns Standardized ConsentBase object
  */
 const transformSubscriptionRequest = (
   request: SubscriptionRequest,
   links: ConsentLinks[] = [],
+  availableLinks: ConsentLinks[] = [],
 ): ConsentBase => ({
   id: request.subscriptionId || request.requestId,
   type: request.subscriptionId
     ? ConsentTypes.SUBSCRIPTION_ARTEFACT
     : ConsentTypes.SUBSCRIPTION,
-  requester: request.hiu?.name || "-",
-  purpose: request.purpose?.text || "-",
-  fromDate: request.period?.from || "",
-  toDate: request.period?.to || "",
+  requester: request.hiu.name || "-",
+  hiu: request.hiu,
+  purpose: request.purpose,
+  fromDate: request.period.from || "",
+  toDate: request.period.to || "",
   status: request.status,
-  hiTypes: Object.values(ConsentHITypes), // Subscriptions don't have HI types at request level
+  hiTypes: Object.values(ConsentHITypes),
   links,
-  subscriptionCategories: request.categories || [],
+
+  subscriptionCategories: request.categories,
+  availableLinks,
 });
 
 /**
  * Transforms a SubscriptionArtefact from the API into a standardized ConsentBase format
  * @param artefact - Raw subscription artefact from API
  * @param links - Optional consent links data
+ * @param availableLinks - Optional available consent links data
  * @returns Standardized ConsentBase object
  */
 const transformSubscriptionArtefact = (
   artefact: SubscriptionArtefact,
   links: ConsentLinks[] = [],
+  availableLinks: ConsentLinks[] = [],
 ): ConsentBase => ({
   id: artefact.subscriptionId,
   type: ConsentTypes.SUBSCRIPTION_ARTEFACT,
-  requester: artefact.requester?.name || "-",
-  purpose: artefact.purpose?.text || "-",
+  requester: artefact.requester.name || "-",
+  hiu: artefact.requester,
+  purpose: artefact.purpose,
   fromDate: artefact.includedSources?.[0]?.period?.from || "",
   toDate: artefact.includedSources?.[0]?.period?.to || "",
   status: artefact.status,
   hiTypes: artefact.includedSources?.[0]?.hiTypes || [],
   links,
+
   subscriptionCategories: artefact.includedSources?.[0]?.categories || [],
+  availableLinks,
 });
 
 // ============================================================================
@@ -163,14 +179,12 @@ const fetchConsentRequests = async (
   params: ConsentListParams,
   signal: AbortSignal,
 ): Promise<ConsentBase[]> => {
-  const consentRequests: ConsentRequest[] = await query.debounced(
+  const consentRequests = await query.debounced(
     routes.consent.listRequests,
     buildQueryParams(params),
   )({ signal });
 
-  return Array.isArray(consentRequests)
-    ? consentRequests.map((req) => transformConsentRequest(req))
-    : [];
+  return consentRequests?.map((req) => transformConsentRequest(req)) || [];
 };
 
 /**
@@ -183,14 +197,12 @@ const fetchConsentArtefacts = async (
   params: ConsentListParams,
   signal: AbortSignal,
 ): Promise<ConsentBase[]> => {
-  const consentArtefacts: ConsentArtefact[] = await query.debounced(
+  const consentArtefacts = await query.debounced(
     routes.consent.listArtefacts,
     buildQueryParams(params),
   )({ signal });
 
-  return Array.isArray(consentArtefacts)
-    ? consentArtefacts.map((art) => transformConsentArtefact(art))
-    : [];
+  return consentArtefacts?.map((art) => transformConsentArtefact(art)) || [];
 };
 
 /**
@@ -203,12 +215,10 @@ const fetchSubscriptionRequests = async (
   params: ConsentListParams,
   signal: AbortSignal,
 ): Promise<ConsentBase[]> => {
-  const subscriptionRequests: SubscriptionRequest[] = await query.debounced(
+  const subscriptionRequests = await query.debounced(
     routes.subscription.listRequests,
     buildQueryParams(params),
   )({ signal });
-
-  if (!Array.isArray(subscriptionRequests)) return [];
 
   // Filter requests for approved expired subscriptions
   let requestsToProcess = subscriptionRequests;
@@ -221,7 +231,9 @@ const fetchSubscriptionRequests = async (
     );
   }
 
-  return requestsToProcess.map((req) => transformSubscriptionRequest(req));
+  return (
+    requestsToProcess?.map((req) => transformSubscriptionRequest(req)) || []
+  );
 };
 
 // ============================================================================
@@ -272,6 +284,7 @@ export function useConsentList(params: ConsentListParams) {
 
       return [];
     },
+    enabled: !!params.category && !!params.status,
   });
 
   const {
@@ -289,11 +302,10 @@ export function useConsentList(params: ConsentListParams) {
     queryFn: async ({ signal }) => {
       return fetchSubscriptionRequests(params, signal);
     },
+    enabled: !!params.category && !!params.status,
   });
 
   const data = useMemo(() => {
-    if (!consentData?.length && !subscriptionData?.length) return [];
-
     return [...(consentData || []), ...(subscriptionData || [])];
   }, [consentData, subscriptionData]);
 
@@ -357,7 +369,11 @@ export function useConsentDetail(params: ConsentDetailParams) {
               pathParams: { requestId: params.id },
             },
           )({ signal });
-          return transformSubscriptionRequest(response.request, response.links);
+          return transformSubscriptionRequest(
+            response.request,
+            response.links,
+            response.availableLinks,
+          );
         }
 
         case ConsentTypes.SUBSCRIPTION_ARTEFACT: {
@@ -370,6 +386,7 @@ export function useConsentDetail(params: ConsentDetailParams) {
           return transformSubscriptionArtefact(
             response.artefact,
             response.links,
+            response.availableLinks,
           );
         }
 

@@ -155,7 +155,7 @@ export interface ConsentArtefact {
 
 export interface ConsentLinks {
   hip: ConsentHealthFacility;
-  careContexts: ConsentCareContext[];
+  careContexts?: ConsentCareContext[];
 }
 
 export interface ConsentRequestResponse {
@@ -200,16 +200,19 @@ export interface ConsentBase {
   id: string;
   type: ConsentTypes;
   requester: string;
-  purpose: string;
+  hiu: ConsentHealthFacility;
+  purpose: ConsentPurpose;
   fromDate: string;
   toDate: string;
   status: ConsentStatuses;
-
-  //detail specific info
   hiTypes: ConsentHITypes[];
   links: ConsentLinks[];
+
   dataEraseAt?: string; //only for consent
+  rawPermission?: ConsentPermission; //only for consent (used while approving consent)
+
   subscriptionCategories?: SubscriptionCategories[]; //only for subscription
+  availableLinks?: ConsentLinks[]; //only for subscription (used while approving or editing subscription)
 }
 
 //helper functions

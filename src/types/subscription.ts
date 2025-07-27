@@ -29,11 +29,11 @@ export interface SubscriptionRequest {
 }
 
 export interface SubscriptionSource {
-  hip?: ConsentHealthFacility;
+  hip?: ConsentHealthFacility | null;
   categories: SubscriptionCategories[];
   hiTypes: ConsentHITypes[];
   period: ConsentDateRange;
-  status: ConsentStatuses;
+  purpose: ConsentPurpose;
 }
 
 export interface SubscriptionArtefact {
@@ -50,14 +50,16 @@ export interface SubscriptionArtefact {
 export interface SubscriptionRequestResponse {
   request: SubscriptionRequest;
   links: ConsentLinks[];
+  availableLinks: ConsentLinks[];
 }
 
 export interface SubscriptionArtefactResponse {
   artefact: SubscriptionArtefact;
   links: ConsentLinks[];
+  availableLinks: ConsentLinks[];
 }
 
-export interface SubscriptionEditAndApproveRequest {
+export interface SubscriptionApproveRequest {
   isApplicableForAllHIPs: boolean;
   includedSources: SubscriptionSource[];
   excludedSources?: SubscriptionSource[];
@@ -69,6 +71,11 @@ export interface SubscriptionDenyRequest {
 
 export interface SubscriptionStatusUpdateRequest {
   enable: boolean;
+}
+
+export interface SubscriptionEditRequest {
+  hiuId: string;
+  subscription: SubscriptionApproveRequest;
 }
 
 export interface SubscriptionUpdateBaseResponse {

@@ -1,9 +1,11 @@
 import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import utc from "dayjs/plugin/utc";
 
 import { LocalStorageKeys } from "@/common/constants";
 
 dayjs.extend(utc);
+dayjs.extend(customParseFormat);
 
 type DateLike = Parameters<typeof dayjs>[0];
 
@@ -33,10 +35,17 @@ export const dateQueryString = (
   date: DateLike,
   withTime: boolean = false,
 ): string => {
-  const parsed =
-    typeof date === "string"
-      ? dayjs(date, ["DD-MM-YYYY", "YYYY-MM-DD"], true)
-      : dayjs(date);
+  let parsed;
+
+  if (typeof date === "string") {
+    parsed = dayjs(date, "DD-MM-YYYY", true);
+
+    if (!parsed.isValid()) {
+      parsed = dayjs(date);
+    }
+  } else {
+    parsed = dayjs(date);
+  }
 
   if (!parsed.isValid()) return "";
   return parsed.format(withTime ? "YYYY-MM-DD HH:mm:ss" : "YYYY-MM-DD");
