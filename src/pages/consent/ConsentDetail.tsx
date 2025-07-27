@@ -1,10 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeftIcon } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
 import Page from "@/components/common/Page";
 import {
@@ -28,6 +29,7 @@ import { useNavigation } from "@/hooks/useNavigation";
 import routes from "@/api";
 import {
   CONSENT_STATUS_VARIANTS,
+  CONSENT_TYPE_VARIANTS,
   ConsentBase,
   ConsentStatuses,
   ConsentTypes,
@@ -41,7 +43,15 @@ interface ConsentDetailProps {
   type: ConsentTypes;
 }
 
-const getVisibleActions = (consent: ConsentBase) => {
+interface ConsentActions {
+  canEdit: boolean;
+  canApprove: boolean;
+  canDeny: boolean;
+  canRevoke: boolean;
+  canEnable: boolean;
+}
+
+const getVisibleActions = (consent: ConsentBase): ConsentActions => {
   const isSubscriptionType = isSubscription(consent.type);
 
   return {
@@ -55,17 +65,23 @@ const getVisibleActions = (consent: ConsentBase) => {
   };
 };
 
+const getConsentTypeDisplay = (type: ConsentTypes) => {
+  return isSubscription(type) ? "Subscription" : "Consent";
+};
+
 function LoadingSkeleton() {
   return (
-    <div className="container mx-auto max-w-3xl space-y-6">
-      <div className="h-8 w-48 animate-pulse rounded-md bg-gray-200" />
+    <div className="container mx-auto max-w-4xl space-y-6">
+      <div className="h-8 w-24 animate-pulse rounded-md bg-muted" />
+      <div className="h-10 w-64 animate-pulse rounded-md bg-muted" />
+
       <div className="space-y-4">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="rounded-lg border p-6">
-            <div className="h-6 w-32 animate-pulse rounded-md bg-gray-200 mb-4" />
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="rounded-lg border p-6 space-y-4">
+            <div className="h-6 w-40 animate-pulse rounded-md bg-muted" />
             <div className="space-y-2">
-              <div className="h-4 w-full animate-pulse rounded-md bg-gray-200" />
-              <div className="h-4 w-3/4 animate-pulse rounded-md bg-gray-200" />
+              <div className="h-4 w-full animate-pulse rounded-md bg-muted" />
+              <div className="h-4 w-3/4 animate-pulse rounded-md bg-muted" />
             </div>
           </div>
         ))}
@@ -76,22 +92,140 @@ function LoadingSkeleton() {
 
 function ErrorFallback() {
   const { goBack } = useNavigation();
+
   return (
-    <div className="container mx-auto max-w-3xl py-8 text-center space-y-4">
-      <h1 className="text-2xl font-bold text-gray-900">Something went wrong</h1>
-      <p className="text-gray-600">
-        Unable to load consent details. Please try again later.
-      </p>
+    <div className="container mx-auto max-w-4xl py-12 text-center space-y-6">
+      <div className="space-y-3">
+        <h1 className="text-2xl font-bold text-foreground">
+          Unable to Load Consent
+        </h1>
+        <p className="text-muted-foreground max-w-md mx-auto">
+          We couldn't retrieve the consent details. This might be due to a
+          network issue or the consent may no longer exist.
+        </p>
+      </div>
+
       <Button variant="outline" onClick={() => goBack("/consents")}>
-        <ArrowLeftIcon className="size-4 mr-2" />
+        <ArrowLeft className="size-4 mr-2" />
         Back to Consents
       </Button>
     </div>
   );
 }
 
+function ConsentHeader({
+  consent,
+  onEdit,
+  canEdit,
+}: {
+  consent: ConsentBase;
+  onEdit: () => void;
+  canEdit: boolean;
+}) {
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row gap-4 sm:items-start sm:justify-between">
+        <div className="space-y-3">
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="text-3xl font-bold text-foreground">
+              {getConsentTypeDisplay(consent.type)} Details
+            </h1>
+            <div className="flex items-center gap-2">
+              <Badge variant={CONSENT_TYPE_VARIANTS[consent.type]}>
+                {getConsentTypeDisplay(consent.type)}
+              </Badge>
+              <Badge variant={CONSENT_STATUS_VARIANTS[consent.status]}>
+                {toTitleCase(consent.status)}
+              </Badge>
+            </div>
+          </div>
+          <p className="text-muted-foreground">
+            Request from {consent.requester}
+          </p>
+        </div>
+
+        {canEdit && (
+          <Button variant="outline" onClick={onEdit}>
+            Edit
+          </Button>
+        )}
+      </div>
+
+      <Separator />
+    </div>
+  );
+}
+
+function ConsentActionButtons({
+  actions,
+  onApprove,
+  onDeny,
+  onRevoke,
+  onEnable,
+}: {
+  actions: ConsentActions;
+  onApprove: () => void;
+  onDeny: () => void;
+  onRevoke: () => void;
+  onEnable: () => void;
+}) {
+  const hasActions =
+    actions.canApprove ||
+    actions.canDeny ||
+    actions.canRevoke ||
+    actions.canEnable;
+
+  if (!hasActions) return null;
+
+  return (
+    <div className="border-t pt-6">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-end gap-3">
+        {actions.canApprove && (
+          <Button size="lg" className="sm:w-auto" onClick={onApprove}>
+            Approve Request
+          </Button>
+        )}
+
+        {actions.canDeny && (
+          <Button
+            variant="outline"
+            size="lg"
+            className="sm:w-auto border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+            onClick={onDeny}
+          >
+            Deny Request
+          </Button>
+        )}
+
+        {actions.canRevoke && (
+          <Button
+            variant="destructive"
+            size="lg"
+            className="sm:w-auto"
+            onClick={onRevoke}
+          >
+            Revoke Consent
+          </Button>
+        )}
+
+        {actions.canEnable && (
+          <Button
+            variant="default"
+            size="lg"
+            className="sm:w-auto"
+            onClick={onEnable}
+          >
+            Enable Subscription
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function ConsentDetail({ id, type }: ConsentDetailProps) {
   const queryClient = useQueryClient();
+  const { goBack } = useNavigation();
 
   const [editedData, setEditedData] = useState<ConsentBase | null>(null);
   const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
@@ -100,8 +234,6 @@ export default function ConsentDetail({ id, type }: ConsentDetailProps) {
   const [revokeDialogOpen, setRevokeDialogOpen] = useState(false);
   const [enableDialogOpen, setEnableDialogOpen] = useState(false);
 
-  const { goBack } = useNavigation();
-
   const { data, isLoading, isError } = useConsentDetail({
     id,
     requestType: type,
@@ -109,16 +241,17 @@ export default function ConsentDetail({ id, type }: ConsentDetailProps) {
 
   const finalData = editedData || data;
   const actions = finalData ? getVisibleActions(finalData) : null;
+  const isSubscriptionType = finalData ? isSubscription(finalData.type) : false;
 
   const editSubscriptionMutationFn = mutate(routes.subscription.edit, {
     pathParams: { subscriptionId: id },
   });
+
   const editSubscriptionMutation = useMutation({
     mutationFn: editSubscriptionMutationFn,
-    onSuccess: (data) => {
-      toast.success(data.detail);
+    onSuccess: (response) => {
+      toast.success(response.detail);
       setIsEditSheetOpen(false);
-
       queryClient.invalidateQueries({ queryKey: ["consents", id] });
     },
   });
@@ -129,29 +262,13 @@ export default function ConsentDetail({ id, type }: ConsentDetailProps) {
     }
   }, [data]);
 
-  if (isLoading) {
-    return (
-      <Page title="Loading">
-        <LoadingSkeleton />
-      </Page>
-    );
-  }
-
-  if (isError || !finalData) {
-    return (
-      <Page title="Error">
-        <ErrorFallback />
-      </Page>
-    );
-  }
-
   const handleConsentUpdate = (updatedData: ConsentBase) => {
     if (
-      isSubscription(finalData.type) &&
-      finalData.status === ConsentStatuses.GRANTED
+      isSubscription(finalData!.type) &&
+      finalData!.status === ConsentStatuses.GRANTED
     ) {
       editSubscriptionMutation.mutate({
-        hiuId: finalData.hiu.id,
+        hiuId: finalData!.hiu.id,
         subscription: buildSubscriptionPayload(updatedData),
       });
     } else {
@@ -160,42 +277,51 @@ export default function ConsentDetail({ id, type }: ConsentDetailProps) {
     }
   };
 
-  const isSubscriptionType = isSubscription(finalData.type);
+  if (isLoading) {
+    return (
+      <Page title="Loading..." hideTitleOnPage>
+        <LoadingSkeleton />
+      </Page>
+    );
+  }
+
+  if (isError || !finalData) {
+    return (
+      <Page title="Error" hideTitleOnPage>
+        <ErrorFallback />
+      </Page>
+    );
+  }
 
   return (
-    <Page title={toTitleCase(finalData.type)} hideTitleOnPage>
-      {/* Main Content */}
-      <div className="container mx-auto max-w-3xl space-y-6">
+    <Page
+      title={`${getConsentTypeDisplay(finalData.type)} Details`}
+      hideTitleOnPage
+    >
+      <div className="container mx-auto max-w-4xl space-y-8">
+        {/* Back button */}
         <Button
-          variant="outline"
-          className="mb-2"
+          variant="ghost"
+          className="mb-4"
           onClick={() => goBack("/consents")}
         >
-          <ArrowLeftIcon className="size-4" />
-          Back
+          <ArrowLeft className="size-4 mr-2" />
+          Back to Consents
         </Button>
 
         {/* Header */}
-        <div className="flex flex-col sm:flex-row gap-3 sm:items-center justify-between">
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold">Consent Details</h1>
-            <Badge variant={CONSENT_STATUS_VARIANTS[finalData.status]}>
-              {toTitleCase(finalData.status)}
-            </Badge>
-          </div>
-          {actions?.canEdit && (
-            <Button variant="outline" onClick={() => setIsEditSheetOpen(true)}>
-              Edit
-            </Button>
-          )}
-        </div>
+        <ConsentHeader
+          consent={finalData}
+          onEdit={() => setIsEditSheetOpen(true)}
+          canEdit={actions?.canEdit ?? false}
+        />
 
-        {/* Content Sections */}
-        <div className="space-y-6">
+        {/* Content sections */}
+        <div className="grid gap-6">
           <ConsentBasicDetails
             requester={finalData.requester}
             purpose={finalData.purpose.text}
-            requestType={isSubscriptionType ? "Subscription" : "Consent"}
+            requestType={getConsentTypeDisplay(finalData.type)}
           />
 
           <ConsentDurationDetails
@@ -222,54 +348,16 @@ export default function ConsentDetail({ id, type }: ConsentDetailProps) {
           )}
         </div>
 
-        {/* Action Buttons */}
-        {actions &&
-          (actions.canApprove ||
-            actions.canDeny ||
-            actions.canRevoke ||
-            actions.canEnable) && (
-            <div className="flex flex-col sm:flex-row items-center sm:justify-end gap-3 mt-4">
-              {actions.canApprove && (
-                <Button
-                  variant="default"
-                  className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white px-6 py-2 transition"
-                  onClick={() => setApproveDialogOpen(true)}
-                >
-                  Approve
-                </Button>
-              )}
-
-              {actions.canDeny && (
-                <Button
-                  variant="outline"
-                  className="w-full sm:w-auto border border-red-500 text-red-500 hover:bg-red-50 px-6 py-2 transition"
-                  onClick={() => setDenyDialogOpen(true)}
-                >
-                  Deny
-                </Button>
-              )}
-
-              {actions.canRevoke && (
-                <Button
-                  variant="destructive"
-                  className="w-full sm:w-auto"
-                  onClick={() => setRevokeDialogOpen(true)}
-                >
-                  Revoke
-                </Button>
-              )}
-
-              {actions.canEnable && (
-                <Button
-                  variant="outline"
-                  className="w-full sm:w-auto"
-                  onClick={() => setEnableDialogOpen(true)}
-                >
-                  Enable
-                </Button>
-              )}
-            </div>
-          )}
+        {/* Action buttons */}
+        {actions && (
+          <ConsentActionButtons
+            actions={actions}
+            onApprove={() => setApproveDialogOpen(true)}
+            onDeny={() => setDenyDialogOpen(true)}
+            onRevoke={() => setRevokeDialogOpen(true)}
+            onEnable={() => setEnableDialogOpen(true)}
+          />
+        )}
       </div>
 
       {/* Dialogs */}

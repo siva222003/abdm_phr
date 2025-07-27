@@ -91,23 +91,6 @@ function ConsentCard({ consent }: ConsentItemProps) {
               </p>
             </div>
           </div>
-          {consent.hiTypes.length > 0 && (
-            <div>
-              <p className="text-xs text-muted-foreground">Health Info Types</p>
-              <div className="flex flex-wrap gap-1 mt-1">
-                {consent.hiTypes.slice(0, 3).map((type) => (
-                  <Badge key={type} variant="secondary" className="text-xs">
-                    {type}
-                  </Badge>
-                ))}
-                {consent.hiTypes.length > 3 && (
-                  <Badge variant="secondary" className="text-xs">
-                    +{consent.hiTypes.length - 3} more
-                  </Badge>
-                )}
-              </div>
-            </div>
-          )}
         </div>
       </CardContent>
     </Card>
@@ -148,24 +131,6 @@ function ConsentTableRow({ consent }: ConsentItemProps) {
       <TableCell>{formatReadableDateTime(consent.fromDate)}</TableCell>
       <TableCell>{formatReadableDateTime(consent.toDate)}</TableCell>
       <TableCell>
-        <div className="flex items-center gap-2">
-          {consent.hiTypes.length > 0 && (
-            <div className="flex items-center gap-1">
-              {consent.hiTypes.slice(0, 2).map((type) => (
-                <Badge key={type} variant="outline" className="text-xs">
-                  {type}
-                </Badge>
-              ))}
-              {consent.hiTypes.length > 2 && (
-                <span className="text-xs text-muted-foreground">
-                  +{consent.hiTypes.length - 2}
-                </span>
-              )}
-            </div>
-          )}
-        </div>
-      </TableCell>
-      <TableCell>
         <Button
           variant="outline"
           size="sm"
@@ -190,8 +155,7 @@ function ConsentTable({ data }: ConsentListProps) {
           <TableHead>Status</TableHead>
           <TableHead>From Date</TableHead>
           <TableHead>To Date</TableHead>
-          <TableHead>Health Info Types</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
+          <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>

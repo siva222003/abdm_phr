@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2Icon } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { navigate } from "raviger";
 import { toast } from "sonner";
 
@@ -29,13 +29,17 @@ export default function ConsentEnableDialog({
 }: ConsentEnableDialogProps) {
   const queryClient = useQueryClient();
 
-  const mutationFn = mutate(routes.subscription.updateStatus, {
-    pathParams: { subscriptionId: requestId },
-  });
+  const enableSubscriptionMutationFn = mutate(
+    routes.subscription.updateStatus,
+    {
+      pathParams: { subscriptionId: requestId },
+    },
+  );
+
   const enableMutation = useMutation({
-    mutationFn,
-    onSuccess: (data) => {
-      toast.success(data.detail);
+    mutationFn: enableSubscriptionMutationFn,
+    onSuccess: (response) => {
+      toast.success(response.detail);
       setOpen(false);
 
       queryClient.invalidateQueries({
@@ -54,12 +58,13 @@ export default function ConsentEnableDialog({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Enable Subscription</DialogTitle>
-          <DialogDescription className="space-y-2 pb-4">
-            Do you really want to enable this subscription?
+          <DialogDescription className="space-y-2">
+            Are you sure you want to enable this subscription? This will restore
+            access to your health information sharing.
           </DialogDescription>
         </DialogHeader>
 
-        <DialogFooter>
+        <DialogFooter className="gap-2 sm:gap-0">
           <Button
             variant="outline"
             disabled={enableMutation.isPending}
@@ -73,11 +78,11 @@ export default function ConsentEnableDialog({
           >
             {enableMutation.isPending ? (
               <>
-                <Loader2Icon className="mr-2 size-4 animate-spin" />
+                <Loader2 className="mr-2 size-4 animate-spin" />
                 Enabling...
               </>
             ) : (
-              "Confirm"
+              "Enable Subscription"
             )}
           </Button>
         </DialogFooter>
