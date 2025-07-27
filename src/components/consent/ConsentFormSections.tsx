@@ -77,7 +77,7 @@ export function HITypeSelector({
   onSelectionChange: (types: ConsentHITypes[]) => void;
 }) {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm space-y-5">
+    <div className="rounded-2xl border border-gray-200 bg-white p-4 space-y-5">
       <h3 className="text-lg font-medium">Health Information Types</h3>
 
       <div className="grid gap-3">
@@ -122,7 +122,7 @@ export function SubscriptionCategoriesSelector({
   onSelectionChange: (categories: SubscriptionCategories[]) => void;
 }) {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm space-y-5">
+    <div className="rounded-2xl border border-gray-200 bg-white p-4 space-y-5">
       <h3 className="text-lg font-medium">Subscription Categories</h3>
 
       <div className="grid gap-3">
@@ -262,8 +262,8 @@ export function HipSelector({
   };
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm space-y-5">
-      <h3 className="text-lg font-medium">HIPs and Care Contexts</h3>
+    <div className="rounded-2xl border border-gray-200 bg-white p-4 space-y-5">
+      <h3 className="text-lg font-medium">Health Information Providers</h3>
 
       {hips.map((hip) => {
         const hipId = hip.hip.id;

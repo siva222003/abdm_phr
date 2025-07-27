@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2Icon } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { navigate } from "raviger";
 import { toast } from "sonner";
 
@@ -36,12 +36,15 @@ export default function ConsentDenyDialog({
       const route = isSubscription
         ? routes.subscription.deny
         : routes.consent.deny;
+
       return mutate(route, {
         pathParams: { requestId },
-      })({});
+      })({
+        reason: "Request denied by user",
+      });
     },
-    onSuccess: (data) => {
-      toast.success(data.detail);
+    onSuccess: (response) => {
+      toast.success(response.detail);
       setOpen(false);
 
       queryClient.invalidateQueries({
@@ -58,18 +61,23 @@ export default function ConsentDenyDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>
-            Deny {isSubscription ? "Subscription" : "Consent"}
+        <DialogHeader className="space-y-1">
+          <DialogTitle className="flex items-center gap-2">
+            Deny {isSubscription ? "Subscription" : "Consent"} Request
           </DialogTitle>
-          <DialogDescription className="space-y-2 pb-4">
-            Do you really want to deny this{" "}
-            {isSubscription ? "subscription" : "consent"}? This action cannot be
-            undone.
+          <DialogDescription className="space-y-3">
+            <p>
+              Are you sure you want to deny this{" "}
+              {isSubscription ? "subscription" : "consent"} request? This will
+              permanently reject the request for health information sharing.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              The requester will be notified that their request has been denied.
+            </p>
           </DialogDescription>
         </DialogHeader>
 
-        <DialogFooter>
+        <DialogFooter className="gap-2">
           <Button
             variant="outline"
             disabled={denyMutation.isPending}
@@ -84,11 +92,11 @@ export default function ConsentDenyDialog({
           >
             {denyMutation.isPending ? (
               <>
-                <Loader2Icon className="mr-2 size-4 animate-spin" />
+                <Loader2 className="mr-2 size-4 animate-spin" />
                 Denying...
               </>
             ) : (
-              "Confirm"
+              "Deny"
             )}
           </Button>
         </DialogFooter>

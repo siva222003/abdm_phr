@@ -1,4 +1,4 @@
-import { Loader2Icon } from "lucide-react";
+import { Loader2, Save } from "lucide-react";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -44,6 +44,68 @@ interface FormData {
   selectedHips: ConsentLinks[];
 }
 
+interface ValidationResult {
+  isValid: boolean;
+  errors: string[];
+}
+
+const validateFormData = (
+  formData: FormData,
+  isSubscriptionType: boolean,
+): ValidationResult => {
+  const errors: string[] = [];
+  const now = new Date();
+
+  const fromDate = new Date(formData.fromDate);
+  const toDate = new Date(formData.toDate);
+
+  if (!formData.fromDate) {
+    errors.push("From date is required");
+  }
+
+  if (!formData.toDate) {
+    errors.push("To date is required");
+  }
+
+  if (fromDate >= toDate) {
+    errors.push("From date must be before to date");
+  }
+
+  if (toDate <= now) {
+    errors.push("To date must be in the future");
+  }
+
+  if (formData.dataEraseAt) {
+    const dataEraseDate = new Date(formData.dataEraseAt);
+    if (dataEraseDate <= now) {
+      errors.push("Data erase date must be in the future");
+    }
+    if (dataEraseDate <= toDate) {
+      errors.push("Data erase date should be after the to date");
+    }
+  }
+
+  if (formData.selectedHiTypes.length === 0) {
+    errors.push("Please select at least one health information type");
+  }
+
+  if (formData.selectedHips.length === 0) {
+    errors.push("Please select at least one health information provider");
+  }
+
+  if (
+    isSubscriptionType &&
+    formData.selectedSubscriptionCategories.length === 0
+  ) {
+    errors.push("Please select at least one subscription category");
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors,
+  };
+};
+
 export default function EditConsentSheet({
   open,
   setOpen,
@@ -60,6 +122,8 @@ export default function EditConsentSheet({
     selectedHips: [],
   });
 
+  const isSubscriptionType = isSubscription(data.type);
+
   useEffect(() => {
     if (open && data) {
       setFormData({
@@ -73,52 +137,16 @@ export default function EditConsentSheet({
     }
   }, [open, data]);
 
-  const validateForm = () => {
-    const now = new Date();
-    const fromDate = new Date(formData.fromDate);
-    const toDate = new Date(formData.toDate);
-
-    if (fromDate >= toDate) {
-      toast.error("From date must be before to date");
-      return false;
-    }
-
-    if (toDate <= now) {
-      toast.error("To date must be in the future");
-      return false;
-    }
-
-    if (formData.dataEraseAt) {
-      const dataEraseDate = new Date(formData.dataEraseAt);
-      if (dataEraseDate <= now) {
-        toast.error("Data erase date must be in the future");
-        return false;
-      }
-    }
-
-    if (formData.selectedHiTypes.length === 0) {
-      toast.error("Please select at least one health information type");
-      return false;
-    }
-
-    if (formData.selectedHips.length === 0) {
-      toast.error("Please select at least one health information provider");
-      return false;
-    }
-
-    if (
-      isSubscription(data.type) &&
-      formData.selectedSubscriptionCategories.length === 0
-    ) {
-      toast.error("Please select at least one subscription category");
-      return false;
-    }
-
-    return true;
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleUpdate();
   };
 
   const handleUpdate = () => {
-    if (!validateForm()) {
+    const validation = validateFormData(formData, isSubscriptionType);
+
+    if (!validation.isValid) {
+      validation.errors.forEach((error) => toast.error(error));
       return;
     }
 
@@ -133,7 +161,33 @@ export default function EditConsentSheet({
     };
 
     onUpdate(updatedData);
-    setOpen(false);
+  };
+
+  const handleDateChange = (
+    date: string,
+    key: "fromDate" | "toDate" | "dataEraseAt",
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      [key]: toIsoUtcString(date),
+    }));
+  };
+
+  const handleHiTypesChange = (types: ConsentHITypes[]) => {
+    setFormData((prev) => ({ ...prev, selectedHiTypes: types }));
+  };
+
+  const handleSubscriptionCategoriesChange = (
+    categories: SubscriptionCategories[],
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      selectedSubscriptionCategories: categories,
+    }));
+  };
+
+  const handleHipsChange = (hips: ConsentLinks[]) => {
+    setFormData((prev) => ({ ...prev, selectedHips: hips }));
   };
 
   return (
@@ -141,73 +195,62 @@ export default function EditConsentSheet({
       <SheetContent
         side="right"
         onOpenAutoFocus={(e) => e.preventDefault()}
-        className="w-full sm:max-w-2xl overflow-y-auto p-6"
+        className="w-full sm:max-w-2xl overflow-y-auto"
       >
-        <SheetHeader className="p-0">
-          <SheetTitle className="text-lg">Edit Consent Details</SheetTitle>
+        <SheetHeader>
+          <SheetTitle className="flex items-center gap-2">
+            Edit {isSubscriptionType ? "Subscription" : "Consent"} Details
+          </SheetTitle>
           <SheetDescription>
-            Update consent information and permissions below.
+            Update the {isSubscriptionType ? "subscription" : "consent"}{" "}
+            information and permissions below.
           </SheetDescription>
         </SheetHeader>
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleUpdate();
-          }}
-          className="space-y-8 mt-4"
-        >
+        <form onSubmit={handleFormSubmit} className="space-y-6 p-4">
           <ConsentDurationSection
             fromDate={formData.fromDate}
             toDate={formData.toDate}
             dataEraseAt={formData.dataEraseAt}
-            onDateChange={(
-              date: string,
-              key: "fromDate" | "toDate" | "dataEraseAt",
-            ) => {
-              setFormData((prev) => ({
-                ...prev,
-                [key]: toIsoUtcString(date),
-              }));
-            }}
+            onDateChange={handleDateChange}
           />
 
           <HITypeSelector
             selectedTypes={formData.selectedHiTypes}
-            onSelectionChange={(types: ConsentHITypes[]) => {
-              setFormData((prev) => ({ ...prev, selectedHiTypes: types }));
-            }}
+            onSelectionChange={handleHiTypesChange}
           />
 
-          {isSubscription(data.type) && (
-            <SubscriptionCategoriesSelector
-              selectedCategories={formData.selectedSubscriptionCategories}
-              onSelectionChange={(categories) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  selectedSubscriptionCategories: categories,
-                }))
-              }
-            />
+          {isSubscriptionType && (
+            <>
+              <SubscriptionCategoriesSelector
+                selectedCategories={formData.selectedSubscriptionCategories}
+                onSelectionChange={handleSubscriptionCategoriesChange}
+              />
+            </>
           )}
 
           <HipSelector
-            hips={data.links}
+            hips={data.availableLinks || data.links}
             selectedHips={formData.selectedHips}
-            onSelectionChange={(hips: ConsentLinks[]) =>
-              setFormData((prev) => ({ ...prev, selectedHips: hips }))
-            }
-            showContexts={!isSubscription(data.type)}
+            onSelectionChange={handleHipsChange}
+            showContexts={!isSubscriptionType}
           />
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="flex items-center gap-2 w-full"
+          >
             {isLoading ? (
               <>
-                <Loader2Icon className="mr-2 size-4 animate-spin" />
+                <Loader2 className="size-4 animate-spin" />
                 Updating...
               </>
             ) : (
-              "Update"
+              <>
+                <Save className="size-4" />
+                Save Changes
+              </>
             )}
           </Button>
         </form>

@@ -162,12 +162,14 @@ function ConsentActionButtons({
   onDeny,
   onRevoke,
   onEnable,
+  consentType,
 }: {
   actions: ConsentActions;
   onApprove: () => void;
   onDeny: () => void;
   onRevoke: () => void;
   onEnable: () => void;
+  consentType: ConsentTypes;
 }) {
   const hasActions =
     actions.canApprove ||
@@ -182,7 +184,7 @@ function ConsentActionButtons({
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-end gap-3">
         {actions.canApprove && (
           <Button size="lg" className="sm:w-auto" onClick={onApprove}>
-            Approve Request
+            Approve {getConsentTypeDisplay(consentType)}
           </Button>
         )}
 
@@ -193,7 +195,7 @@ function ConsentActionButtons({
             className="sm:w-auto border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
             onClick={onDeny}
           >
-            Deny Request
+            Deny {getConsentTypeDisplay(consentType)}
           </Button>
         )}
 
@@ -204,7 +206,7 @@ function ConsentActionButtons({
             className="sm:w-auto"
             onClick={onRevoke}
           >
-            Revoke Consent
+            Revoke {getConsentTypeDisplay(consentType)}
           </Button>
         )}
 
@@ -356,6 +358,7 @@ export default function ConsentDetail({ id, type }: ConsentDetailProps) {
             onDeny={() => setDenyDialogOpen(true)}
             onRevoke={() => setRevokeDialogOpen(true)}
             onEnable={() => setEnableDialogOpen(true)}
+            consentType={finalData.type}
           />
         )}
       </div>
