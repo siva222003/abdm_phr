@@ -1,4 +1,4 @@
-import { Home, Inbox, Podcast } from "lucide-react";
+import { FileText, Home, UserRound } from "lucide-react";
 import { ActiveLink } from "raviger";
 
 import {
@@ -24,12 +24,12 @@ const items = [
   {
     title: "Profile",
     url: "/profile",
-    icon: <Inbox />,
+    icon: <UserRound />,
   },
   {
     title: "Consents",
     url: "/consents",
-    icon: <Podcast />,
+    icon: <FileText />,
   },
 ];
 

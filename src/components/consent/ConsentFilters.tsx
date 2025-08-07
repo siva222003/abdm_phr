@@ -1,10 +1,4 @@
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import {
@@ -12,6 +6,7 @@ import {
   ConsentCategories,
   ConsentStatuses,
 } from "@/types/consent";
+import { toTitleCase } from "@/utils";
 
 interface ConsentFiltersProps {
   category: ConsentCategories;
@@ -35,40 +30,44 @@ export function ConsentFilters({
         </div>
       </div>
 
-      <div className="flex items-center gap-3 my-4 max-sm:flex-col">
+      <div className="flex flex-col gap-4 sm:flex-row sm:justify-between my-2">
         <Tabs
           value={category ?? ConsentCategories.REQUESTS}
           onValueChange={(value) =>
             onCategoryChange(value as ConsentCategories)
           }
-          className="max-sm:w-full w-1/2"
+          className="w-full"
         >
-          <TabsList className="max-sm:flex w-full">
-            <TabsTrigger className="flex-1" value={ConsentCategories.REQUESTS}>
+          <TabsList className="flex w-full flex-1 gap-4 overflow-x-auto">
+            <TabsTrigger value={ConsentCategories.REQUESTS}>
               Requests
             </TabsTrigger>
-            <TabsTrigger className="flex-1" value={ConsentCategories.APPROVED}>
+            <TabsTrigger value={ConsentCategories.APPROVED}>
               Approved
             </TabsTrigger>
           </TabsList>
         </Tabs>
 
-        <Select
+        <Tabs
           value={status ?? ConsentStatuses.REQUESTED}
           onValueChange={(value) => onStatusChange(value as ConsentStatuses)}
         >
-          <SelectTrigger className="sm:max-w-1/5 border-gray-300">
-            <SelectValue placeholder="Select Status" />
-          </SelectTrigger>
-          <SelectContent>
-            {CONSENT_STATUS_BY_CATEGORY[category]?.map((statusOption) => (
-              <SelectItem key={statusOption} value={statusOption}>
-                {statusOption}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          <TabsList className="w-full justify-evenly sm:justify-start max-sm:border-b rounded-none bg-transparent p-0 h-auto overflow-x-auto">
+            {(CONSENT_STATUS_BY_CATEGORY[category] ?? []).map(
+              (statusOption) => (
+                <TabsTrigger
+                  className="border-b-2 px-2 sm:px-4 py-2 text-gray-600 hover:text-gray-900 data-[state=active]:border-b-primary-700  data-[state=active]:text-primary-800 data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-none"
+                  key={statusOption}
+                  value={statusOption}
+                >
+                  {toTitleCase(statusOption)}
+                </TabsTrigger>
+              ),
+            )}
+          </TabsList>
+        </Tabs>
       </div>
+      <Separator className="max-sm:hidden" />
     </div>
   );
 }

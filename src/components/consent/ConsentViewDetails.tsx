@@ -30,7 +30,7 @@ export function ConsentBasicDetails({
 }: {
   requester: string;
   purpose: string;
-  requestType: "Subscription" | "Consent";
+  requestType: string;
 }) {
   return (
     <Card className="rounded-lg">

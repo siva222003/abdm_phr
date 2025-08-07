@@ -189,7 +189,6 @@ export interface ConsentUpdateBaseResponse {
   detail: string;
 }
 
-//temporary enum for subscription categories
 enum SubscriptionCategories {
   LINK = "LINK",
   DATA = "DATA",
@@ -215,6 +214,6 @@ export interface ConsentBase {
   availableLinks?: ConsentLinks[]; //only for subscription (used while approving or editing subscription)
 }
 
-//helper functions
+//helper function
 export const isSubscription = (type: ConsentTypes) =>
   type.includes("subscription");

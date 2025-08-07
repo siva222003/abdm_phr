@@ -35,6 +35,7 @@ import {
   ConsentTypes,
   isSubscription,
 } from "@/types/consent";
+import { SubscriptionUpdateBaseResponse } from "@/types/subscription";
 import { toTitleCase } from "@/utils";
 import { mutate } from "@/utils/request/request";
 
@@ -51,6 +52,8 @@ interface ConsentActions {
   canEnable: boolean;
 }
 
+type DialogType = "edit" | "approve" | "deny" | "revoke" | "enable" | null;
+
 const getVisibleActions = (consent: ConsentBase): ConsentActions => {
   const isSubscriptionType = isSubscription(consent.type);
 
@@ -63,10 +66,6 @@ const getVisibleActions = (consent: ConsentBase): ConsentActions => {
     canRevoke: consent.status === ConsentStatuses.GRANTED,
     canEnable: consent.status === ConsentStatuses.REVOKED && isSubscriptionType,
   };
-};
-
-const getConsentTypeDisplay = (type: ConsentTypes) => {
-  return isSubscription(type) ? "Subscription" : "Consent";
 };
 
 function LoadingSkeleton() {
@@ -117,10 +116,12 @@ function ConsentHeader({
   consent,
   onEdit,
   canEdit,
+  typeDisplay,
 }: {
   consent: ConsentBase;
   onEdit: () => void;
   canEdit: boolean;
+  typeDisplay: string;
 }) {
   return (
     <div className="space-y-4">
@@ -128,11 +129,11 @@ function ConsentHeader({
         <div className="space-y-3">
           <div className="flex items-center gap-3 flex-wrap">
             <h1 className="text-3xl font-bold text-foreground">
-              {getConsentTypeDisplay(consent.type)} Details
+              {typeDisplay} Details
             </h1>
             <div className="flex items-center gap-2">
               <Badge variant={CONSENT_TYPE_VARIANTS[consent.type]}>
-                {getConsentTypeDisplay(consent.type)}
+                {typeDisplay}
               </Badge>
               <Badge variant={CONSENT_STATUS_VARIANTS[consent.status]}>
                 {toTitleCase(consent.status)}
@@ -146,7 +147,7 @@ function ConsentHeader({
 
         {canEdit && (
           <Button variant="outline" onClick={onEdit}>
-            Edit
+            Edit {typeDisplay}
           </Button>
         )}
       </div>
@@ -156,20 +157,53 @@ function ConsentHeader({
   );
 }
 
+function ConsentContentSections({
+  data,
+  isSubscriptionType,
+  typeDisplay,
+}: {
+  data: ConsentBase;
+  isSubscriptionType: boolean;
+  typeDisplay: string;
+}) {
+  return (
+    <div className="grid gap-6">
+      <ConsentBasicDetails
+        requester={data.requester}
+        purpose={data.purpose.text}
+        requestType={typeDisplay}
+      />
+
+      <ConsentDurationDetails
+        fromDate={data.fromDate}
+        toDate={data.toDate}
+        dataEraseAt={data.dataEraseAt}
+      />
+
+      {data.hiTypes.length > 0 && <ConsentHITypeDetails types={data.hiTypes} />}
+
+      {isSubscriptionType && data.subscriptionCategories && (
+        <SubscriptionCategoryDetails categories={data.subscriptionCategories} />
+      )}
+
+      {data.links.length > 0 && (
+        <ConsentHIPDetails
+          hips={data.links}
+          showContexts={!isSubscriptionType}
+        />
+      )}
+    </div>
+  );
+}
+
 function ConsentActionButtons({
   actions,
-  onApprove,
-  onDeny,
-  onRevoke,
-  onEnable,
-  consentType,
+  onAction,
+  typeDisplay,
 }: {
   actions: ConsentActions;
-  onApprove: () => void;
-  onDeny: () => void;
-  onRevoke: () => void;
-  onEnable: () => void;
-  consentType: ConsentTypes;
+  onAction: (action: DialogType) => void;
+  typeDisplay: string;
 }) {
   const hasActions =
     actions.canApprove ||
@@ -183,8 +217,12 @@ function ConsentActionButtons({
     <div className="border-t pt-6">
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-end gap-3">
         {actions.canApprove && (
-          <Button size="lg" className="sm:w-auto" onClick={onApprove}>
-            Approve {getConsentTypeDisplay(consentType)}
+          <Button
+            size="lg"
+            className="sm:w-auto"
+            onClick={() => onAction("approve")}
+          >
+            Approve {typeDisplay}
           </Button>
         )}
 
@@ -193,9 +231,9 @@ function ConsentActionButtons({
             variant="outline"
             size="lg"
             className="sm:w-auto border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
-            onClick={onDeny}
+            onClick={() => onAction("deny")}
           >
-            Deny {getConsentTypeDisplay(consentType)}
+            Deny {typeDisplay}
           </Button>
         )}
 
@@ -204,9 +242,9 @@ function ConsentActionButtons({
             variant="destructive"
             size="lg"
             className="sm:w-auto"
-            onClick={onRevoke}
+            onClick={() => onAction("revoke")}
           >
-            Revoke {getConsentTypeDisplay(consentType)}
+            Revoke {typeDisplay}
           </Button>
         )}
 
@@ -215,7 +253,7 @@ function ConsentActionButtons({
             variant="default"
             size="lg"
             className="sm:w-auto"
-            onClick={onEnable}
+            onClick={() => onAction("enable")}
           >
             Enable Subscription
           </Button>
@@ -225,16 +263,68 @@ function ConsentActionButtons({
   );
 }
 
+function ConsentDialogs({
+  activeDialog,
+  setActiveDialog,
+  data,
+  isSubscriptionType,
+  onUpdate,
+  isLoading,
+}: {
+  activeDialog: DialogType;
+  setActiveDialog: (dialog: DialogType) => void;
+  data: ConsentBase;
+  isSubscriptionType: boolean;
+  onUpdate: (data: ConsentBase) => void;
+  isLoading: boolean;
+}) {
+  return (
+    <>
+      <EditConsentSheet
+        open={activeDialog === "edit"}
+        setOpen={(open) => setActiveDialog(open ? "edit" : null)}
+        data={data}
+        onUpdate={onUpdate}
+        isLoading={isLoading}
+      />
+
+      <ConsentApproveDialog
+        data={data}
+        requestId={data.id}
+        open={activeDialog === "approve"}
+        setOpen={(open) => setActiveDialog(open ? "approve" : null)}
+        isSubscription={isSubscriptionType}
+      />
+
+      <ConsentDenyDialog
+        requestId={data.id}
+        open={activeDialog === "deny"}
+        setOpen={(open) => setActiveDialog(open ? "deny" : null)}
+        isSubscription={isSubscriptionType}
+      />
+
+      <ConsentRevokeDialog
+        requestId={data.id}
+        open={activeDialog === "revoke"}
+        setOpen={(open) => setActiveDialog(open ? "revoke" : null)}
+        isSubscription={isSubscriptionType}
+      />
+
+      <ConsentEnableDialog
+        requestId={data.id}
+        open={activeDialog === "enable"}
+        setOpen={(open) => setActiveDialog(open ? "enable" : null)}
+      />
+    </>
+  );
+}
+
 export default function ConsentDetail({ id, type }: ConsentDetailProps) {
   const queryClient = useQueryClient();
   const { goBack } = useNavigation();
 
   const [editedData, setEditedData] = useState<ConsentBase | null>(null);
-  const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
-  const [approveDialogOpen, setApproveDialogOpen] = useState(false);
-  const [denyDialogOpen, setDenyDialogOpen] = useState(false);
-  const [revokeDialogOpen, setRevokeDialogOpen] = useState(false);
-  const [enableDialogOpen, setEnableDialogOpen] = useState(false);
+  const [activeDialog, setActiveDialog] = useState<DialogType>(null);
 
   const { data, isLoading, isError } = useConsentDetail({
     id,
@@ -244,16 +334,15 @@ export default function ConsentDetail({ id, type }: ConsentDetailProps) {
   const finalData = editedData || data;
   const actions = finalData ? getVisibleActions(finalData) : null;
   const isSubscriptionType = finalData ? isSubscription(finalData.type) : false;
-
-  const editSubscriptionMutationFn = mutate(routes.subscription.edit, {
-    pathParams: { subscriptionId: id },
-  });
+  const typeDisplay = isSubscriptionType ? "Subscription" : "Consent";
 
   const editSubscriptionMutation = useMutation({
-    mutationFn: editSubscriptionMutationFn,
-    onSuccess: (response) => {
+    mutationFn: mutate(routes.subscription.edit, {
+      pathParams: { subscriptionId: id },
+    }),
+    onSuccess: (response: SubscriptionUpdateBaseResponse) => {
       toast.success(response.detail);
-      setIsEditSheetOpen(false);
+      setActiveDialog(null);
       queryClient.invalidateQueries({ queryKey: ["consents", id] });
     },
   });
@@ -264,18 +353,22 @@ export default function ConsentDetail({ id, type }: ConsentDetailProps) {
     }
   }, [data]);
 
+  const handleAction = (action: DialogType) => {
+    setActiveDialog(action);
+  };
+
   const handleConsentUpdate = (updatedData: ConsentBase) => {
     if (
-      isSubscription(finalData!.type) &&
-      finalData!.status === ConsentStatuses.GRANTED
+      isSubscription(updatedData.type) &&
+      updatedData.status === ConsentStatuses.GRANTED
     ) {
       editSubscriptionMutation.mutate({
-        hiuId: finalData!.hiu.id,
+        hiuId: updatedData.hiu.id,
         subscription: buildSubscriptionPayload(updatedData),
       });
     } else {
       setEditedData(updatedData);
-      toast.success("Consent updated successfully");
+      toast.success("Changes saved successfully.");
     }
   };
 
@@ -296,12 +389,8 @@ export default function ConsentDetail({ id, type }: ConsentDetailProps) {
   }
 
   return (
-    <Page
-      title={`${getConsentTypeDisplay(finalData.type)} Details`}
-      hideTitleOnPage
-    >
+    <Page title={`${typeDisplay} Details`} hideTitleOnPage>
       <div className="container mx-auto max-w-4xl space-y-8">
-        {/* Back button */}
         <Button
           variant="ghost"
           className="mb-4"
@@ -311,93 +400,35 @@ export default function ConsentDetail({ id, type }: ConsentDetailProps) {
           Back to Consents
         </Button>
 
-        {/* Header */}
         <ConsentHeader
           consent={finalData}
-          onEdit={() => setIsEditSheetOpen(true)}
+          onEdit={() => handleAction("edit")}
           canEdit={actions?.canEdit ?? false}
+          typeDisplay={typeDisplay}
         />
 
-        {/* Content sections */}
-        <div className="grid gap-6">
-          <ConsentBasicDetails
-            requester={finalData.requester}
-            purpose={finalData.purpose.text}
-            requestType={getConsentTypeDisplay(finalData.type)}
-          />
+        <ConsentContentSections
+          data={finalData}
+          isSubscriptionType={isSubscriptionType}
+          typeDisplay={typeDisplay}
+        />
 
-          <ConsentDurationDetails
-            fromDate={finalData.fromDate}
-            toDate={finalData.toDate}
-            dataEraseAt={finalData.dataEraseAt}
-          />
-
-          {finalData.hiTypes.length > 0 && (
-            <ConsentHITypeDetails types={finalData.hiTypes} />
-          )}
-
-          {isSubscriptionType && finalData.subscriptionCategories && (
-            <SubscriptionCategoryDetails
-              categories={finalData.subscriptionCategories}
-            />
-          )}
-
-          {finalData.links.length > 0 && (
-            <ConsentHIPDetails
-              hips={finalData.links}
-              showContexts={!isSubscriptionType}
-            />
-          )}
-        </div>
-
-        {/* Action buttons */}
         {actions && (
           <ConsentActionButtons
             actions={actions}
-            onApprove={() => setApproveDialogOpen(true)}
-            onDeny={() => setDenyDialogOpen(true)}
-            onRevoke={() => setRevokeDialogOpen(true)}
-            onEnable={() => setEnableDialogOpen(true)}
-            consentType={finalData.type}
+            onAction={handleAction}
+            typeDisplay={typeDisplay}
           />
         )}
       </div>
 
-      {/* Dialogs */}
-      <EditConsentSheet
-        open={isEditSheetOpen}
-        setOpen={setIsEditSheetOpen}
+      <ConsentDialogs
+        activeDialog={activeDialog}
+        setActiveDialog={setActiveDialog}
         data={finalData}
+        isSubscriptionType={isSubscriptionType}
         onUpdate={handleConsentUpdate}
         isLoading={editSubscriptionMutation.isPending}
-      />
-
-      <ConsentApproveDialog
-        data={finalData}
-        requestId={finalData.id}
-        open={approveDialogOpen}
-        setOpen={setApproveDialogOpen}
-        isSubscription={isSubscriptionType}
-      />
-
-      <ConsentDenyDialog
-        requestId={finalData.id}
-        open={denyDialogOpen}
-        setOpen={setDenyDialogOpen}
-        isSubscription={isSubscriptionType}
-      />
-
-      <ConsentRevokeDialog
-        requestId={finalData.id}
-        open={revokeDialogOpen}
-        setOpen={setRevokeDialogOpen}
-        isSubscription={isSubscriptionType}
-      />
-
-      <ConsentEnableDialog
-        requestId={finalData.id}
-        open={enableDialogOpen}
-        setOpen={setEnableDialogOpen}
       />
     </Page>
   );

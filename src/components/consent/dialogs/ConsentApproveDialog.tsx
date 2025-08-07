@@ -50,8 +50,8 @@ export const buildSubscriptionPayload = (
 ): SubscriptionApproveRequest => {
   const isAllHIPs = data.availableLinks?.length === data.links.length;
 
-  const sourcePayload = (link: ConsentLinks | null) => ({
-    hip: link ? link.hip : null,
+  const getPayload = (link?: ConsentLinks) => ({
+    hip: link?.hip ?? null,
     categories: data.subscriptionCategories!,
     hiTypes: data.hiTypes,
     period: {
@@ -61,16 +61,22 @@ export const buildSubscriptionPayload = (
     purpose: data.purpose,
   });
 
+  const includedSources = isAllHIPs
+    ? [getPayload()]
+    : data.links.map(getPayload);
+
+  const excludedSources = isAllHIPs
+    ? []
+    : (data.availableLinks
+        ?.filter(
+          ({ hip }) => !data.links.some((link) => link.hip.id === hip.id),
+        )
+        .map(getPayload) ?? []);
+
   return {
     isApplicableForAllHIPs: isAllHIPs,
-    includedSources: isAllHIPs
-      ? [sourcePayload(null)]
-      : data.links.map(sourcePayload),
-    excludedSources: isAllHIPs
-      ? []
-      : data.availableLinks
-          ?.filter(({ hip }) => !data.links.some((l) => l.hip.id === hip.id))
-          .map(sourcePayload),
+    includedSources,
+    excludedSources,
   };
 };
 
@@ -83,7 +89,7 @@ const ConsentApproveDialog = ({
 }: ConsentApproveDialogProps) => {
   const queryClient = useQueryClient();
 
-  const mutation = useMutation({
+  const approveMutation = useMutation({
     mutationFn: () => {
       const payload = isSubscription
         ? buildSubscriptionPayload(data)
@@ -123,15 +129,15 @@ const ConsentApproveDialog = ({
           <Button
             variant="outline"
             onClick={() => setOpen(false)}
-            disabled={mutation.isPending}
+            disabled={approveMutation.isPending}
           >
             Cancel
           </Button>
           <Button
-            onClick={() => mutation.mutate()}
-            disabled={mutation.isPending}
+            onClick={() => approveMutation.mutate()}
+            disabled={approveMutation.isPending}
           >
-            {mutation.isPending ? (
+            {approveMutation.isPending ? (
               <>
                 <Loader2Icon className="mr-2 size-4 animate-spin" />
                 Approving...

@@ -54,7 +54,6 @@ const validateFormData = (
   isSubscriptionType: boolean,
 ): ValidationResult => {
   const errors: string[] = [];
-  const now = new Date();
 
   const fromDate = new Date(formData.fromDate);
   const toDate = new Date(formData.toDate);
@@ -71,15 +70,8 @@ const validateFormData = (
     errors.push("From date must be before to date");
   }
 
-  if (toDate <= now) {
-    errors.push("To date must be in the future");
-  }
-
   if (formData.dataEraseAt) {
     const dataEraseDate = new Date(formData.dataEraseAt);
-    if (dataEraseDate <= now) {
-      errors.push("Data erase date must be in the future");
-    }
     if (dataEraseDate <= toDate) {
       errors.push("Data erase date should be after the to date");
     }
@@ -195,10 +187,10 @@ export default function EditConsentSheet({
       <SheetContent
         side="right"
         onOpenAutoFocus={(e) => e.preventDefault()}
-        className="w-full sm:max-w-2xl overflow-y-auto"
+        className="w-full sm:max-w-2xl overflow-y-auto p-6"
       >
-        <SheetHeader>
-          <SheetTitle className="flex items-center gap-2">
+        <SheetHeader className="p-0">
+          <SheetTitle className="text-lg">
             Edit {isSubscriptionType ? "Subscription" : "Consent"} Details
           </SheetTitle>
           <SheetDescription>
@@ -207,7 +199,7 @@ export default function EditConsentSheet({
           </SheetDescription>
         </SheetHeader>
 
-        <form onSubmit={handleFormSubmit} className="space-y-6 p-4">
+        <form onSubmit={handleFormSubmit} className="space-y-6 mt-4">
           <ConsentDurationSection
             fromDate={formData.fromDate}
             toDate={formData.toDate}

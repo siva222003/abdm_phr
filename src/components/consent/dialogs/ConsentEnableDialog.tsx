@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 
 import routes from "@/api";
+import { SubscriptionUpdateBaseResponse } from "@/types/subscription";
 import { mutate } from "@/utils/request/request";
 
 interface ConsentEnableDialogProps {
@@ -29,16 +30,11 @@ export default function ConsentEnableDialog({
 }: ConsentEnableDialogProps) {
   const queryClient = useQueryClient();
 
-  const enableSubscriptionMutationFn = mutate(
-    routes.subscription.updateStatus,
-    {
-      pathParams: { subscriptionId: requestId },
-    },
-  );
-
   const enableMutation = useMutation({
-    mutationFn: enableSubscriptionMutationFn,
-    onSuccess: (response) => {
+    mutationFn: mutate(routes.subscription.updateStatus, {
+      pathParams: { subscriptionId: requestId },
+    }),
+    onSuccess: (response: SubscriptionUpdateBaseResponse) => {
       toast.success(response.detail);
       setOpen(false);
 

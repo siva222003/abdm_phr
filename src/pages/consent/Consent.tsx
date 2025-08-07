@@ -1,4 +1,4 @@
-import { Box } from "lucide-react";
+import { FolderOpen } from "lucide-react";
 import { useQueryParams } from "raviger";
 import { useEffect } from "react";
 
@@ -110,7 +110,7 @@ export default function Consent() {
         <div className="w-full mx-auto mt-2">
           <ConsentFilters {...filterProps} />
           <EmptyState
-            icon={<Box className="size-6" />}
+            icon={<FolderOpen className="text-primary" />}
             title="No consents found"
             description="Adjust your filters to find the consents you're looking for"
           />

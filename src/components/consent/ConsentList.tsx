@@ -3,7 +3,7 @@ import { navigate } from "raviger";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 import {
   Table,
@@ -14,7 +14,7 @@ import {
   TableRow,
 } from "@/components/common/Table";
 
-import { ConsentBase, ConsentTypes, isSubscription } from "@/types/consent";
+import { ConsentBase, isSubscription } from "@/types/consent";
 import {
   CONSENT_STATUS_VARIANTS,
   CONSENT_TYPE_VARIANTS,
@@ -33,22 +33,19 @@ const handleConsentNavigation = (consent: ConsentBase) => {
   navigate(`/consents/${consent.id}/${consent.type}`);
 };
 
-const getConsentTypeDisplay = (type: ConsentTypes) => {
-  return isSubscription(type) ? "Subscription" : "Consent";
-};
-
 function ConsentCard({ consent }: ConsentItemProps) {
   return (
-    <Card key={consent.id} className="hover:shadow-md transition-shadow">
+    <Card className="hover:shadow-md transition-shadow">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
+          <div>
+            <h3 className="font-medium text-base mb-2">{consent.requester}</h3>
+            <div className="flex gap-2">
               <Badge
                 variant={CONSENT_TYPE_VARIANTS[consent.type]}
                 className="text-xs"
               >
-                {getConsentTypeDisplay(consent.type)}
+                {isSubscription(consent.type) ? "Subscription" : "Consent"}
               </Badge>
               <Badge
                 variant={CONSENT_STATUS_VARIANTS[consent.status]}
@@ -57,12 +54,9 @@ function ConsentCard({ consent }: ConsentItemProps) {
                 {toTitleCase(consent.status)}
               </Badge>
             </div>
-            <CardTitle className="text-sm font-medium">
-              {consent.requester}
-            </CardTitle>
           </div>
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
             onClick={() => handleConsentNavigation(consent)}
             className="shrink-0"
@@ -71,22 +65,24 @@ function ConsentCard({ consent }: ConsentItemProps) {
           </Button>
         </div>
       </CardHeader>
+
       <CardContent className="pt-0">
         <div className="space-y-3">
           <div>
-            <p className="text-xs text-muted-foreground">Purpose</p>
-            <p className="text-sm font-medium">{consent.purpose.text}</p>
+            <p className="text-xs text-muted-foreground mb-1">Purpose</p>
+            <p className="text-sm leading-relaxed">{consent.purpose.text}</p>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+
+          <div className="grid grid-cols-2 gap-3">
             <div>
               <p className="text-xs text-muted-foreground">From</p>
-              <p className="text-sm">
+              <p className="text-sm font-medium">
                 {formatReadableDateTime(consent.fromDate)}
               </p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">To</p>
-              <p className="text-sm">
+              <p className="text-sm font-medium">
                 {formatReadableDateTime(consent.toDate)}
               </p>
             </div>
@@ -99,7 +95,7 @@ function ConsentCard({ consent }: ConsentItemProps) {
 
 function ConsentCardList({ data }: ConsentListProps) {
   return (
-    <div className="grid gap-4">
+    <div className="space-y-4">
       {data.map((consent) => (
         <ConsentCard key={consent.id} consent={consent} />
       ))}
@@ -109,7 +105,7 @@ function ConsentCardList({ data }: ConsentListProps) {
 
 function ConsentTableRow({ consent }: ConsentItemProps) {
   return (
-    <TableRow key={consent.id} className="hover:bg-muted/50">
+    <TableRow className="hover:bg-muted/50">
       <TableCell className="font-medium">{consent.requester}</TableCell>
       <TableCell>
         <div className="max-w-[200px]">
@@ -120,7 +116,7 @@ function ConsentTableRow({ consent }: ConsentItemProps) {
       </TableCell>
       <TableCell>
         <Badge variant={CONSENT_TYPE_VARIANTS[consent.type]}>
-          {getConsentTypeDisplay(consent.type)}
+          {isSubscription(consent.type) ? "Subscription" : "Consent"}
         </Badge>
       </TableCell>
       <TableCell>
