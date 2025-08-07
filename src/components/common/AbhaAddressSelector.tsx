@@ -5,7 +5,7 @@ import {
   TriangleAlert,
   UserSearch,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -135,7 +135,7 @@ export default function AbhaAddressSelector({
     }
   };
 
-  const content = useMemo(() => {
+  const content = () => {
     if (isListLoading) {
       return Array.from({ length: 3 }, (_, idx) => (
         <Skeleton key={idx} className="h-12 w-full rounded-lg" />
@@ -155,7 +155,7 @@ export default function AbhaAddressSelector({
         kycStatus={kycStatus}
       />
     ));
-  }, [addresses, selectedAddress, isListLoading, emptyState]);
+  };
 
   const isContinueDisabled =
     !selectedAddress || isActionLoading || continueButtonDisabled;
@@ -163,7 +163,7 @@ export default function AbhaAddressSelector({
   return (
     <div className="flex flex-col h-full">
       <ScrollArea className="w-full rounded-md">
-        <div className="max-h-48 space-y-2 px-1">{content}</div>
+        <div className="max-h-48 space-y-2 px-1">{content()}</div>
       </ScrollArea>
 
       <div className="mt-2 pt-4 space-y-4">

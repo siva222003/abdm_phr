@@ -1,5 +1,4 @@
-import { useNavigate } from "raviger";
-import { useCallback } from "react";
+import { navigate } from "raviger";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -64,21 +63,19 @@ const { MOBILE_NUMBER, ABHA_NUMBER, ABHA_ADDRESS } = AuthModes;
 const { LOGIN } = AuthFlowTypes;
 
 const Login = ({ memory, setMemory, goTo }: LoginProps) => {
-  const navigate = useNavigate();
+  const onVerifyOtpSuccess = (
+    data: VerifyOtpResponse,
+    sendOtpContext?: SendOtpRequest,
+  ) => {
+    setMemory((prev) => ({
+      ...prev,
+      verifySystem: sendOtpContext?.verify_system || DEFAULT_AUTH_METHOD,
+      transactionId: data.transaction_id,
+      existingAbhaAddresses: data.users,
+    }));
 
-  const onVerifyOtpSuccess = useCallback(
-    (data: VerifyOtpResponse, sendOtpContext?: SendOtpRequest) => {
-      setMemory((prev) => ({
-        ...prev,
-        verifySystem: sendOtpContext?.verify_system || DEFAULT_AUTH_METHOD,
-        transactionId: data.transaction_id,
-        existingAbhaAddresses: data.users,
-      }));
-
-      goTo("handle-existing-abha");
-    },
-    [setMemory, goTo],
-  );
+    goTo("handle-existing-abha");
+  };
 
   const handleTabChange = (value: string) => {
     setMemory((prev) => ({

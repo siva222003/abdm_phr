@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "raviger";
+import { navigate } from "raviger";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -22,7 +22,6 @@ export default function AuthUserProvider({
   publicRouter,
   privateRouter,
 }: Props) {
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const [switchProfileEnabled, setSwitchProfileEnabled] = useState(

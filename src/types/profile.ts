@@ -42,7 +42,7 @@ export interface PhrEnrolDetails extends BasicProfileFields {
 }
 
 export interface PhrProfilePartial extends BasicProfileFields {
-  health_id: string | null;
+  phr_health_id: string | null;
   name: string;
   date_of_birth: string;
   district: string;

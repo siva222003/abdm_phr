@@ -1,8 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
-import { useNavigate } from "raviger";
-import { useCallback, useEffect, useState } from "react";
+import { navigate } from "raviger";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod/v4";
@@ -80,10 +80,6 @@ const RegisterAbha = () => {
   const { currentStep } = useMultiStepForm<FormMemory>(
     [
       {
-        id: "add-personal-details",
-        element: <AddBasicDetails {...({} as AddBasicDetailsProps)} />,
-      },
-      {
         id: "register",
         element: <Register {...({} as RegisterProps)} />,
       },
@@ -129,43 +125,41 @@ const { MOBILE_NUMBER, ABHA_NUMBER } = AuthModes;
 const { ENROLLMENT } = AuthFlowTypes;
 
 const Register = ({ memory, setMemory, goTo }: RegisterProps) => {
-  const navigate = useNavigate();
+  const onVerifyOtpSuccess = (
+    data: VerifyOtpResponse,
+    sendOtpContext?: SendOtpRequest,
+  ) => {
+    let mobileNumber = data.abha_number?.mobile || "";
 
-  const onVerifyOtpSuccess = useCallback(
-    (data: VerifyOtpResponse, sendOtpContext?: SendOtpRequest) => {
-      let mobileNumber = data.abha_number?.mobile || "";
+    if (sendOtpContext?.type === MOBILE_NUMBER && sendOtpContext?.value) {
+      mobileNumber = sendOtpContext.value;
+    }
 
-      if (sendOtpContext?.type === MOBILE_NUMBER && sendOtpContext?.value) {
-        mobileNumber = sendOtpContext.value;
-      }
+    const [year, month, day] = formatDate(data.abha_number?.date_of_birth);
 
-      const [year, month, day] = formatDate(data.abha_number?.date_of_birth);
+    setMemory((prev) => ({
+      ...prev,
+      transactionId: data.transaction_id,
+      existingAbhaAddresses: data.users,
+      verifySystem: sendOtpContext?.otp_system || DEFAULT_AUTH_METHOD,
+      phrProfile: {
+        ...prev.phrProfile,
+        ...data.abha_number,
+        abha_address: data.abha_number?.phr_health_id ?? "",
+        day_of_birth: day,
+        month_of_birth: month,
+        year_of_birth: year,
+        district_name: data.abha_number?.district ?? "",
+        state_name: data.abha_number?.state ?? "",
+        mobile: mobileNumber,
+        last_name: data.abha_number?.last_name ?? "",
+        middle_name: data.abha_number?.middle_name ?? "",
+        email: data.abha_number?.email ?? "",
+      },
+    }));
 
-      setMemory((prev) => ({
-        ...prev,
-        transactionId: data.transaction_id,
-        existingAbhaAddresses: data.users,
-        verifySystem: sendOtpContext?.otp_system || DEFAULT_AUTH_METHOD,
-        phrProfile: {
-          ...prev.phrProfile,
-          ...data.abha_number,
-          abha_address: data.abha_number?.health_id ?? "",
-          day_of_birth: day,
-          month_of_birth: month,
-          year_of_birth: year,
-          district_name: data.abha_number?.district ?? "",
-          state_name: data.abha_number?.state ?? "",
-          mobile: mobileNumber,
-          last_name: data.abha_number?.last_name ?? "",
-          middle_name: data.abha_number?.middle_name ?? "",
-          email: data.abha_number?.email ?? "",
-        },
-      }));
-
-      goTo("handle-existing-abha");
-    },
-    [setMemory, goTo],
-  );
+    goTo("handle-existing-abha");
+  };
 
   const handleTabChange = (value: string) => {
     setMemory((prev) => ({

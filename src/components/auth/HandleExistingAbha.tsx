@@ -1,6 +1,6 @@
 import { UserSearch } from "lucide-react";
-import { useNavigate } from "raviger";
-import { useCallback, useEffect } from "react";
+import { navigate } from "raviger";
+import { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -29,8 +29,6 @@ interface HandleExistingAbhaProps {
 }
 
 function AuthEmptyState() {
-  const navigate = useNavigate();
-
   return (
     <div className="flex flex-col items-center justify-center pb-6 pt-4 text-muted-foreground">
       <UserSearch className="w-10 h-10 mb-2 text-gray-400" />
@@ -63,7 +61,7 @@ const HandleExistingAbhaAddress = ({
   const existingAbhaAddresses = memory?.existingAbhaAddresses ?? [];
   const hasAddresses = existingAbhaAddresses.length > 0;
 
-  const handleCreateNew = useCallback(() => {
+  const handleCreateNew = () => {
     if (!memory) {
       return;
     }
@@ -73,23 +71,20 @@ const HandleExistingAbhaAddress = ({
     } else {
       goTo("add-personal-details");
     }
-  }, [memory, goTo]);
+  };
 
-  const handleSelectExisting = useCallback(
-    (selectedAddress: string) => {
-      if (!selectedAddress || !memory) {
-        return;
-      }
+  const handleSelectExisting = (selectedAddress: string) => {
+    if (!selectedAddress || !memory) {
+      return;
+    }
 
-      verifyUser({
-        abha_address: selectedAddress,
-        transaction_id: memory.transactionId,
-        type: memory.mode,
-        verify_system: memory.verifySystem,
-      });
-    },
-    [verifyUser, memory],
-  );
+    verifyUser({
+      abha_address: selectedAddress,
+      transaction_id: memory.transactionId,
+      type: memory.mode,
+      verify_system: memory.verifySystem,
+    });
+  };
 
   useEffect(() => {
     if (!hasAddresses && flowType === AuthFlowTypes.ENROLLMENT && memory) {

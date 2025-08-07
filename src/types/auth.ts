@@ -97,7 +97,7 @@ export interface VerifyAuthResponse {
 }
 
 export interface CheckAuthMethodsResponse {
-  auth_methods: ["MOBILE_OTP", "PASSWORD", "AADHAAR_OTP"];
+  auth_methods: ("MOBILE_OTP" | "PASSWORD" | "AADHAAR_OTP")[];
 }
 
 export interface AbhaAddressSuggestionsResponse {
