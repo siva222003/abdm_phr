@@ -22,7 +22,6 @@ import { DEFAULT_AUTH_METHOD } from "@/common/constants";
 
 import {
   AuthFlowTypes,
-  AuthMode,
   AuthModes,
   FormMemory,
   INITIAL_AUTH_FORM_VALUES,
@@ -80,7 +79,7 @@ const Login = ({ memory, setMemory, goTo }: LoginProps) => {
   const handleTabChange = (value: string) => {
     setMemory((prev) => ({
       ...prev,
-      mode: value as AuthMode,
+      mode: value as AuthModes,
     }));
   };
 

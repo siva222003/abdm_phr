@@ -65,14 +65,16 @@ import { DEFAULT_AUTH_METHOD, DOMAIN, GENDERS } from "@/common/constants";
 
 import routes from "@/api";
 import {
+  AbhaAddressExistsResponse,
   AuthFlowTypes,
-  AuthMode,
   AuthModes,
   FormMemory,
   INITIAL_AUTH_FORM_VALUES,
   SendOtpRequest,
+  VerifyAuthResponse,
   VerifyOtpResponse,
 } from "@/types/auth";
+import { AbhaAddressSuggestionsResponse } from "@/types/auth";
 import { formatDate } from "@/utils";
 import { mutate } from "@/utils/request/request";
 
@@ -164,7 +166,7 @@ const Register = ({ memory, setMemory, goTo }: RegisterProps) => {
   const handleTabChange = (value: string) => {
     setMemory((prev) => ({
       ...prev,
-      mode: value as AuthMode,
+      mode: value as AuthModes,
     }));
   };
 
@@ -402,23 +404,18 @@ export const ChooseAbhaAddress = ({
     },
   });
 
-  const abhaSuggestionsMutationFn = mutate(
-    routes.register.abhaAddressSuggestions,
-  );
   const fetchSuggestionsMutation = useMutation({
-    mutationFn: abhaSuggestionsMutationFn,
-    onSuccess: ({ transaction_id, abha_addresses }) => {
+    mutationFn: mutate(routes.register.abhaAddressSuggestions),
+    onSuccess: (data: AbhaAddressSuggestionsResponse) => {
+      const { transaction_id, abha_addresses } = data;
       setMemory((prev) => ({ ...prev, transactionId: transaction_id }));
       setSuggestions(abha_addresses.map((a) => a.replace(DOMAIN, "")));
     },
   });
 
-  const checkAbhaAdressExistsMutationFn = mutate(
-    routes.register.checkAbhaExists,
-  );
   const checkAbhaAddressExistsMutation = useMutation({
-    mutationFn: checkAbhaAdressExistsMutationFn,
-    onSuccess: (data) => {
+    mutationFn: mutate(routes.register.checkAbhaExists),
+    onSuccess: (data: AbhaAddressExistsResponse) => {
       if (data.exists) {
         toast.error("ABHA address already exists. Please choose another.");
       } else {
@@ -594,10 +591,9 @@ export const SetPassword = ({ memory }: SetPasswordProps) => {
     },
   });
 
-  const mutationFn = mutate(routes.register.enrolAbhaAddress);
   const enrolAbhaAddressMutation = useMutation({
-    mutationFn,
-    onSuccess: (data) => {
+    mutationFn: mutate(routes.register.enrolAbhaAddress),
+    onSuccess: (data: VerifyAuthResponse) => {
       toast.success("ABHA Address created successfully");
       handleAuthSuccess(data);
     },

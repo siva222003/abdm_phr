@@ -6,7 +6,6 @@ import { RESEND_OTP_DURATION } from "@/common/constants";
 
 import routes from "@/api";
 import {
-  AuthFlowType,
   AuthFlowTypes,
   FormMemory,
   SendOtpRequest,
@@ -17,7 +16,7 @@ import { mutate } from "@/utils/request/request";
 import { useAuthContext } from "./useAuth";
 
 export const useOtpFlow = (
-  flowType: AuthFlowType,
+  flowType: AuthFlowTypes,
   setMemory: Dispatch<SetStateAction<FormMemory>>,
   onVerifyOtpSuccess: (
     data: VerifyOtpResponse,

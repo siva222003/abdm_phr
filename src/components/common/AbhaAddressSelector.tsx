@@ -18,7 +18,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import { KycStatus, KycStatuses, User } from "@/types/profile";
+import { KycStatuses, User } from "@/types/profile";
 
 interface AbhaAddressSelectorProps {
   addresses: User[];
@@ -54,7 +54,7 @@ function AddressItem({
   address: string;
   selected: boolean;
   onSelect: (address: string) => void;
-  kycStatus: KycStatus;
+  kycStatus: KycStatuses;
 }) {
   return (
     <div

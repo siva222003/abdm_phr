@@ -78,20 +78,18 @@ export default function AuthUserProvider({
     [setSwitchProfileEnabled, queryClient, navigate],
   );
 
-  const verifyUserMutationFn = mutate(routes.login.verifyUser);
   const { mutate: verifyUser, isPending: isVerifyingUser } = useMutation({
-    mutationFn: verifyUserMutationFn,
-    onSuccess: (data) => {
+    mutationFn: mutate(routes.login.verifyUser),
+    onSuccess: (data: VerifyAuthResponse) => {
       toast.success("User Verified successfully!");
       handleAuthSuccess(data);
     },
   });
 
-  const verifyPasswordMutationFn = mutate(routes.login.verifyPassword);
   const { mutate: verifyPassword, isPending: isVerifyingPassword } =
     useMutation({
-      mutationFn: verifyPasswordMutationFn,
-      onSuccess: (data) => {
+      mutationFn: mutate(routes.login.verifyPassword),
+      onSuccess: (data: VerifyAuthResponse) => {
         toast.success("Password verified successfully!");
         handleAuthSuccess(data);
       },

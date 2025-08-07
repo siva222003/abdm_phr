@@ -15,15 +15,10 @@ import AbhaAddressSelector from "@/components/common/AbhaAddressSelector";
 
 import { useAuthContext } from "@/hooks/useAuth";
 
-import {
-  AuthFlowType,
-  AuthFlowTypes,
-  AuthModes,
-  FormMemory,
-} from "@/types/auth";
+import { AuthFlowTypes, AuthModes, FormMemory } from "@/types/auth";
 
 interface HandleExistingAbhaProps {
-  flowType: AuthFlowType;
+  flowType: AuthFlowTypes;
   memory: FormMemory | null;
   goTo: (step: string) => void;
 }

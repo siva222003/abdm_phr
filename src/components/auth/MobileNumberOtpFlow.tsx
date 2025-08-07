@@ -24,7 +24,6 @@ import { useOtpFlow } from "@/hooks/useOtpFlow";
 import { DEFAULT_AUTH_METHOD, OTP_LENGTH } from "@/common/constants";
 
 import {
-  AuthFlowType,
   AuthFlowTypes,
   AuthModes,
   FormMemory,
@@ -33,7 +32,7 @@ import {
 } from "@/types/auth";
 
 type MobileNumberOtpFlowProps = {
-  flowType: AuthFlowType;
+  flowType: AuthFlowTypes;
   transactionId?: string;
   setMemory: Dispatch<SetStateAction<FormMemory>>;
   onVerifyOtpSuccess: (

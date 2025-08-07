@@ -14,13 +14,11 @@ export enum AuthFlowTypes {
   LOGIN = "login",
 }
 
-export type AuthMode = AuthModes;
-export type AuthFlowType = AuthFlowTypes;
 export type AuthMethod = (typeof AUTH_METHODS)[number];
 
 export interface FormMemory {
   transactionId: string;
-  mode: AuthMode;
+  mode: AuthModes;
   verifySystem: AuthMethod;
   existingAbhaAddresses?: User[];
   phrProfile: PhrEnrolDetails;
@@ -28,7 +26,7 @@ export interface FormMemory {
 
 export interface SendOtpRequest {
   value: string;
-  type: AuthMode;
+  type: AuthModes;
   otp_system?: AuthMethod;
   verify_system?: AuthMethod;
 }
@@ -48,7 +46,7 @@ export interface VerifyPasswordRequest {
 export interface VerifyUserRequest {
   abha_address: string;
   transaction_id: string;
-  type: AuthMode;
+  type: AuthModes;
   verify_system: AuthMethod;
 }
 

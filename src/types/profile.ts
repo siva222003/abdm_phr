@@ -7,14 +7,13 @@ export enum KycStatuses {
 
 export type Gender = (typeof GENDERS)[number];
 export type BoolString = "true" | "false";
-export type KycStatus = KycStatuses;
 
 export interface User {
   abhaAddress: string;
   fullName: string;
   abhaNumber: string;
   status: string;
-  kycStatus: KycStatus;
+  kycStatus: KycStatuses;
 }
 
 interface BasicProfileFields {
@@ -72,7 +71,7 @@ export interface PhrProfile {
   profilePhoto: string | null;
   mobileVerified: BoolString;
   emailVerified: BoolString;
-  kycStatus: KycStatus;
+  kycStatus: KycStatuses;
   preferredAbhaAddress?: string;
   status: string;
 }

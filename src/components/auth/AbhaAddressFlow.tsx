@@ -40,7 +40,7 @@ import {
 
 import routes from "@/api";
 import {
-  AuthFlowType,
+  AuthFlowTypes,
   AuthModes,
   FormMemory,
   SendOtpRequest,
@@ -49,7 +49,7 @@ import {
 import { mutate } from "@/utils/request/request";
 
 type AbhaAddressFlowProps = {
-  flowType: AuthFlowType;
+  flowType: AuthFlowTypes;
   transactionId?: string;
   setMemory: Dispatch<SetStateAction<FormMemory>>;
   onVerifyOtpSuccess: (

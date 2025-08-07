@@ -35,7 +35,6 @@ import {
 } from "@/common/constants";
 
 import {
-  AuthFlowType,
   AuthFlowTypes,
   AuthModes,
   FormMemory,
@@ -45,7 +44,7 @@ import {
 import { calculateCursorPosition } from "@/utils";
 
 type AbhaNumberOtpFlowProps = {
-  flowType: AuthFlowType;
+  flowType: AuthFlowTypes;
   transactionId?: string;
   setMemory: Dispatch<SetStateAction<FormMemory>>;
   onVerifyOtpSuccess: (
