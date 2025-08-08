@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { Dispatch, SetStateAction, useCallback, useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 
 import {
   Dialog,
@@ -23,10 +23,10 @@ const UpdateMobileDialog = ({ open, setOpen }: UpdateMobileDialogProps) => {
   const [memory, setMemory] = useState(INITIAL_AUTH_FORM_VALUES);
   const queryClient = useQueryClient();
 
-  const handleOtpSuccess = useCallback(() => {
+  const handleOtpSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ["user"] });
     setOpen(false);
-  }, [queryClient, setOpen]);
+  };
 
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);

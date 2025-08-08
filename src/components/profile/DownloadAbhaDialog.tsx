@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Dispatch, SetStateAction, useMemo } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,8 @@ type DownloadAbhaProps = {
 };
 
 const DownloadAbha = ({ open, setOpen }: DownloadAbhaProps) => {
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
   const {
     data: abhaCardBlob,
     isLoading,
@@ -32,16 +34,23 @@ const DownloadAbha = ({ open, setOpen }: DownloadAbhaProps) => {
     enabled: open,
   });
 
-  const abhaCardUrl = useMemo(() => {
-    if (!abhaCardBlob) return "";
-    return URL.createObjectURL(abhaCardBlob);
+  useEffect(() => {
+    if (abhaCardBlob) {
+      setPreviewUrl(URL.createObjectURL(abhaCardBlob));
+    }
+
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
   }, [abhaCardBlob]);
 
   const handleDownload = () => {
-    if (!abhaCardUrl) return;
+    if (!previewUrl) return;
     try {
       const link = document.createElement("a");
-      link.href = abhaCardUrl;
+      link.href = previewUrl;
       link.download = `abha-card-${new Date().toISOString().split("T")[0]}.png`;
       document.body.appendChild(link);
       link.click();
@@ -52,8 +61,6 @@ const DownloadAbha = ({ open, setOpen }: DownloadAbhaProps) => {
     } catch (err) {
       console.error("Download error:", err);
       toast.error("Failed to download ABHA card.");
-    } finally {
-      URL.revokeObjectURL(abhaCardUrl);
     }
   };
 
@@ -62,7 +69,7 @@ const DownloadAbha = ({ open, setOpen }: DownloadAbhaProps) => {
       return <Skeleton className="w-full h-[50vh] rounded-md" />;
     }
 
-    if (error || !abhaCardUrl) {
+    if (error || !previewUrl) {
       return (
         <div className="w-full h-[50vh] flex items-center justify-center bg-gray-100 rounded-md">
           <p className="text-gray-500">Unable to load ABHA card</p>
@@ -72,7 +79,7 @@ const DownloadAbha = ({ open, setOpen }: DownloadAbhaProps) => {
 
     return (
       <img
-        src={abhaCardUrl}
+        src={previewUrl}
         alt="ABHA Card"
         className="w-full h-[50vh] sm:h-[70vh] object-cover rounded-md shadow-sm"
       />
@@ -94,7 +101,7 @@ const DownloadAbha = ({ open, setOpen }: DownloadAbhaProps) => {
         <div className="px-6 py-2">{renderBody()}</div>
 
         <DialogFooter className="px-6 pb-6">
-          {error || !abhaCardUrl ? (
+          {error || !previewUrl ? (
             <Button
               variant="outline"
               className="w-full"

@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { UserSearch } from "lucide-react";
-import { useNavigate } from "raviger";
-import { Dispatch, SetStateAction, useCallback, useMemo } from "react";
+import { navigate } from "raviger";
+import { Dispatch, SetStateAction, useMemo } from "react";
 import { toast } from "sonner";
 
 import {
@@ -17,6 +17,7 @@ import AbhaAddressSelector from "@/components/common/AbhaAddressSelector";
 import { useAuthContext } from "@/hooks/useAuth";
 
 import routes from "@/api";
+import { VerifyAuthResponse } from "@/types/auth";
 import { User } from "@/types/profile";
 import { mutate, query } from "@/utils/request/request";
 
@@ -45,7 +46,6 @@ const SwitchProfile = ({
   currentAbhaAddress,
 }: SwitchProfileProps) => {
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
 
   const { handleAuthSuccess } = useAuthContext();
 
@@ -71,10 +71,9 @@ const SwitchProfile = ({
     return current ? [current, ...others] : data.users;
   }, [data?.users, currentAbhaAddress]);
 
-  const mutationFn = mutate(routes.profile.switchProfileVerify);
   const swithProfileVerifyMutation = useMutation({
-    mutationFn,
-    onSuccess: (data) => {
+    mutationFn: mutate(routes.profile.switchProfileVerify),
+    onSuccess: (data: VerifyAuthResponse) => {
       toast.success("Profile switched successfully!");
       setOpen(false);
 
@@ -86,17 +85,14 @@ const SwitchProfile = ({
     },
   });
 
-  const handleSwitchProfile = useCallback(
-    (selectedAddress: string) => {
-      if (!selectedAddress || !data?.transaction_id) return;
+  const handleSwitchProfile = (selectedAddress: string) => {
+    if (!selectedAddress || !data?.transaction_id) return;
 
-      swithProfileVerifyMutation.mutate({
-        abha_address: selectedAddress,
-        transaction_id: data?.transaction_id || "",
-      });
-    },
-    [data?.transaction_id, swithProfileVerifyMutation],
-  );
+    swithProfileVerifyMutation.mutate({
+      abha_address: selectedAddress,
+      transaction_id: data?.transaction_id || "",
+    });
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

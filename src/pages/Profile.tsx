@@ -4,7 +4,7 @@ import {
   SquarePen,
   TriangleAlert,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -203,10 +203,7 @@ export default function Profile() {
     setModals((prev) => ({ ...prev, [modalName]: !prev[modalName] }));
   };
 
-  const isKYCVerified = useMemo(() => {
-    if (!user) return false;
-    return user.kycStatus === KycStatuses.VERIFIED;
-  }, [user]);
+  const isKYCVerified = user?.kycStatus === KycStatuses.VERIFIED;
 
   const ContactInfoWithHandlers = (user: PhrProfile) => (
     <ContactInfo

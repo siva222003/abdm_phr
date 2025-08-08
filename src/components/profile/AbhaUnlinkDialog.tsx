@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useCallback, useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -37,10 +37,10 @@ const AbhaUnlinkDialog = ({
 
   const [memory, setMemory] = useState(INITIAL_AUTH_FORM_VALUES);
 
-  const onVerifyOtpSuccess = useCallback(() => {
+  const onVerifyOtpSuccess = () => {
     setOpen(false);
     logout(false);
-  }, [logout, setOpen]);
+  };
 
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);

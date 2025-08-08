@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useCallback, useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { toast } from "sonner";
 
 import {
@@ -30,13 +30,13 @@ const SelectPreferredAbhaDialog = ({
   const { logout } = useAuthContext();
   const [memory, setMemory] = useState(INITIAL_AUTH_FORM_VALUES);
 
-  const onVerifyOtpSuccess = useCallback(() => {
+  const onVerifyOtpSuccess = () => {
     toast.success(
       "Preferred ABHA address selected successfully. Please login again.",
     );
     setOpen(false);
     logout(false);
-  }, [setOpen, logout]);
+  };
 
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
