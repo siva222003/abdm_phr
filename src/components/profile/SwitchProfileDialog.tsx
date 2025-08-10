@@ -78,6 +78,8 @@ const SwitchProfile = ({
       setOpen(false);
 
       handleAuthSuccess(data);
+
+      // TODO: Invalidate all health_id related queries
       queryClient.invalidateQueries({ queryKey: ["user"] });
       queryClient.invalidateQueries({ queryKey: ["phrProfiles"] });
 

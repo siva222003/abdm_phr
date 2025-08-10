@@ -41,7 +41,7 @@ import {
   SendOtpRequest,
   VerifyOtpResponse,
 } from "@/types/auth";
-import { ProfileUpdateAction } from "@/types/profile";
+import { ProfileUpdateActions } from "@/types/profile";
 import { calculateCursorPosition } from "@/utils";
 
 type AbhaNumberOtpFlowProps = {
@@ -53,7 +53,7 @@ type AbhaNumberOtpFlowProps = {
     sendOtpContext?: SendOtpRequest,
   ) => void;
   existingAbhaNumber?: string;
-  action?: ProfileUpdateAction;
+  action?: ProfileUpdateActions;
 };
 
 const AbhaNumberOtpFlow = ({

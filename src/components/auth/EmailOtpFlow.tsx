@@ -22,24 +22,23 @@ import { useOtpFlow } from "@/hooks/useOtpFlow";
 import { DEFAULT_AUTH_METHOD, OTP_LENGTH } from "@/common/constants";
 
 import {
-  AuthFlowType,
   AuthFlowTypes,
   AuthModes,
   FormMemory,
   SendOtpRequest,
   VerifyOtpResponse,
 } from "@/types/auth";
-import { ProfileUpdateAction } from "@/types/profile";
+import { ProfileUpdateActions } from "@/types/profile";
 
 type EmailOtpFlowProps = {
-  flowType: AuthFlowType;
+  flowType: AuthFlowTypes;
   transactionId?: string;
   setMemory: Dispatch<SetStateAction<FormMemory>>;
   onVerifyOtpSuccess: (
     data: VerifyOtpResponse,
     sendOtpContext?: SendOtpRequest,
   ) => void;
-  action?: ProfileUpdateAction;
+  action?: ProfileUpdateActions;
 };
 
 const EmailOtpFlow: FC<EmailOtpFlowProps> = ({

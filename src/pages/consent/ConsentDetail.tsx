@@ -397,7 +397,7 @@ export default function ConsentDetail({ id, type }: ConsentDetailProps) {
           onClick={() => goBack("/consents")}
         >
           <ArrowLeft className="size-4 mr-2" />
-          Back to Consents
+          Back
         </Button>
 
         <ConsentHeader

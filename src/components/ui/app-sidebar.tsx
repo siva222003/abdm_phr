@@ -1,4 +1,4 @@
-import { FileText, Home, UserRound } from "lucide-react";
+import { FileText, Home, UserRound, Vault } from "lucide-react";
 import { ActiveLink } from "raviger";
 
 import {
@@ -30,6 +30,11 @@ const items = [
     title: "Consents",
     url: "/consents",
     icon: <FileText />,
+  },
+  {
+    title: "Health Lockers",
+    url: "/health-locker",
+    icon: <Vault />,
   },
 ];
 

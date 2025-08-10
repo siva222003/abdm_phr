@@ -30,7 +30,7 @@ import {
   SendOtpRequest,
   VerifyOtpResponse,
 } from "@/types/auth";
-import { ProfileUpdateAction } from "@/types/profile";
+import { ProfileUpdateActions } from "@/types/profile";
 
 type MobileNumberOtpFlowProps = {
   flowType: AuthFlowTypes;
@@ -40,7 +40,7 @@ type MobileNumberOtpFlowProps = {
     data: VerifyOtpResponse,
     sendOtpContext?: SendOtpRequest,
   ) => void;
-  action?: ProfileUpdateAction;
+  action?: ProfileUpdateActions;
 };
 
 const MobileNumberOtpFlow = ({

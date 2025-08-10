@@ -60,24 +60,25 @@ export default function Consent() {
 
   useEffect(() => {
     setQParams(normalizeQueryParams(qParams));
-  }, []);
+  }, [qParams, setQParams]);
 
   const { data, isLoading, isEmpty, isError } = useConsentList(qParams);
 
   const handleCategoryChange = (category: ConsentCategories) => {
     setQParams({
-      ...qParams,
-      category,
-      status: CONSENT_STATUS_BY_CATEGORY[category][0],
-      offset: 0,
+      ...normalizeQueryParams({
+        ...qParams,
+        category,
+      }),
     });
   };
 
   const handleStatusChange = (status: ConsentStatuses) => {
     setQParams({
-      ...qParams,
-      status,
-      offset: 0,
+      ...normalizeQueryParams({
+        ...qParams,
+        status,
+      }),
     });
   };
 
@@ -88,42 +89,31 @@ export default function Consent() {
     onStatusChange: handleStatusChange,
   };
 
-  if (isLoading) {
-    return (
-      <Page title="Consents" hideTitleOnPage>
-        <div className="w-full mx-auto mt-2">
-          <ConsentFilters {...filterProps} />
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 md:hidden">
-            <CardGridSkeleton count={4} />
-          </div>
-          <div className="hidden md:block">
-            <TableSkeleton count={5} />
-          </div>
-        </div>
-      </Page>
-    );
-  }
-
-  if (isEmpty || isError) {
-    return (
-      <Page title="Consents" hideTitleOnPage>
-        <div className="w-full mx-auto mt-2">
-          <ConsentFilters {...filterProps} />
-          <EmptyState
-            icon={<FolderOpen className="text-primary" />}
-            title="No consents found"
-            description="Adjust your filters to find the consents you're looking for"
-          />
-        </div>
-      </Page>
-    );
-  }
-
   return (
     <Page title="Consents" hideTitleOnPage>
       <div className="w-full mx-auto mt-2">
         <ConsentFilters {...filterProps} />
-        <ConsentList data={data} />
+
+        {isLoading && (
+          <>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 md:hidden">
+              <CardGridSkeleton count={4} />
+            </div>
+            <div className="hidden md:block">
+              <TableSkeleton count={5} />
+            </div>
+          </>
+        )}
+
+        {(isEmpty || isError) && !isLoading && (
+          <EmptyState
+            icon={FolderOpen}
+            title="No consents found"
+            description="Adjust your filters to find the consents you're looking for"
+          />
+        )}
+
+        {data && data.length > 0 && !isLoading && <ConsentList data={data} />}
       </div>
     </Page>
   );

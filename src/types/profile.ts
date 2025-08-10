@@ -15,7 +15,6 @@ export enum ProfileUpdateActions {
 
 export type Gender = (typeof GENDERS)[number];
 export type BoolString = "true" | "false";
-export type ProfileUpdateAction = ProfileUpdateActions;
 
 export interface User {
   abhaAddress: string;

@@ -1,4 +1,5 @@
 import {
+  AutoApprovalUpdateRequest,
   ConsentApproveRequest,
   ConsentArtefact,
   ConsentArtefactResponse,
@@ -30,5 +31,8 @@ export const consent = {
   ),
   revoke: API<ConsentUpdateBaseResponse, ConsentRevokeRequest>(
     "POST /phr/consent/revoke",
+  ),
+  updateAutoApproval: API<ConsentUpdateBaseResponse, AutoApprovalUpdateRequest>(
+    "POST /phr/consent/auto_approve/{autoApprovalId}/update",
   ),
 };

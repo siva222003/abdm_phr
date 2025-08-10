@@ -23,11 +23,9 @@ export function ConsentFilters({
 }: ConsentFiltersProps) {
   return (
     <div className="mb-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-700 mb-2">Consents</h1>
-          <p className="text-gray-600 text-sm">View and manage your consents</p>
-        </div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-700 mb-2">Consents</h1>
+        <p className="text-gray-600 text-sm">View and manage your consents</p>
       </div>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:justify-between my-2">
@@ -53,17 +51,17 @@ export function ConsentFilters({
           onValueChange={(value) => onStatusChange(value as ConsentStatuses)}
         >
           <TabsList className="w-full justify-evenly sm:justify-start max-sm:border-b rounded-none bg-transparent p-0 h-auto overflow-x-auto">
-            {(CONSENT_STATUS_BY_CATEGORY[category] ?? []).map(
-              (statusOption) => (
-                <TabsTrigger
-                  className="border-b-2 px-2 sm:px-4 py-2 text-gray-600 hover:text-gray-900 data-[state=active]:border-b-primary-700  data-[state=active]:text-primary-800 data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-none"
-                  key={statusOption}
-                  value={statusOption}
-                >
-                  {toTitleCase(statusOption)}
-                </TabsTrigger>
-              ),
-            )}
+            {CONSENT_STATUS_BY_CATEGORY[
+              category ?? ConsentCategories.REQUESTS
+            ].map((statusOption) => (
+              <TabsTrigger
+                className="border-b-2 px-2 sm:px-4 py-2 text-gray-600 hover:text-gray-900 data-[state=active]:border-b-primary-700  data-[state=active]:text-primary-800 data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-none"
+                key={statusOption}
+                value={statusOption}
+              >
+                {toTitleCase(statusOption)}
+              </TabsTrigger>
+            ))}
           </TabsList>
         </Tabs>
       </div>

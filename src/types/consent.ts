@@ -185,6 +185,10 @@ export interface ConsentRevokeRequest {
   consents: string[];
 }
 
+export interface AutoApprovalUpdateRequest {
+  enable: boolean;
+}
+
 export interface ConsentUpdateBaseResponse {
   detail: string;
 }

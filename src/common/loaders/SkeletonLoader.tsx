@@ -56,11 +56,26 @@ export const TableSkeleton = ({ count }: { count: number }) => (
   </div>
 );
 
+export const CardListSkeleton = ({ count }: { count: number }) =>
+  Array.from({ length: count }, (_, index) => (
+    <div key={index}>
+      <div className="p-4 rounded-lg bg-gray-100 animate-pulse">
+        <div className="flex items-start gap-3">
+          <div className="size-8 rounded-full bg-gray-200" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-4 w-3/4" />
+          </div>
+        </div>
+      </div>
+    </div>
+  ));
+
 export const CardGridSkeleton = ({ count }: { count: number }) =>
   Array.from({ length: count }, (_, index) => (
     <div key={index} className="skeleton-item animate-pulse">
       <Card className="h-full">
-        <CardContent className="p-4 sm:p-6">
+        <CardContent>
           <div className="flex flex-col h-full gap-4">
             <div className="flex gap-4">
               <Skeleton className="size-12 sm:size-16 rounded-full shrink-0" />

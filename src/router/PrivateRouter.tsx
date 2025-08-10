@@ -12,9 +12,13 @@ import HomePage from "@/pages/HomePage";
 import Profile from "@/pages/Profile";
 import Consent from "@/pages/consent/Consent";
 import ConsentDetail from "@/pages/consent/ConsentDetail";
-import { ConsentType, ConsentTypes } from "@/types/consent";
+import HealthLocker from "@/pages/healthLocker/HealthLocker";
+import HealthLockerDetail from "@/pages/healthLocker/HealthLockerDetail";
+import { ConsentTypes } from "@/types/consent";
 
 import { AppRoutes } from "./types";
+
+const PAGES_WITHOUT_SIDEBAR = ["/session-expired"];
 
 const Routes: AppRoutes = {
   "/": () => <HomePage />,
@@ -22,10 +26,12 @@ const Routes: AppRoutes = {
   "/consents": () => <Consent />,
 
   "/consents/:id/:type": ({ type, id }) => {
-    if (Object.values(ConsentTypes).includes(type as ConsentType)) {
-      return <ConsentDetail id={id} type={type as ConsentType} />;
+    if (Object.values(ConsentTypes).includes(type)) {
+      return <ConsentDetail id={id} type={type} />;
     }
   },
+  "/health-locker": () => <HealthLocker />,
+  "/health-locker/:id": ({ id }) => <HealthLockerDetail id={id} />,
   "/login": () => <Redirect to="/" />,
   "/register": () => <Redirect to="/" />,
 };
@@ -34,10 +40,11 @@ export default function PrivateRouter() {
   const pages = useRoutes(Routes) || <FallbackErrorPage />;
 
   const sidebarOpen = useSidebarState();
+  const showSidebar = !PAGES_WITHOUT_SIDEBAR.includes(location.pathname);
 
   return (
     <SidebarProvider defaultOpen={sidebarOpen} className="bg-gray-100">
-      <AppSidebar />
+      {showSidebar && <AppSidebar />}
 
       <main
         id="pages"
