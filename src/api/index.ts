@@ -1,5 +1,6 @@
 import { login, register } from "@/api/auth";
 import { consent } from "@/api/consent";
+import { gateway } from "@/api/gateway";
 import { healthLocker } from "@/api/healthLocker";
 import { profile } from "@/api/profile";
 import { subscription } from "@/api/subscription";
@@ -13,6 +14,7 @@ const routes = {
   consent,
   subscription,
   healthLocker,
+  gateway,
 } as const;
 
 export default routes;

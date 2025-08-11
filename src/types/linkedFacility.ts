@@ -1,16 +1,57 @@
-export interface HealthFacility {
-  id: string;
-  name: string;
-  type?: string;
-}
+import { HealthFacility } from "./gateway";
 
-export interface CareContext {
-  patientReference: string;
-  careContextReference: string;
+export interface PatientCareContext {
+  referenceNumber: string;
   display: string;
 }
 
-export interface LinkedFacility {
+export interface Patient {
+  referenceNumber: string;
+  display: string;
+  careContexts: PatientCareContext[];
+  hiType: string;
+  count: number;
+}
+
+export interface UnverifiedIdentifier {
+  type: "MOBILE" | "ABHA_NUMBER" | "MR" | "abhaAddress";
+  value: string;
+}
+
+export interface UserInitLinkingDiscoverRequest {
   hip: HealthFacility;
-  careContexts: CareContext[];
+  unverifiedIdentifiers?: UnverifiedIdentifier[];
+}
+
+export interface UserInitLinkingDiscoverResponse {
+  transactionId: string;
+  patient: Patient[];
+  createdAt: string;
+}
+
+export interface UserInitLinkingInitRequest {
+  transactionId: string;
+  patient: Patient;
+}
+
+export interface ReferenceMeta {
+  communicationMedium: "MOBILE";
+  communicationHint: "OTP";
+  communicationExpiry: string;
+}
+
+export interface ReferenceLink {
+  referenceNumber: string;
+  authenticationType: "DIRECT" | "MEDIATE";
+  meta: ReferenceMeta;
+}
+
+export interface UserInitLinkingInitResponse {
+  transactionId: string;
+  link: ReferenceLink;
+}
+
+export interface UserInitLinkingConfirmRequest {
+  linkRefNumber: string;
+  token: string;
 }

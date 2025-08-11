@@ -56,7 +56,7 @@ function HealthLockerDetailCard({
   isSubscription,
 }: HealthLockerDetailCardProps) {
   return (
-    <Card className="transition-all duration-200 hover:border-primary/50 hover:shadow-sm py-0">
+    <Card className="transition-all duration-200 rounded-lg hover:border-primary/50 hover:shadow-sm py-0">
       <CardContent className="flex items-start gap-3 p-3">
         <div
           className={cn(

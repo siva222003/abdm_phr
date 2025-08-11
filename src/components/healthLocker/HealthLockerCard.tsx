@@ -31,11 +31,9 @@ export default function HealthLockerCard({ data }: HealthLockerCardProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap gap-2">
-            <Badge variant={data.isActive ? "primary" : "destructive"}>
-              {data.isActive ? "Active" : "Inactive"}
-            </Badge>
-          </div>
+          <Badge variant={data.isActive ? "primary" : "destructive"}>
+            {data.isActive ? "Active" : "Inactive"}
+          </Badge>
         </CardContent>
       </Card>
     </Link>
