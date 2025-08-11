@@ -35,7 +35,7 @@ function HealthLockerDetailHeader({
 }) {
   return (
     <div className="space-y-4">
-      <Button variant="ghost" onClick={() => navigate("/health-locker")}>
+      <Button variant="ghost" onClick={() => navigate("/health-lockers")}>
         <ArrowLeft className="size-4 mr-2" />
         Back to Health Lockers
       </Button>
@@ -108,7 +108,7 @@ function ErrorFallback() {
           network issue or the health locker may no longer exist.
         </p>
       </div>
-      <Button variant="outline" onClick={() => navigate("/health-locker")}>
+      <Button variant="outline" onClick={() => navigate("/health-lockers")}>
         <ArrowLeft className="size-4 mr-2" />
         Back to Health Lockers
       </Button>

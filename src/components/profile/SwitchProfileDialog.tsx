@@ -83,7 +83,7 @@ const SwitchProfile = ({
       queryClient.invalidateQueries({ queryKey: ["user"] });
       queryClient.invalidateQueries({ queryKey: ["phrProfiles"] });
 
-      navigate("/");
+      navigate("/dashboard");
     },
   });
 

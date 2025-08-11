@@ -1,4 +1,4 @@
-import { FileText, Home, UserRound, Vault } from "lucide-react";
+import { Building2, FileText, Home, UserRound, Vault } from "lucide-react";
 import { ActiveLink } from "raviger";
 
 import {
@@ -17,8 +17,8 @@ import { useAuthContext } from "@/hooks/useAuth";
 
 const items = [
   {
-    title: "Home",
-    url: "/hey",
+    title: "Dashboard",
+    url: "/dashboard",
     icon: <Home />,
   },
   {
@@ -32,8 +32,13 @@ const items = [
     icon: <FileText />,
   },
   {
+    title: "Linked Facilities",
+    url: "/linked-facilities",
+    icon: <Building2 />,
+  },
+  {
     title: "Health Lockers",
-    url: "/health-locker",
+    url: "/health-lockers",
     icon: <Vault />,
   },
 ];

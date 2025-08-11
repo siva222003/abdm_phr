@@ -50,7 +50,7 @@ export default function FallbackErrorPage({
           <br />
           <Button
             onClick={() => {
-              navigate("/");
+              navigate("/dashboard");
               window.location.reload();
             }}
             className="inline-block rounded-lg bg-primary-600 px-4 py-2 text-white hover:bg-primary-700 hover:text-white"

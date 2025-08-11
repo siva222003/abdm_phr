@@ -14,6 +14,7 @@ import Consent from "@/pages/consent/Consent";
 import ConsentDetail from "@/pages/consent/ConsentDetail";
 import HealthLocker from "@/pages/healthLocker/HealthLocker";
 import HealthLockerDetail from "@/pages/healthLocker/HealthLockerDetail";
+import LinkedFacility from "@/pages/linkedFacility/LinkedFacility";
 import { ConsentTypes } from "@/types/consent";
 
 import { AppRoutes } from "./types";
@@ -21,7 +22,7 @@ import { AppRoutes } from "./types";
 const PAGES_WITHOUT_SIDEBAR = ["/session-expired"];
 
 const Routes: AppRoutes = {
-  "/": () => <HomePage />,
+  "/dashboard": () => <HomePage />,
   "/profile": () => <Profile />,
   "/consents": () => <Consent />,
 
@@ -30,10 +31,13 @@ const Routes: AppRoutes = {
       return <ConsentDetail id={id} type={type} />;
     }
   },
-  "/health-locker": () => <HealthLocker />,
-  "/health-locker/:id": ({ id }) => <HealthLockerDetail id={id} />,
-  "/login": () => <Redirect to="/" />,
-  "/register": () => <Redirect to="/" />,
+  "/linked-facilities": () => <LinkedFacility />,
+  "/health-lockers": () => <HealthLocker />,
+  "/health-lockers/:id": ({ id }) => <HealthLockerDetail id={id} />,
+
+  "/": () => <Redirect to="/dashboard" />,
+  "/login": () => <Redirect to="/dashboard" />,
+  "/register": () => <Redirect to="/dashboard" />,
 };
 
 export default function PrivateRouter() {
@@ -55,7 +59,7 @@ export default function PrivateRouter() {
             <SidebarTrigger />
           </div>
           <Link
-            href="/"
+            href="/dashboard"
             className="flex items-center w-full h-full px-4 md:hidden"
           >
             <img className="w-auto h-8" alt="abdm phr logo" />

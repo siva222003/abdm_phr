@@ -19,7 +19,7 @@ interface HealthLockerCardProps {
 
 export default function HealthLockerCard({ data }: HealthLockerCardProps) {
   return (
-    <Link href={`/health-locker/${data.lockerId}`} className="block h-[160px]">
+    <Link href={`/health-lockers/${data.lockerId}`} className="block h-[160px]">
       <Card className="hover:shadow-md transition-shadow h-full gap-3">
         <CardHeader>
           <CardTitle className="text-lg line-clamp-1">

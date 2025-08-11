@@ -218,6 +218,5 @@ export interface ConsentBase {
   availableLinks?: ConsentLinks[]; //only for subscription (used while approving or editing subscription)
 }
 
-//helper function
 export const isSubscription = (type: ConsentTypes) =>
   type.includes("subscription");
