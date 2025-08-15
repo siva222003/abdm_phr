@@ -44,7 +44,7 @@ export default function AddHealthLockerSheet({
   };
 
   const getLink = (locker: HealthLocker) =>
-    locker.endpoints?.healthLockerEndpoints.find(
+    locker.endpoints?.healthLockerEndpoints?.find(
       (e) => e.use === "registration",
     )?.address || window.location.origin;
 
@@ -102,13 +102,13 @@ export default function AddHealthLockerSheet({
                   <div
                     key={locker.identifier.id}
                     className="flex items-center justify-between rounded-lg border bg-card p-3 transition-colors hover:bg-accent cursor-pointer"
-                    onClick={() =>
+                    onClick={() => {
                       window.open(
                         getLink(locker),
                         "_blank",
                         "noopener,noreferrer",
-                      )
-                    }
+                      );
+                    }}
                   >
                     <h3 className="text-sm font-medium">
                       {locker.identifier.name || "Unnamed Health Locker"}

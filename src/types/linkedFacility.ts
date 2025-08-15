@@ -1,4 +1,4 @@
-import { HealthFacility } from "./gateway";
+import { ProviderIdentifier } from "./gateway";
 
 export interface PatientCareContext {
   referenceNumber: string;
@@ -19,7 +19,7 @@ export interface UnverifiedIdentifier {
 }
 
 export interface UserInitLinkingDiscoverRequest {
-  hip: HealthFacility;
+  hip: ProviderIdentifier;
   unverifiedIdentifiers?: UnverifiedIdentifier[];
 }
 
@@ -30,8 +30,9 @@ export interface UserInitLinkingDiscoverResponse {
 }
 
 export interface UserInitLinkingInitRequest {
+  hip: ProviderIdentifier;
   transactionId: string;
-  patient: Patient;
+  patient: Patient[];
 }
 
 export interface ReferenceMeta {
@@ -52,6 +53,16 @@ export interface UserInitLinkingInitResponse {
 }
 
 export interface UserInitLinkingConfirmRequest {
+  hip: ProviderIdentifier;
   linkRefNumber: string;
   token: string;
+}
+
+export interface UserInitLinkingBaseResponse {
+  request_id: string;
+}
+
+export interface UserInitLinkingCheckStatusResponse {
+  status: "pending" | "completed" | "failed";
+  data: UserInitLinkingDiscoverResponse | UserInitLinkingInitResponse;
 }

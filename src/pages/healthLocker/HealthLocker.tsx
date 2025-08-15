@@ -45,6 +45,7 @@ export default function HealthLocker() {
     <Page title="Health Lockers" hideTitleOnPage>
       <div className="w-full mx-auto mt-2">
         <HealthLockerHeader onAddClick={() => setOpen(true)} />
+
         {isLoading && (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <CardGridSkeleton count={4} />

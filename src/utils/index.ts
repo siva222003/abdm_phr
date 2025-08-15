@@ -1,11 +1,6 @@
-import dayjs from "dayjs";
-import customParseFormat from "dayjs/plugin/customParseFormat";
-import utc from "dayjs/plugin/utc";
-
 import { LocalStorageKeys } from "@/common/constants";
 
-dayjs.extend(utc);
-dayjs.extend(customParseFormat);
+import dayjs from "./dayjs";
 
 type DateLike = Parameters<typeof dayjs>[0];
 

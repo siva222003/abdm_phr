@@ -15,10 +15,12 @@ export interface PatientLink {
   careContexts: PatientCareContext[];
 }
 
+export interface ProviderIdentifier {
+  name: string;
+  id: string;
+}
+
 export interface Provider {
-  identifier: {
-    name: string;
-    id: string;
-  };
+  identifier: ProviderIdentifier;
   facilityType: string[];
 }
