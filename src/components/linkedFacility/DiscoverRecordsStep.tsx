@@ -115,7 +115,7 @@ const DiscoverRecordsStep = ({
 
     initLinkingMutation.mutate({
       hip,
-      transactionId: secondStepData.transactionId,
+      transaction_id: secondStepData.transactionId,
       patient: patientsWithCareContexts,
     });
   };

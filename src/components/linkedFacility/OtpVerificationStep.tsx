@@ -1,4 +1,4 @@
-import { Clock } from "lucide-react";
+import { Clock, Loader2 } from "lucide-react";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -84,11 +84,9 @@ const OtpVerificationStep = ({
     });
 
   const handleConfirmLinking = () => {
-    if (!thirdStepData) return;
-
     confirmLinkingMutation.mutate({
       hip,
-      linkRefNumber: thirdStepData.link.referenceNumber,
+      link_ref_number: thirdStepData?.link?.referenceNumber || "",
       token: otp,
     });
   };
@@ -127,9 +125,16 @@ const OtpVerificationStep = ({
         <Button
           className="w-full"
           onClick={handleConfirmLinking}
-          disabled={otp.length !== 6}
+          disabled={otp.length !== 6 || isLoading}
         >
-          Continue
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 size-4 animate-spin" />
+              Verifying...
+            </>
+          ) : (
+            "Continue"
+          )}
         </Button>
       </CardFooter>
     </>

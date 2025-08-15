@@ -68,7 +68,7 @@ const SearchRecordsStep = ({
   const handleSearch = () => {
     let payload: UserInitLinkingDiscoverRequest = { hip };
     if (patientId) {
-      payload.unverifiedIdentifiers = [{ type: "MR", value: patientId }];
+      payload.unverified_identifiers = [{ type: "MR", value: patientId }];
     }
     discoverMutation.mutate(payload);
   };

@@ -20,7 +20,7 @@ export interface UnverifiedIdentifier {
 
 export interface UserInitLinkingDiscoverRequest {
   hip: ProviderIdentifier;
-  unverifiedIdentifiers?: UnverifiedIdentifier[];
+  unverified_identifiers?: UnverifiedIdentifier[];
 }
 
 export interface UserInitLinkingDiscoverResponse {
@@ -31,7 +31,7 @@ export interface UserInitLinkingDiscoverResponse {
 
 export interface UserInitLinkingInitRequest {
   hip: ProviderIdentifier;
-  transactionId: string;
+  transaction_id: string;
   patient: Patient[];
 }
 
@@ -54,7 +54,7 @@ export interface UserInitLinkingInitResponse {
 
 export interface UserInitLinkingConfirmRequest {
   hip: ProviderIdentifier;
-  linkRefNumber: string;
+  link_ref_number: string;
   token: string;
 }
 
