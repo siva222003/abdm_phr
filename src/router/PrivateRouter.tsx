@@ -10,8 +10,8 @@ import useSidebarState from "@/hooks/useSidebarState";
 
 import Consent from "@/pages/consent/Consent";
 import ConsentDetail from "@/pages/consent/ConsentDetail";
-import MyRecordDetail from "@/pages/dashboard/MyRecordDetail";
-import MyRecords from "@/pages/dashboard/MyRecords";
+import Dashboard from "@/pages/dashboard/Dashboard";
+import MyRecordDetail from "@/pages/dashboard/LinkedRecordDetail";
 import HealthLocker from "@/pages/healthLocker/HealthLocker";
 import HealthLockerDetail from "@/pages/healthLocker/HealthLockerDetail";
 import AddFacility from "@/pages/linkedFacility/AddFacility";
@@ -27,8 +27,10 @@ import { AppRoutes } from "./types";
 const PAGES_WITHOUT_SIDEBAR = ["/session-expired"];
 
 const Routes: AppRoutes = {
-  "/my-records": () => <MyRecords />,
-  "/my-records/:id": ({ id }) => <MyRecordDetail id={id} />,
+  "/my-records/:tab": ({ tab }) => <Dashboard tab={tab} />,
+  "/my-records/linked/:hip_id": ({ hip_id }) => (
+    <MyRecordDetail hip_id={hip_id} />
+  ),
 
   "/profile": () => <Profile />,
 
@@ -46,9 +48,9 @@ const Routes: AppRoutes = {
   "/health-lockers": () => <HealthLocker />,
   "/health-lockers/:id": ({ id }) => <HealthLockerDetail id={id} />,
 
-  "/": () => <Redirect to="/my-records" />,
-  "/login": () => <Redirect to="/my-records" />,
-  "/register": () => <Redirect to="/my-records" />,
+  "/": () => <Redirect to="/my-records/linked" />,
+  "/login": () => <Redirect to="/my-records/linked" />,
+  "/register": () => <Redirect to="/my-records/linked" />,
 };
 
 export default function PrivateRouter() {

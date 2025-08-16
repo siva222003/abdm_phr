@@ -5,14 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { PatientLink } from "@/types/gateway";
 
-interface MyRecordsCardProps {
+interface LinkedRecordsCardProps {
   data: PatientLink;
 }
 
-export default function MyRecordsCard({ data }: MyRecordsCardProps) {
+export default function LinkedRecordsCard({ data }: LinkedRecordsCardProps) {
   return (
     <Link
-      href={`/my-records/${data.hip.id}`}
+      href={`/my-records/linked/${data.hip.id}`}
       className="block h-[160px] hover:scale-[1.02] transition-transform"
     >
       <Card className="gap-2 h-full border  transition-colors rounded-xl shadow-sm">
