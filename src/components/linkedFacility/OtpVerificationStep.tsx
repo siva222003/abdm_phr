@@ -109,20 +109,21 @@ const OtpVerificationStep = ({
               <InputOTPSlot
                 key={index}
                 index={index}
-                className="xsm:size-12 size-10 xs:mx-1 xs:rounded-md text-lg border border-gray-300"
+                className="xsm:size-12 xs:size-10 size-8.5 xs:mx-1 xs:rounded-md text-lg border border-gray-300"
               />
             ))}
           </InputOTPGroup>
         </InputOTP>
 
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Clock className="w-4 h-4" />
+          <Clock className="size-4" />
           <span>OTP will expire in {timeLeft}</span>
         </div>
       </CardContent>
 
       <CardFooter>
         <Button
+          size="lg"
           className="w-full"
           onClick={handleConfirmLinking}
           disabled={otp.length !== 6 || isLoading}

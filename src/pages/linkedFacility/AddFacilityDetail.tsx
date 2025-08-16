@@ -70,23 +70,12 @@ function ErrorFallback() {
 }
 
 export default function AddFacilityDetail({ id }: { id: string }) {
-  const [step, setStep] = useState(3);
+  const [step, setStep] = useState(1);
 
   const [secondStepData, setSecondStepData] =
     useState<UserInitLinkingDiscoverResponse | null>(null);
   const [thirdStepData, setThirdStepData] =
-    useState<UserInitLinkingInitResponse | null>({
-      transactionId: "f901b782-bfdf-4224-9f8d-da2cadc20c0d",
-      link: {
-        referenceNumber: "d353b782-bfdf-4224-9f8d-da2cadc20c0d",
-        authenticationType: "DIRECT",
-        meta: {
-          communicationMedium: "MOBILE",
-          communicationHint: "OTP",
-          communicationExpiry: "2024-05-01T05:22:34.123Z",
-        },
-      },
-    });
+    useState<UserInitLinkingInitResponse | null>(null);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["provider", id],

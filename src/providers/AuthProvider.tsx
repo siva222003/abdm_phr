@@ -73,7 +73,7 @@ export default function AuthUserProvider({
 
       await queryClient.invalidateQueries({ queryKey: ["user"] });
 
-      navigate("/dashboard");
+      navigate("/");
     },
     [setSwitchProfileEnabled, queryClient, navigate],
   );

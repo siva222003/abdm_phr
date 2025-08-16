@@ -221,6 +221,7 @@ const DiscoverRecordsStep = ({
 
       <CardFooter className="mt-2">
         <Button
+          size="lg"
           className="w-full"
           disabled={selectedCount === 0 || isLoading}
           onClick={handleInitLinking}

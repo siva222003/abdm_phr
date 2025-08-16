@@ -110,7 +110,12 @@ const SearchRecordsStep = ({
         </div>
       </CardContent>
       <CardFooter className="mt-2">
-        <Button className="w-full" onClick={handleSearch} disabled={isLoading}>
+        <Button
+          size="lg"
+          className="w-full"
+          onClick={handleSearch}
+          disabled={isLoading}
+        >
           {isLoading ? (
             <Loader2 className="mr-2 size-4 animate-spin" />
           ) : (

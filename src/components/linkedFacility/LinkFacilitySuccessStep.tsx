@@ -7,23 +7,26 @@ import { CardContent, CardFooter } from "@/components/ui/card";
 const LinkFacilitySuccessStep = () => {
   return (
     <>
-      <CardContent className="animate-enter flex flex-col items-center space-y-4 text-center">
-        <CheckCircle2 className="size-14 text-primary" aria-hidden="true" />
-        <div className="space-y-1">
-          <h2 className="text-2xl font-semibold">All set!</h2>
-          <p className="text-muted-foreground">
-            Your records have been linked successfully.
+      <CardContent className="animate-enter flex flex-col items-center space-y-6 text-center">
+        <div className="rounded-full bg-primary/10 p-4">
+          <CheckCircle2 className="xsm:size-14 size-10 text-primary" />
+        </div>
+
+        <div className="space-y-2 max-w-sm">
+          <h2 className="text-2xl font-bold tracking-tight">All set!</h2>
+          <p className="text-muted-foreground max-xsm:text-sm">
+            Your records have been linked successfully. You can now access them
+            anytime from your dashboard.
           </p>
         </div>
       </CardContent>
 
-      <CardFooter className="flex justify-center">
+      <CardFooter className="flex justify-center pt-4">
         <Button
-          className="w-full sm:w-auto"
-          onClick={() => {
-            // TODO: Update the navigation to the linked facility page
-            navigate("/dashboard");
-          }}
+          size="lg"
+          className="w-full"
+          // TODO: Update the navigation to the linked facility page
+          onClick={() => navigate("/")}
         >
           View Records
         </Button>

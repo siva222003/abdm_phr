@@ -8,16 +8,17 @@ import FallbackErrorPage from "@/components/errors/FallbackErrorPage";
 
 import useSidebarState from "@/hooks/useSidebarState";
 
-import HomePage from "@/pages/HomePage";
-import Profile from "@/pages/Profile";
 import Consent from "@/pages/consent/Consent";
 import ConsentDetail from "@/pages/consent/ConsentDetail";
+import MyRecordDetail from "@/pages/dashboard/MyRecordDetail";
+import MyRecords from "@/pages/dashboard/MyRecords";
 import HealthLocker from "@/pages/healthLocker/HealthLocker";
 import HealthLockerDetail from "@/pages/healthLocker/HealthLockerDetail";
 import AddFacility from "@/pages/linkedFacility/AddFacility";
 import AddFacilityDetail from "@/pages/linkedFacility/AddFacilityDetail";
 import LinkedFacility from "@/pages/linkedFacility/LinkedFacility";
 import LinkedFacilityDetail from "@/pages/linkedFacility/LinkedFacilityDetail";
+import Profile from "@/pages/profile/Profile";
 import PatientLinksProvider from "@/providers/PatientLinksProvider";
 import { ConsentTypes } from "@/types/consent";
 
@@ -26,7 +27,8 @@ import { AppRoutes } from "./types";
 const PAGES_WITHOUT_SIDEBAR = ["/session-expired"];
 
 const Routes: AppRoutes = {
-  "/dashboard": () => <HomePage />,
+  "/my-records": () => <MyRecords />,
+  "/my-records/:id": ({ id }) => <MyRecordDetail id={id} />,
 
   "/profile": () => <Profile />,
 
@@ -44,9 +46,9 @@ const Routes: AppRoutes = {
   "/health-lockers": () => <HealthLocker />,
   "/health-lockers/:id": ({ id }) => <HealthLockerDetail id={id} />,
 
-  "/": () => <Redirect to="/dashboard" />,
-  "/login": () => <Redirect to="/dashboard" />,
-  "/register": () => <Redirect to="/dashboard" />,
+  "/": () => <Redirect to="/my-records" />,
+  "/login": () => <Redirect to="/my-records" />,
+  "/register": () => <Redirect to="/my-records" />,
 };
 
 export default function PrivateRouter() {
@@ -69,7 +71,7 @@ export default function PrivateRouter() {
               <SidebarTrigger />
             </div>
             <Link
-              href="/dashboard"
+              href="/my-records"
               className="flex items-center w-full h-full px-4 md:hidden"
             >
               <img className="w-auto h-8" alt="abdm phr logo" />

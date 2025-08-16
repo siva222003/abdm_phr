@@ -17,8 +17,8 @@ import { useAuthContext } from "@/hooks/useAuth";
 
 const items = [
   {
-    title: "Dashboard",
-    url: "/dashboard",
+    title: "My Records",
+    url: "/my-records",
     icon: <Home />,
   },
   {
