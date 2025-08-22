@@ -17,7 +17,18 @@ import {
 
 import routes from "@/api";
 import { UploadedRecord } from "@/types/dashboard";
+import { fileToBase64 } from "@/utils";
 import { mutate, query } from "@/utils/request/request";
+
+// Constants
+const DEFAULT_MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
+const PDF_CONFIG = {
+  format: "JPEG" as const,
+  x: 10,
+  y: 10,
+  width: 190,
+  height: 0,
+};
 
 export type FileUploadOptions = {
   multiple?: boolean;
@@ -25,6 +36,9 @@ export type FileUploadOptions = {
   category?: string;
   allowedExtensions?: string[];
   uploadedFiles?: UploadedRecord[];
+  maxFileSize?: number;
+  fileType?: "patient";
+  fileCategory?: "unspecified";
 };
 
 export type FileUploadReturn = {
@@ -54,16 +68,23 @@ export type FileUploadReturn = {
 export default function useFileUpload(
   options: FileUploadOptions,
 ): FileUploadReturn {
-  const { uploadedFiles } = options;
+  const {
+    uploadedFiles,
+    maxFileSize = DEFAULT_MAX_FILE_SIZE,
+    fileType = "patient" as const,
+    fileCategory = "unspecified" as const,
+  } = options;
   const { user } = useAuthContext();
 
+  // File upload state
   const [uploadFileNames, setUploadFileNames] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState<null | number>(null);
   const [uploading, setUploading] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
 
-  const [file_state, setFileState] = useState<StateInterface>({
+  // File preview state
+  const [fileState, setFileState] = useState<StateInterface>({
     open: false,
     isImage: false,
     name: "",
@@ -76,45 +97,81 @@ export default function useFileUpload(
   const [fileUrl, setFileUrl] = useState<string>("");
   const [downloadURL, setDownloadURL] = useState<string>("");
 
-  const [editDialogueOpen, setEditDialogueOpen] =
-    useState<UploadedRecord | null>(null);
+  // Edit dialog state
+  const [editDialogOpen, setEditDialogOpen] = useState<UploadedRecord | null>(
+    null,
+  );
 
   const queryClient = useQueryClient();
 
-  const generatePDF = async (files: File[]): Promise<File | null> => {
+  // Cleanup object URLs on unmount
+  useEffect(() => {
+    return () => {
+      if (fileUrl && fileUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(fileUrl);
+      }
+      if (downloadURL && downloadURL.startsWith("blob:")) {
+        URL.revokeObjectURL(downloadURL);
+      }
+    };
+  }, [fileUrl, downloadURL]);
+
+  const generatePDF = async (filesToConvert: File[]): Promise<File | null> => {
+    const objectUrls: string[] = [];
+
     try {
       toast.info("File conversion in progress");
       const pdf = new jsPDF();
-      const totalFiles = files.length;
+      const totalFiles = filesToConvert.length;
 
-      for (const [index, file] of files.entries()) {
+      for (const [index, file] of filesToConvert.entries()) {
         const imgData = URL.createObjectURL(file);
-        pdf.addImage(imgData, "JPEG", 10, 10, 190, 0);
-        URL.revokeObjectURL(imgData);
-        if (index < files.length - 1) pdf.addPage();
-        const progress = Math.round(((index + 1) / totalFiles) * 100);
-        setProgress(progress);
+        objectUrls.push(imgData);
+
+        pdf.addImage(
+          imgData,
+          PDF_CONFIG.format,
+          PDF_CONFIG.x,
+          PDF_CONFIG.y,
+          PDF_CONFIG.width,
+          PDF_CONFIG.height,
+        );
+
+        if (index < filesToConvert.length - 1) {
+          pdf.addPage();
+        }
+
+        const currentProgress = Math.round(((index + 1) / totalFiles) * 100);
+        setProgress(currentProgress);
       }
+
       const pdfBlob = pdf.output("blob");
       const pdfFile = new File([pdfBlob], "combined.pdf", {
         type: "application/pdf",
       });
-      setProgress(0);
-      toast.success("File conversion success");
+
+      setProgress(100);
+      toast.success("File conversion completed successfully");
       return pdfFile;
-    } catch (_) {
+    } catch (error) {
+      console.error("PDF generation failed:", error);
       toast.error("Failed to generate PDF");
-      setError("Failed to generate PDF");
-      setProgress(0);
+      setError("Failed to generate PDF. Please try again.");
       return null;
+    } finally {
+      // Cleanup object URLs
+      objectUrls.forEach((url) => URL.revokeObjectURL(url));
+      setProgress(null);
     }
   };
-  const onFileChange = (e: ChangeEvent<HTMLInputElement>): any => {
+
+  const onFileChange = (e: ChangeEvent<HTMLInputElement>): void => {
     if (!e.target.files?.length) {
       return;
     }
     const selectedFiles = Array.from(e.target.files);
-    setFiles((prev) => [...prev, ...selectedFiles]);
+    setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
+    setError(null);
   };
 
   useEffect(() => {
@@ -122,67 +179,100 @@ export default function useFileUpload(
     setUploadFileNames((names) => [...names, ...blanks].slice(0, files.length));
   }, [files]);
 
-  const getFileType: (
-    f: UploadedRecord,
-  ) => keyof typeof FILE_EXTENSIONS | "UNKNOWN" = (file: UploadedRecord) => {
+  const getFileType = (
+    file: UploadedRecord,
+  ): keyof typeof FILE_EXTENSIONS | "UNKNOWN" => {
     if (!file.extension) return "UNKNOWN";
-    const ftype = (
+
+    const fileExtension = file.extension.slice(1).toLowerCase();
+    const fileType = (
       Object.keys(FILE_EXTENSIONS) as (keyof typeof FILE_EXTENSIONS)[]
-    ).find((type) =>
-      FILE_EXTENSIONS[type].includes((file.extension?.slice(1) || "") as never),
-    );
-    return ftype || "UNKNOWN";
+    ).find((type) => FILE_EXTENSIONS[type].includes(fileExtension as never));
+
+    return fileType || "UNKNOWN";
   };
 
-  const isPreviewable = (file: UploadedRecord) =>
-    !!file.extension &&
-    PREVIEWABLE_FILE_EXTENSIONS.includes(
-      file.extension.slice(1) as (typeof PREVIEWABLE_FILE_EXTENSIONS)[number],
-    );
+  const isPreviewable = (file: UploadedRecord): boolean => {
+    if (!file.extension) return false;
 
-  const getExtension = (url: string) => {
-    const div1 = url.split("?")[0].split(".");
-    const ext: string = div1[div1.length - 1].toLowerCase();
-    return ext;
+    const extension = file.extension.slice(1).toLowerCase();
+    return PREVIEWABLE_FILE_EXTENSIONS.includes(
+      extension as (typeof PREVIEWABLE_FILE_EXTENSIONS)[number],
+    );
   };
 
-  const handleFilePreviewClose = () => {
+  const getExtension = (url: string): string => {
+    const urlWithoutQuery = url.split("?")[0];
+    const parts = urlWithoutQuery.split(".");
+    return parts[parts.length - 1].toLowerCase();
+  };
+
+  const handleFilePreviewClose = (): void => {
+    if (downloadURL && downloadURL.startsWith("blob:")) {
+      URL.revokeObjectURL(downloadURL);
+    }
     setDownloadURL("");
     setFileState({
-      ...file_state,
+      ...fileState,
       open: false,
       isZoomInDisabled: false,
       isZoomOutDisabled: false,
     });
   };
 
-  const validateFileUpload = () => {
+  const validateFileUpload = (): boolean => {
     if (files.length === 0) {
-      setError("Please choose a file");
+      setError("Please choose at least one file");
       return false;
     }
 
-    for (const file of files) {
-      const filenameLength = file.name.trim().length;
-      if (filenameLength === 0) {
-        setError("File name is required");
+    for (const [index, file] of files.entries()) {
+      const fileName = file.name.trim();
+
+      // Validate file name
+      if (fileName.length === 0) {
+        setError(`File ${index + 1}: File name cannot be empty`);
         return false;
       }
-      if (file.size > 10e7) {
-        setError("File size is too large");
+
+      // Validate file size
+      if (file.size > maxFileSize) {
+        const maxSizeMB = Math.round(maxFileSize / (1024 * 1024));
+        setError(`File "${fileName}": Size exceeds ${maxSizeMB}MB limit`);
         return false;
       }
+
+      // Validate file extension
       const extension = file.name.split(".").pop()?.toLowerCase();
-      if (
-        "allowedExtensions" in options &&
-        !options.allowedExtensions
-          ?.map((extension) => extension.replace(".", "").toLowerCase())
-          ?.includes(extension || "")
-      ) {
-        setError(
-          `File type ${extension} is not allowed. Allowed types are ${options.allowedExtensions?.join(", ")}`,
+      if (options.allowedExtensions && options.allowedExtensions.length > 0) {
+        const normalizedAllowedExtensions = options.allowedExtensions.map(
+          (ext) => ext.replace(".", "").toLowerCase(),
         );
+
+        if (!extension || !normalizedAllowedExtensions.includes(extension)) {
+          setError(
+            `File "${fileName}": Type .${extension} is not allowed. Allowed types: ${options.allowedExtensions.join(", ")}`,
+          );
+          return false;
+        }
+      }
+    }
+
+    return true;
+  };
+
+  const validateFileNames = (combineToPDF: boolean): boolean => {
+    if (combineToPDF) {
+      if (!uploadFileNames.length || !uploadFileNames[0]?.trim()) {
+        setError("Please enter a name for the combined PDF file");
         return false;
+      }
+    } else {
+      for (const [index, fileName] of uploadFileNames.entries()) {
+        if (!fileName?.trim()) {
+          setError(`Please enter a name for file ${index + 1}`);
+          return false;
+        }
       }
     }
     return true;
@@ -191,155 +281,202 @@ export default function useFileUpload(
   const { mutateAsync: createUpload } = useMutation({
     mutationFn: mutate(routes.dashboard.createUploadedRecord),
     onSuccess: () => {
-      toast.success("File uploaded successfully!");
       queryClient.invalidateQueries({
-        queryKey: ["uploadedRecord"],
+        queryKey: ["uploadedRecords"],
       });
-      setError(null);
     },
   });
 
-  const handleUpload = async (combineToPDF?: boolean) => {
-    if (combineToPDF && "allowedExtensions" in options) {
-      options.allowedExtensions = ["jpg", "png", "jpeg"];
+  const handleUpload = async (combineToPDF?: boolean): Promise<void> => {
+    // Create a copy of options to avoid mutation
+    const uploadOptions = { ...options };
+
+    if (combineToPDF) {
+      uploadOptions.allowedExtensions = ["jpg", "png", "jpeg"];
     }
-    if (!validateFileUpload()) return;
+
+    if (!validateFileUpload() || !validateFileNames(!!combineToPDF)) {
+      return;
+    }
 
     setProgress(0);
-    const errors: File[] = [];
-    if (combineToPDF) {
-      if (!uploadFileNames.length || !uploadFileNames[0]) {
-        setError("File name is required");
-        return;
-      }
-    } else {
-      for (const [index, _] of files.entries()) {
-        if (!uploadFileNames[index].trim()) {
-          setError("File name is required");
+    setUploading(true);
+    setError(null);
+
+    let filesToUpload = [...files];
+    const failedFiles: File[] = [];
+    const failedFileNames: string[] = [];
+
+    try {
+      // Generate PDF if combining multiple files
+      if (combineToPDF && files.length > 1) {
+        const pdfFile = await generatePDF(files);
+        if (!pdfFile) {
+          setError("Failed to generate PDF. Please try again.");
           return;
         }
+        filesToUpload = [pdfFile];
       }
-    }
 
-    if (combineToPDF && files.length > 1) {
-      const pdfFile = await generatePDF(files);
-      if (pdfFile) {
-        files.splice(0, files.length, pdfFile);
-      } else {
+      // Upload files
+      for (const [index, file] of filesToUpload.entries()) {
+        try {
+          await createUpload({
+            file_data: await fileToBase64(file),
+            original_name: file.name,
+            name: uploadFileNames[index] || file.name,
+            associating_id: user?.abhaAddress || "",
+            file_type: fileType,
+            file_category: fileCategory,
+            mime_type: file.type,
+          });
+
+          // Update progress
+          const uploadProgress = Math.round(
+            ((index + 1) / filesToUpload.length) * 100,
+          );
+          setProgress(uploadProgress);
+        } catch (uploadError) {
+          console.error(`Failed to upload file ${file.name}:`, uploadError);
+          failedFiles.push(file);
+          failedFileNames.push(uploadFileNames[index] || file.name);
+        }
+      }
+
+      // Handle results
+      if (failedFiles.length === 0) {
+        toast.success(`Successfully uploaded ${filesToUpload.length} file(s)`);
         clearFiles();
-        setError("Failed to generate PDF");
-        return;
+      } else {
+        const successCount = filesToUpload.length - failedFiles.length;
+        if (successCount > 0) {
+          toast.success(`Successfully uploaded ${successCount} file(s)`);
+        }
+
+        setFiles(failedFiles);
+        setUploadFileNames(failedFileNames);
+        setError(
+          `Failed to upload ${failedFiles.length} file(s). Please try again.`,
+        );
       }
+    } catch (error) {
+      console.error("Upload process failed:", error);
+      setError("Upload failed due to an unexpected error. Please try again.");
+    } finally {
+      setUploading(false);
+      setProgress(null);
     }
-
-    setUploading(true);
-
-    for (const [index, file] of files.entries()) {
-      try {
-        await createUpload({
-          original_name: file.name,
-          name: uploadFileNames[index],
-          associating_id: user?.abhaAddress || "",
-          file_type: "patient",
-          file_category: "unspecified",
-          mime_type: file.type,
-        });
-      } catch {
-        errors.push(file);
-      }
-    }
-
-    setUploading(false);
-    setFiles(errors);
-    setUploadFileNames(errors?.map((f) => f.name) ?? []);
-    setError("Network error");
   };
 
-  const clearFiles = () => {
+  const clearFiles = (): void => {
     setFiles([]);
     setError(null);
     setUploadFileNames([]);
+    setProgress(null);
   };
 
   const getUploadedRecord = async (file: UploadedRecord) => {
+    if (!file.id) {
+      throw new Error("File ID is required");
+    }
+
     return queryClient.fetchQuery({
       queryKey: ["uploadedRecord", file.id],
       queryFn: query(routes.dashboard.getUploadedRecord, {
         queryParams: {
-          file_type: "patient",
+          file_type: fileType,
           associating_id: user?.abhaAddress || "",
         },
-        pathParams: { id: file.id || "" },
+        pathParams: { id: file.id },
       }),
     });
   };
 
-  const viewFile = async (file: UploadedRecord) => {
-    const index = uploadedFiles?.findIndex((f) => f.id === file.id) ?? -1;
-    setCurrentIndex(index);
-    setFileUrl("");
-    setFileState({ ...file_state, open: true });
-
-    const data = await getUploadedRecord(file);
-
-    if (!data) return;
-
-    const signedUrl = data.read_signed_url as string;
-    const extension = getExtension(signedUrl);
-
-    setFileState({
-      ...file_state,
-      open: true,
-      name: data.name as string,
-      extension,
-      isImage: FILE_EXTENSIONS.IMAGE.includes(
-        extension as (typeof FILE_EXTENSIONS.IMAGE)[number],
-      ),
-    });
-    setDownloadURL(signedUrl);
-    setFileUrl(signedUrl);
-  };
-
-  const downloadFile = async (file: UploadedRecord) => {
+  const viewFile = async (file: UploadedRecord): Promise<void> => {
     try {
-      if (!file.id) return;
-      toast.success("File download started");
-      const fileData = await getUploadedRecord(file);
-      const response = await fetch(fileData?.read_signed_url || "");
-      if (!response.ok) throw new Error("Network response was not ok.");
+      const index = uploadedFiles?.findIndex((f) => f.id === file.id) ?? -1;
+      setCurrentIndex(index);
+      setFileUrl("");
+      setFileState({ ...fileState, open: true });
 
-      const data = await response.blob();
-      const blobUrl = window.URL.createObjectURL(data);
+      const data = await getUploadedRecord(file);
+      if (!data?.read_signed_url) {
+        throw new Error("Unable to get file URL");
+      }
 
-      const a = document.createElement("a");
-      a.href = blobUrl;
-      a.download = file.name || "file";
-      document.body.appendChild(a);
-      a.click();
+      const signedUrl = data.read_signed_url as string;
+      const extension = getExtension(signedUrl);
 
-      // Clean up
-      window.URL.revokeObjectURL(blobUrl);
-      document.body.removeChild(a);
-      toast.success("File download completed");
-    } catch {
-      toast.error("File download failed");
+      setFileState({
+        ...fileState,
+        open: true,
+        name: data.name as string,
+        extension,
+        isImage: FILE_EXTENSIONS.IMAGE.includes(
+          extension as (typeof FILE_EXTENSIONS.IMAGE)[number],
+        ),
+      });
+      setDownloadURL(signedUrl);
+      setFileUrl(signedUrl);
+    } catch (error) {
+      console.error("Failed to view file:", error);
+      toast.error("Failed to load file preview");
     }
   };
 
-  const editFile = (file: UploadedRecord) => {
-    setEditDialogueOpen(file);
+  const downloadFile = async (file: UploadedRecord): Promise<void> => {
+    if (!file.id) {
+      toast.error("Invalid file");
+      return;
+    }
+
+    try {
+      toast.success("Downloading file...");
+
+      const fileData = await getUploadedRecord(file);
+      if (!fileData?.read_signed_url) {
+        throw new Error("Unable to get download URL");
+      }
+
+      const response = await fetch(fileData.read_signed_url);
+      if (!response.ok) {
+        throw new Error(`Download failed: ${response.statusText}`);
+      }
+
+      const data = await response.blob();
+      const blobUrl = URL.createObjectURL(data);
+
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = file.name || "downloaded-file";
+      document.body.appendChild(a);
+      a.click();
+
+      // Cleanup
+      URL.revokeObjectURL(blobUrl);
+      document.body.removeChild(a);
+
+      toast.success("File downloaded successfully");
+    } catch (error) {
+      console.error("File download failed:", error);
+      toast.error("File download failed. Please try again.");
+    }
+  };
+
+  const editFile = (file: UploadedRecord): void => {
+    setEditDialogOpen(file);
   };
 
   const Dialogs = (
     <>
       <FileRenameDialog
-        editedFile={editDialogueOpen}
-        setEditedFile={setEditDialogueOpen}
+        editedFile={editDialogOpen}
+        setEditedFile={setEditDialogOpen}
       />
       <FilePreviewDialog
-        show={file_state.open}
+        show={fileState.open}
         fileUrl={fileUrl}
-        file_state={file_state}
+        file_state={fileState}
         downloadURL={downloadURL}
         uploadedFiles={uploadedFiles}
         onClose={handleFilePreviewClose}
@@ -357,17 +494,19 @@ export default function useFileUpload(
     validateFiles: validateFileUpload,
     handleFileUpload: handleUpload,
     fileNames: uploadFileNames,
-    files: files,
+    files,
     onFileChange,
     setFileNames: setUploadFileNames,
     setFileName: (name: string, index = 0) => {
-      setUploadFileNames((prev) =>
-        prev.map((n, i) => (i === index ? name : n)),
+      setUploadFileNames((prevNames) =>
+        prevNames.map((n, i) => (i === index ? name : n)),
       );
     },
     removeFile: (index = 0) => {
-      setFiles((prev) => prev.filter((_, i) => i !== index));
-      setUploadFileNames((prev) => prev.filter((_, i) => i !== index));
+      setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+      setUploadFileNames((prevNames) =>
+        prevNames.filter((_, i) => i !== index),
+      );
     },
     clearFiles,
     uploading,

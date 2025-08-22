@@ -107,12 +107,12 @@ const UploadedRecords = () => {
 
   const icons: Record<
     keyof typeof FILE_EXTENSIONS | "UNKNOWN",
-    React.ReactNode
+    React.ElementType
   > = {
-    IMAGE: <ImageIcon />,
-    PRESENTATION: <PresentationIcon />,
-    UNKNOWN: <FileIcon />,
-    DOCUMENT: <FileIcon />,
+    IMAGE: ImageIcon,
+    PRESENTATION: PresentationIcon,
+    UNKNOWN: FileIcon,
+    DOCUMENT: FileIcon,
   };
 
   const DetailButtons = ({ file }: { file: UploadedRecord }) => {
@@ -172,13 +172,14 @@ const UploadedRecords = () => {
         ? files.results.map((file) => {
             const filetype = getFileType(file);
             const fileName = file.name ? file.name + file.extension : "";
+            const Icon = icons[filetype];
 
             return (
               <Card key={file.id} className="overflow-hidden  bg-white">
                 <CardContent className="p-4 space-y-4">
                   <div className="flex items-start gap-3">
                     <span className="p-2 rounded-full bg-gray-100 shrink-0">
-                      {icons[filetype]}
+                      <Icon className="size-4" />
                     </span>
                     <div className="min-w-0 flex-1">
                       <div className="font-medium text-gray-900 truncate">
@@ -200,6 +201,9 @@ const UploadedRecords = () => {
                       </div>
                     </div>
                   </div>
+                  <div className="pt-2 flex justify-end">
+                    <DetailButtons file={file} />
+                  </div>
                 </CardContent>
               </Card>
             );
@@ -212,7 +216,7 @@ const UploadedRecords = () => {
 
   const RenderTable = () => (
     <div className="hidden xl:block -mt-2">
-      <Table className="border-separate border-spacing-y-3 mx-2 lg:max-w-[calc(100%-16px)]">
+      <Table className="border-separate border-spacing-y-3 mx-2 xl:max-w-[calc(100%-16px)]">
         <TableHeader>
           <TableRow className="shadow rounded overflow-hidden">
             <TableHead className="w-[20%] bg-white rounded-l">
@@ -230,6 +234,7 @@ const UploadedRecords = () => {
             ? files.results.map((file) => {
                 const filetype = getFileType(file);
                 const fileName = file.name ? file.name + file.extension : "";
+                const Icon = icons[filetype];
 
                 return (
                   <TableRow
@@ -239,7 +244,7 @@ const UploadedRecords = () => {
                     <TableCell className="font-medium rounded-l-md rounded-y-md group-hover:bg-transparent bg-white">
                       <div className="flex items-center gap-2">
                         <span className="p-2 rounded-full bg-gray-100 shrink-0">
-                          {icons[filetype]}
+                          <Icon className="size-4" />
                         </span>
                         {file.name && file.name.length > 20 ? (
                           <Tooltip>

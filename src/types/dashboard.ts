@@ -22,6 +22,7 @@ export interface UploadedRecordResponse {
 }
 
 export interface CreateUploadedRecordRequest {
+  file_data: string;
   original_name: string;
   name: string;
   associating_id: string;

@@ -4,7 +4,6 @@ import {
   DownloadIcon,
   ExternalLinkIcon,
   FileIcon,
-  Loader2,
   RefreshCcwIcon,
   RotateCcw,
   RotateCw,
@@ -33,6 +32,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+
+import CircularProgress from "@/common/loaders/CircularProgress";
 
 import { UploadedRecord } from "@/types/dashboard";
 
@@ -212,7 +213,7 @@ export default function FilePreviewDialog(props: FilePreviewProps) {
       window.URL.revokeObjectURL(blobUrl);
       document.body.removeChild(a);
     } catch {
-      toast.error("file_download_failed");
+      toast.error("File download failed");
     }
   };
 
@@ -221,7 +222,7 @@ export default function FilePreviewDialog(props: FilePreviewProps) {
       <DialogContent className="h-full w-full max-w-[100vw] md:max-w-[80vw] flex-col gap-4 rounded-lg p-4 shadow-xl md:p-6 overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-sm text-gray-600">
-            file_preview
+            File preview
           </DialogTitle>
         </DialogHeader>
         {fileUrl ? (
@@ -242,7 +243,7 @@ export default function FilePreviewDialog(props: FilePreviewProps) {
                   uploadedFiles[index] &&
                   uploadedFiles[index].created_date && (
                     <p className="mt-1 text-sm text-gray-600">
-                      created_on{" "}
+                      Created on{" "}
                       {new Date(
                         uploadedFiles[index].created_date!,
                       ).toLocaleString("en-US", {
@@ -262,7 +263,7 @@ export default function FilePreviewDialog(props: FilePreviewProps) {
                     }}
                   >
                     <ExternalLinkIcon className="size-4" />
-                    <span>open_in_browser</span>
+                    <span>Open in browser</span>
                   </Button>
                 )}
                 {downloadURL && downloadURL.length > 0 && (
@@ -272,7 +273,7 @@ export default function FilePreviewDialog(props: FilePreviewProps) {
                     onClick={handleDownload}
                   >
                     <DownloadIcon className="size-4" />
-                    <span>download</span>
+                    <span>Download</span>
                   </Button>
                 )}
               </div>
@@ -326,9 +327,7 @@ export default function FilePreviewDialog(props: FilePreviewProps) {
                   </TransformWrapper>
                 ) : file_state.extension === "pdf" ? (
                   <div className="w-full h-full overflow-auto">
-                    <Suspense
-                      fallback={<Loader2 className="size-10 animate-spin" />}
-                    >
+                    <Suspense fallback={<CircularProgress />}>
                       <PDFViewer
                         url={fileUrl}
                         onDocumentLoadSuccess={(numPages: number) => {
@@ -351,7 +350,7 @@ export default function FilePreviewDialog(props: FilePreviewProps) {
                 ) : (
                   <div className="flex h-full w-full flex-col items-center justify-center">
                     <FileIcon className="mb-4 text-5xl text-secondary-600" />
-                    file_preview_not_supported
+                    File preview not supported
                   </div>
                 )}
               </div>
@@ -360,7 +359,7 @@ export default function FilePreviewDialog(props: FilePreviewProps) {
                   variant="primary"
                   onClick={() => handleNext(index + 1)}
                   disabled={index >= uploadedFiles.length - 1}
-                  aria-label="next_file"
+                  aria-label="Next file"
                 >
                   <ArrowRightIcon className="size-4" />
                 </Button>
@@ -460,7 +459,7 @@ export default function FilePreviewDialog(props: FilePreviewProps) {
           </>
         ) : (
           <div className="flex h-[50vh] md:h-[70vh] items-center justify-center">
-            <Loader2 className="size-10 animate-spin" />
+            <CircularProgress />
           </div>
         )}
       </DialogContent>

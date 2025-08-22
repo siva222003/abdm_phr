@@ -12,7 +12,7 @@ export const dashboard = {
   listUploadedRecords: API<UploadedRecordResponse>("GET /phr/health_records"),
   getUploadedRecord: API<UploadedRecord>("GET /phr/health_records/{id}"),
   createUploadedRecord: API<void, CreateUploadedRecordRequest>(
-    "POST /phr/health_records",
+    "POST /phr/health_records/upload/file",
   ),
   updateUploadedRecord: API<void, UpdateUploadedRecordRequest>(
     "PUT /phr/health_records/{id}",
