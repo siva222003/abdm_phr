@@ -16,7 +16,7 @@ import {
 
 import useDragAndDrop from "@/hooks/useDragAndDrop";
 
-import { ALLOWED_FILE_TYPES, MAX_FILE_SIZE_KB } from "@/common/constants";
+import { ALLOWED_IMAGE_TYPES, MAX_FILE_SIZE_KB } from "@/common/constants";
 
 import { getCroppedImg } from "@/utils/getCroppedImg";
 
@@ -30,7 +30,7 @@ interface AvatarEditModalProps {
 }
 
 const isImageFile = (file?: File) =>
-  file && ALLOWED_FILE_TYPES.includes(file.type);
+  file && ALLOWED_IMAGE_TYPES.includes(file.type);
 
 export default function AvatarEditModal({
   open,

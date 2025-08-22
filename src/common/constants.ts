@@ -51,6 +51,41 @@ export const GENDERS = GENDER_CHOICES.map(
 ) as (typeof GENDER_CHOICES)[number]["id"][];
 
 export const MAX_FILE_SIZE_KB = 100;
-export const ALLOWED_FILE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
+export const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 
 export const CONSENT_LIST_LIMIT = 8;
+
+export const BACKEND_ALLOWED_EXTENSIONS = [
+  "jpg",
+  "jpeg",
+  "png",
+  "gif",
+  "bmp",
+  "tiff",
+  "txt",
+  "csv",
+  "rtf",
+  "doc",
+  "odt",
+  "pdf",
+  "xls",
+  "xlsx",
+  "ods",
+];
+
+export const FILE_EXTENSIONS = {
+  IMAGE: ["jpeg", "jpg", "png", "gif", "svg", "bmp", "webp", "jfif"],
+  PRESENTATION: ["pptx"],
+  DOCUMENT: ["pdf", "docx"],
+} as const;
+
+export const PREVIEWABLE_FILE_EXTENSIONS = [
+  "html",
+  "htm",
+  "pdf",
+  "jpg",
+  "jpeg",
+  "png",
+  "gif",
+  "webp",
+] as const;

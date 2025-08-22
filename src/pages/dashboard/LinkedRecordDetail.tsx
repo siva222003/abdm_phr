@@ -115,7 +115,7 @@ function ErrorFallback() {
 const MyRecordDetail = ({ hip_id }: MyRecordDetailProps) => {
   const { data, isLoading, error } = useQuery({
     queryKey: ["myRecordDetail", hip_id],
-    queryFn: query(routes.dashboard.getPhrHealthRecord, {
+    queryFn: query(routes.dashboard.getLinkedRecord, {
       pathParams: { id: hip_id },
     }),
     enabled: !!hip_id,

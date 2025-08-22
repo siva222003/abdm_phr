@@ -1,5 +1,12 @@
-import { Building2, FileText, Home, UserRound, Vault } from "lucide-react";
-import { ActiveLink } from "raviger";
+import {
+  Bell,
+  Building2,
+  FileText,
+  Home,
+  UserRound,
+  Vault,
+} from "lucide-react";
+import { ActiveLink, useLocationChange } from "raviger";
 
 import {
   Sidebar,
@@ -11,6 +18,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
 import { useAuthContext } from "@/hooks/useAuth";
@@ -41,10 +49,23 @@ const items = [
     url: "/health-lockers",
     icon: <Vault />,
   },
+  {
+    title: "Notifications",
+    url: "/notifications",
+    icon: <Bell />,
+  },
 ];
 
 export function AppSidebar() {
   const { logout } = useAuthContext();
+  const { isMobile, setOpenMobile } = useSidebar();
+
+  useLocationChange(() => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  });
+
   return (
     <Sidebar
       collapsible="icon"

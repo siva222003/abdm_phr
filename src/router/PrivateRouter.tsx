@@ -1,4 +1,4 @@
-import { Link, Redirect, useRoutes } from "raviger";
+import { Redirect, useRoutes } from "raviger";
 
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -18,15 +18,18 @@ import AddFacility from "@/pages/linkedFacility/AddFacility";
 import AddFacilityDetail from "@/pages/linkedFacility/AddFacilityDetail";
 import LinkedFacility from "@/pages/linkedFacility/LinkedFacility";
 import LinkedFacilityDetail from "@/pages/linkedFacility/LinkedFacilityDetail";
+import Notifications from "@/pages/notification/Notifications";
 import Profile from "@/pages/profile/Profile";
 import PatientLinksProvider from "@/providers/PatientLinksProvider";
 import { ConsentTypes } from "@/types/consent";
 
 import { AppRoutes } from "./types";
+import curaLogo from "/images/cura-logo.svg";
 
 const PAGES_WITHOUT_SIDEBAR = ["/session-expired"];
 
 const Routes: AppRoutes = {
+  "/my-records": () => <Dashboard tab="linked" />,
   "/my-records/:tab": ({ tab }) => <Dashboard tab={tab} />,
   "/my-records/linked/:hip_id": ({ hip_id }) => (
     <MyRecordDetail hip_id={hip_id} />
@@ -47,6 +50,8 @@ const Routes: AppRoutes = {
 
   "/health-lockers": () => <HealthLocker />,
   "/health-lockers/:id": ({ id }) => <HealthLockerDetail id={id} />,
+
+  "/notifications": () => <Notifications />,
 
   "/": () => <Redirect to="/my-records/linked" />,
   "/login": () => <Redirect to="/my-records/linked" />,
@@ -72,12 +77,9 @@ export default function PrivateRouter() {
             <div className="flex items-center">
               <SidebarTrigger />
             </div>
-            <Link
-              href="/my-records"
-              className="flex items-center w-full h-full px-4 md:hidden"
-            >
-              <img className="w-auto h-8" alt="abdm phr logo" />
-            </Link>
+            <a className="flex items-center w-full h-full md:hidden">
+              <img className="w-40 -ml-6" src={curaLogo} alt="cura logo" />
+            </a>
           </div>
           <div className="p-3 mt-4" data-cui-page>
             <ErrorBoundary

@@ -79,9 +79,7 @@ const SwitchProfile = ({
 
       handleAuthSuccess(data);
 
-      // TODO: Invalidate all health_id related queries
-      queryClient.invalidateQueries({ queryKey: ["user"] });
-      queryClient.invalidateQueries({ queryKey: ["phrProfiles"] });
+      queryClient.invalidateQueries();
 
       navigate("/");
     },

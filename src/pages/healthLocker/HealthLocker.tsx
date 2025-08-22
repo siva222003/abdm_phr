@@ -14,6 +14,27 @@ import { CardGridSkeleton } from "@/common/loaders/SkeletonLoader";
 import routes from "@/api";
 import { query } from "@/utils/request/request";
 
+const tempLockers = [
+  {
+    id: 1,
+    lockerId: "1",
+    lockerName: "Sandbox Test Hospital",
+    patientId: "1",
+    dateCreated: "2025-08-17T00:00:00.000Z",
+    dateModified: "2025-08-17T00:00:00.000Z",
+    isActive: true,
+  },
+  {
+    id: 2,
+    lockerId: "2",
+    lockerName: "DriefCase",
+    patientId: "2",
+    dateCreated: "2025-08-17T00:00:00.000Z",
+    dateModified: "2025-08-17T00:00:00.000Z",
+    isActive: true,
+  },
+];
+
 function HealthLockerHeader({ onAddClick }: { onAddClick: () => void }) {
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
@@ -52,17 +73,18 @@ export default function HealthLocker() {
           </div>
         )}
 
-        {(isError || !data || data.length === 0) && !isLoading && (
-          <EmptyState
-            icon={FolderOpen}
-            title="No health lockers found"
-            description="Register a new health locker to get started"
-          />
-        )}
+        {(isError || !tempLockers || tempLockers.length === 0) &&
+          !isLoading && (
+            <EmptyState
+              icon={FolderOpen}
+              title="No health lockers found"
+              description="Register a new health locker to get started"
+            />
+          )}
 
-        {data && data.length > 0 && !isLoading && (
+        {tempLockers && tempLockers.length > 0 && !isLoading && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {data.map((locker) => (
+            {tempLockers.map((locker) => (
               <HealthLockerCard key={locker.lockerId} data={locker} />
             ))}
           </div>

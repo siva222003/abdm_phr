@@ -8,7 +8,7 @@ import { usePatientLinks } from "@/hooks/usePatientLinks";
 
 import { CardGridSkeleton } from "@/common/loaders/SkeletonLoader";
 
-export default function Dashboard() {
+export default function LinkedRecords() {
   const { patientLinks, isLoading, isError } = usePatientLinks();
 
   if (isLoading) {

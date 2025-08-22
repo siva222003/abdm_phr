@@ -59,6 +59,7 @@ export function ConsentDurationSection({
           <Label>Data Erase At</Label>
           <Input
             type="datetime-local"
+            step={1}
             min={dayjs().format("YYYY-MM-DDTHH:mm")}
             value={dateQueryString(dataEraseAt, true)}
             onChange={(e) => onDateChange(e.target.value, "dataEraseAt")}
