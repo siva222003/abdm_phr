@@ -1,3 +1,22 @@
+import {
+  FileIcon,
+  ImageIcon,
+  PaperclipIcon,
+  PresentationIcon,
+} from "lucide-react";
+
+import { FILE_EXTENSIONS } from "@/common/constants";
+
+export const FILE_ICONS: Record<
+  keyof typeof FILE_EXTENSIONS | "UNKNOWN",
+  React.ElementType
+> = {
+  IMAGE: ImageIcon,
+  PRESENTATION: PresentationIcon,
+  UNKNOWN: FileIcon,
+  DOCUMENT: PaperclipIcon,
+};
+
 export interface LinkedRecord {
   data: {
     content: string;
