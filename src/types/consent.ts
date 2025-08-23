@@ -28,6 +28,7 @@ export enum ConsentHITypes {
   IMMUNIZATION_RECORD = "ImmunizationRecord",
   HEALTH_DOCUMENT_RECORD = "HealthDocumentRecord",
   WELLNESS_RECORD = "WellnessRecord",
+  INVOICE = "Invoice",
 }
 
 export const CONSENT_STATUS_BY_CATEGORY: Record<
@@ -69,6 +70,7 @@ export const CONSENT_HI_TYPES_ICONS = {
   [ConsentHITypes.IMMUNIZATION_RECORD]: LucideIcons.Syringe,
   [ConsentHITypes.HEALTH_DOCUMENT_RECORD]: LucideIcons.FilePlus,
   [ConsentHITypes.WELLNESS_RECORD]: LucideIcons.HeartPulse,
+  [ConsentHITypes.INVOICE]: LucideIcons.ReceiptText,
 } as const;
 
 export interface ConsentPurpose {

@@ -11,6 +11,7 @@ import FileRenameDialog from "@/components/dashboard/dialogs/FileRenameDialog";
 import { useAuthContext } from "@/hooks/useAuth";
 
 import {
+  DEFAULT_MAX_FILE_SIZE,
   FILE_EXTENSIONS,
   PREVIEWABLE_FILE_EXTENSIONS,
 } from "@/common/constants";
@@ -20,8 +21,6 @@ import { UploadedRecord } from "@/types/dashboard";
 import { fileToBase64 } from "@/utils";
 import { mutate, query } from "@/utils/request/request";
 
-// Constants
-const DEFAULT_MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 const PDF_CONFIG = {
   format: "JPEG" as const,
   x: 10,
@@ -70,20 +69,18 @@ export default function useFileUpload(
 ): FileUploadReturn {
   const {
     uploadedFiles,
-    maxFileSize = DEFAULT_MAX_FILE_SIZE,
+    maxFileSize = DEFAULT_MAX_FILE_SIZE * 1024 * 1024,
     fileType = "patient" as const,
     fileCategory = "unspecified" as const,
   } = options;
   const { user } = useAuthContext();
 
-  // File upload state
   const [uploadFileNames, setUploadFileNames] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState<null | number>(null);
   const [uploading, setUploading] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
 
-  // File preview state
   const [fileState, setFileState] = useState<StateInterface>({
     open: false,
     isImage: false,
@@ -97,14 +94,12 @@ export default function useFileUpload(
   const [fileUrl, setFileUrl] = useState<string>("");
   const [downloadURL, setDownloadURL] = useState<string>("");
 
-  // Edit dialog state
   const [editDialogOpen, setEditDialogOpen] = useState<UploadedRecord | null>(
     null,
   );
 
   const queryClient = useQueryClient();
 
-  // Cleanup object URLs on unmount
   useEffect(() => {
     return () => {
       if (fileUrl && fileUrl.startsWith("blob:")) {
@@ -159,7 +154,6 @@ export default function useFileUpload(
       setError("Failed to generate PDF. Please try again.");
       return null;
     } finally {
-      // Cleanup object URLs
       objectUrls.forEach((url) => URL.revokeObjectURL(url));
       setProgress(null);
     }
@@ -229,20 +223,17 @@ export default function useFileUpload(
     for (const [index, file] of files.entries()) {
       const fileName = file.name.trim();
 
-      // Validate file name
       if (fileName.length === 0) {
         setError(`File ${index + 1}: File name cannot be empty`);
         return false;
       }
 
-      // Validate file size
       if (file.size > maxFileSize) {
         const maxSizeMB = Math.round(maxFileSize / (1024 * 1024));
         setError(`File "${fileName}": Size exceeds ${maxSizeMB}MB limit`);
         return false;
       }
 
-      // Validate file extension
       const extension = file.name.split(".").pop()?.toLowerCase();
       if (options.allowedExtensions && options.allowedExtensions.length > 0) {
         const normalizedAllowedExtensions = options.allowedExtensions.map(
@@ -268,9 +259,9 @@ export default function useFileUpload(
         return false;
       }
     } else {
-      for (const [index, fileName] of uploadFileNames.entries()) {
+      for (const fileName of uploadFileNames) {
         if (!fileName?.trim()) {
-          setError(`Please enter a name for file ${index + 1}`);
+          setError(`Please give a name for the file`);
           return false;
         }
       }
@@ -280,15 +271,9 @@ export default function useFileUpload(
 
   const { mutateAsync: createUpload } = useMutation({
     mutationFn: mutate(routes.dashboard.createUploadedRecord),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["uploadedRecords"],
-      });
-    },
   });
 
   const handleUpload = async (combineToPDF?: boolean): Promise<void> => {
-    // Create a copy of options to avoid mutation
     const uploadOptions = { ...options };
 
     if (combineToPDF) {
@@ -308,7 +293,6 @@ export default function useFileUpload(
     const failedFileNames: string[] = [];
 
     try {
-      // Generate PDF if combining multiple files
       if (combineToPDF && files.length > 1) {
         const pdfFile = await generatePDF(files);
         if (!pdfFile) {
@@ -318,7 +302,6 @@ export default function useFileUpload(
         filesToUpload = [pdfFile];
       }
 
-      // Upload files
       for (const [index, file] of filesToUpload.entries()) {
         try {
           await createUpload({
@@ -331,7 +314,6 @@ export default function useFileUpload(
             mime_type: file.type,
           });
 
-          // Update progress
           const uploadProgress = Math.round(
             ((index + 1) / filesToUpload.length) * 100,
           );
@@ -343,7 +325,6 @@ export default function useFileUpload(
         }
       }
 
-      // Handle results
       if (failedFiles.length === 0) {
         toast.success(`Successfully uploaded ${filesToUpload.length} file(s)`);
         clearFiles();
@@ -358,6 +339,12 @@ export default function useFileUpload(
         setError(
           `Failed to upload ${failedFiles.length} file(s). Please try again.`,
         );
+      }
+
+      if (failedFiles.length < filesToUpload.length) {
+        queryClient.invalidateQueries({
+          queryKey: ["uploadedRecords"],
+        });
       }
     } catch (error) {
       console.error("Upload process failed:", error);
@@ -448,11 +435,10 @@ export default function useFileUpload(
 
       const a = document.createElement("a");
       a.href = blobUrl;
-      a.download = file.name || "downloaded-file";
+      a.download = file.name + "." + file.extension || "downloaded-file";
       document.body.appendChild(a);
       a.click();
 
-      // Cleanup
       URL.revokeObjectURL(blobUrl);
       document.body.removeChild(a);
 

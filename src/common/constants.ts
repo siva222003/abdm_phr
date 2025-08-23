@@ -50,7 +50,8 @@ export const GENDERS = GENDER_CHOICES.map(
   (choice) => choice.id,
 ) as (typeof GENDER_CHOICES)[number]["id"][];
 
-export const MAX_FILE_SIZE_KB = 100;
+export const DEFAULT_MAX_FILE_SIZE = 5; // FOR INTERNAL API IN MB
+export const MAX_FILE_SIZE_KB = 100; // FOR ABDM API
 export const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 
 export const CONSENT_LIST_LIMIT = 8;
