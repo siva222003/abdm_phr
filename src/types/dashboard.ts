@@ -13,15 +13,15 @@ export const FILE_ICONS: Record<
 > = {
   IMAGE: ImageIcon,
   PRESENTATION: PresentationIcon,
-  UNKNOWN: FileIcon,
   DOCUMENT: PaperclipIcon,
+  UNKNOWN: FileIcon,
 };
 
 export interface LinkedRecord {
-  data: {
+  data: Array<{
     content: string;
     care_context_reference: string;
-  }[];
+  }>;
 }
 
 export interface UploadedRecord {
@@ -46,7 +46,7 @@ export interface CreateUploadedRecordRequest {
   name: string;
   associating_id: string;
   file_type: "patient";
-  file_category: "unspecified";
+  file_category: "unspecified" | string;
   mime_type: string;
 }
 
