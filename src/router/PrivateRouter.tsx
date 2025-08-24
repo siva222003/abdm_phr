@@ -18,7 +18,7 @@ import AddFacility from "@/pages/linkedFacility/AddFacility";
 import AddFacilityDetail from "@/pages/linkedFacility/AddFacilityDetail";
 import LinkedFacility from "@/pages/linkedFacility/LinkedFacility";
 import LinkedFacilityDetail from "@/pages/linkedFacility/LinkedFacilityDetail";
-import Notifications from "@/pages/notification/Notifications";
+import Notifications from "@/pages/notification/Notification";
 import Profile from "@/pages/profile/Profile";
 import PatientLinksProvider from "@/providers/PatientLinksProvider";
 import { ConsentTypes } from "@/types/consent";

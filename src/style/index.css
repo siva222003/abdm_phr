@@ -32,7 +32,7 @@
   }
 
   body {
-    font-family: "Figtree", sans-serif;
+    font-family: "Figtree", sans-serif !important;
     color: oklch(0.327 0.04 264.665);
     @apply bg-background text-foreground size-full font-sans antialiased;
   }
@@ -188,6 +188,7 @@
   /* Custom breakpoint */
   --breakpoint-xs: 310px;
   --breakpoint-xsm: 390px;
+  --breakpoint-ssm: 500px;
 }
 
 /* Root CSS variables (shadcn/ui theme) */

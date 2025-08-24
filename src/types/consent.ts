@@ -155,6 +155,11 @@ export interface ConsentArtefact {
   signature: string;
 }
 
+export interface ConsentListResponse<T> {
+  results: T[];
+  hasMore: boolean;
+}
+
 export interface ConsentLinks {
   hip: ConsentHealthFacility;
   careContexts?: ConsentCareContext[];

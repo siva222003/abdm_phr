@@ -15,7 +15,7 @@ import {
 
 interface PaginationProps {
   data: { totalCount: number };
-  onChange: (page: number, rowsPerPage: number) => void;
+  onChange: (page: number) => void;
   defaultPerPage: number;
   cPage: number;
   className?: string;
@@ -81,7 +81,7 @@ const Pagination = ({
 
   const goToPage = (page: number) => {
     setCurrentPage(page);
-    onChange(page, rowsPerPage);
+    onChange(page);
     const pageContainer = window.document.getElementById("pages");
     pageContainer?.scroll({ top: 0, left: 0 });
   };

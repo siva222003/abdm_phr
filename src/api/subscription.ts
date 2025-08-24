@@ -1,3 +1,4 @@
+import { ConsentListResponse } from "@/types/consent";
 import {
   SubscriptionApproveRequest,
   SubscriptionArtefactResponse,
@@ -11,7 +12,9 @@ import {
 import { API } from "@/utils/request/api";
 
 export const subscription = {
-  listRequests: API<SubscriptionRequest[]>("GET /phr/subscription/requests"),
+  listRequests: API<ConsentListResponse<SubscriptionRequest>>(
+    "GET /phr/subscription/requests",
+  ),
   getRequest: API<SubscriptionRequestResponse>(
     "GET /phr/subscription/request/{requestId}",
   ),

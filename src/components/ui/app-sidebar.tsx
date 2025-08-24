@@ -1,16 +1,29 @@
 import {
+  BadgeCheck,
   Bell,
   Building2,
+  ChevronsUpDown,
   FileText,
   Home,
+  LogOut,
   UserRound,
   Vault,
 } from "lucide-react";
-import { ActiveLink, useLocationChange } from "raviger";
+import { ActiveLink, navigate, useLocationChange } from "raviger";
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
@@ -21,7 +34,11 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
+import { Avatar } from "@/components/common/Avatar";
+
 import { useAuthContext } from "@/hooks/useAuth";
+
+import { getProfilePhotoUrl } from "@/utils";
 
 const items = [
   {
@@ -57,8 +74,8 @@ const items = [
 ];
 
 export function AppSidebar() {
-  const { logout } = useAuthContext();
-  const { isMobile, setOpenMobile } = useSidebar();
+  const { logout, user } = useAuthContext();
+  const { isMobile, setOpenMobile, open } = useSidebar();
 
   useLocationChange(() => {
     if (isMobile) {
@@ -100,22 +117,82 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  tooltip="Logout"
-                  className="text-gray-600 transition font-normal hover:bg-gray-200 hover:text-red-700"
-                >
-                  <button onClick={() => logout()}>Logout</button>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton
+                  size="lg"
+                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                >
+                  <Avatar
+                    className="size-8 rounded-lg"
+                    name={user?.fullName ?? ""}
+                    imageUrl={getProfilePhotoUrl(user?.profilePhoto ?? null)}
+                  />
+                  {(open || isMobile) && (
+                    <>
+                      <div className="grid flex-1 text-left text-sm leading-tight">
+                        <span className="truncate font-semibold">
+                          {user?.fullName}
+                        </span>
+                        <span className="truncate text-xs">
+                          {user?.abhaAddress}
+                        </span>
+                      </div>
+                      <ChevronsUpDown className="ml-auto size-4" />
+                    </>
+                  )}
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+                side={isMobile ? "bottom" : "right"}
+                align="end"
+                sideOffset={4}
+              >
+                <DropdownMenuLabel className="p-0 font-normal">
+                  <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                    <Avatar
+                      className="size-8 rounded-lg"
+                      name={user?.fullName ?? ""}
+                      imageUrl={getProfilePhotoUrl(user?.profilePhoto ?? null)}
+                    />
+                    <div className="grid flex-1 text-left text-sm leading-tight">
+                      <span className="truncate font-semibold">
+                        {user?.fullName}
+                      </span>
+                      <span className="truncate text-xs">
+                        {user?.abhaAddress}
+                      </span>
+                    </div>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem
+                    data-cy="user-menu-profile"
+                    onClick={() => navigate("/profile")}
+                  >
+                    <BadgeCheck />
+                    Profile
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  data-cy="user-menu-logout"
+                  onClick={() => logout()}
+                >
+                  <LogOut />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
       <SidebarRail className="hover:after:bg-transparent hover:bg-transparent" />
     </Sidebar>
   );

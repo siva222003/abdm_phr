@@ -1,11 +1,11 @@
 import { ArrowLeft, Link2 } from "lucide-react";
-import { navigate } from "raviger";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 import Page from "@/components/common/Page";
 
+import { useNavigation } from "@/hooks/useNavigation";
 import { usePatientLinks } from "@/hooks/usePatientLinks";
 
 import { CardListSkeleton } from "@/common/loaders/SkeletonLoader";
@@ -17,11 +17,13 @@ function LinkedFacilityDetailHeader({
 }: {
   title?: string;
 }) {
+  const { goBack } = useNavigation();
+
   return (
     <div className="space-y-4">
-      <Button variant="ghost" onClick={() => navigate("/linked-facilities")}>
+      <Button variant="ghost" onClick={() => goBack("/linked-facilities")}>
         <ArrowLeft className="size-4 mr-2" />
-        Back to Facilities
+        Back
       </Button>
       <div>
         <h1 className="text-2xl font-bold text-foreground">{title}</h1>
@@ -59,6 +61,8 @@ function LinkedFacilityDetailCard({
 }
 
 function ErrorFallback() {
+  const { goBack } = useNavigation();
+
   return (
     <div className="text-center space-y-6 py-12">
       <div className="space-y-3">
@@ -70,9 +74,9 @@ function ErrorFallback() {
           a network issue or the linked facility may no longer exist.
         </p>
       </div>
-      <Button variant="outline" onClick={() => navigate("/linked-facilities")}>
+      <Button variant="outline" onClick={() => goBack("/linked-facilities")}>
         <ArrowLeft className="size-4 mr-2" />
-        Back to Linked Facilities
+        Back
       </Button>
     </div>
   );

@@ -4,6 +4,7 @@ import {
   ConsentArtefact,
   ConsentArtefactResponse,
   ConsentDenyRequest,
+  ConsentListResponse,
   ConsentRequest,
   ConsentRequestResponse,
   ConsentRevokeRequest,
@@ -12,15 +13,19 @@ import {
 import { API } from "@/utils/request/api";
 
 export const consent = {
-  listRequests: API<ConsentRequest[]>("GET /phr/consent/requests"),
+  listRequests: API<ConsentListResponse<ConsentRequest>>(
+    "GET /phr/consent/requests",
+  ),
   getRequest: API<ConsentRequestResponse>(
     "GET /phr/consent/request/{requestId}",
   ),
-  listArtefacts: API<ConsentArtefact[]>("GET /phr/consent/artefacts"),
+  listArtefacts: API<ConsentListResponse<ConsentArtefact>>(
+    "GET /phr/consent/artefacts",
+  ),
   getArtefact: API<ConsentArtefactResponse>(
     "GET /phr/consent/artefact/{artefactId}",
   ),
-  getRequestArtefacts: API<ConsentArtefact[]>(
+  getRequestArtefacts: API<ConsentListResponse<ConsentArtefact>>(
     "GET /phr/consent/request/{requestId}/artefacts",
   ),
   approve: API<ConsentUpdateBaseResponse, ConsentApproveRequest>(

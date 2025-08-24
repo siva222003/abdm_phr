@@ -1,16 +1,16 @@
 import { FolderOpen } from "lucide-react";
-import { useQueryParams } from "raviger";
 import { useEffect } from "react";
 
 import { EmptyState } from "@/components/ui/empty-state";
 
+import LoadMoreButton from "@/components/common/LoadMore";
 import Page from "@/components/common/Page";
 import { ConsentFilters } from "@/components/consent/ConsentFilters";
 import ConsentList from "@/components/consent/ConsentList";
 
 import { useConsentList } from "@/hooks/useConsentData";
+import { useQueryParams } from "@/hooks/useQueryParams";
 
-import { CONSENT_LIST_LIMIT } from "@/common/constants";
 import {
   CardGridSkeleton,
   TableSkeleton,
@@ -22,69 +22,49 @@ import {
   ConsentStatuses,
 } from "@/types/consent";
 
-interface ConsentQueryParams {
-  category: ConsentCategories;
-  status: ConsentStatuses;
-  limit: number;
-  offset: number;
-}
-
-const DEFAULT_QUERY_PARAMS: ConsentQueryParams = {
-  category: ConsentCategories.REQUESTS,
-  status: ConsentStatuses.REQUESTED,
-  limit: CONSENT_LIST_LIMIT,
-  offset: 0,
-};
-
-const normalizeQueryParams = (
-  qParams: Partial<ConsentQueryParams>,
-): ConsentQueryParams => {
-  const category = qParams.category || DEFAULT_QUERY_PARAMS.category;
-
-  let status = qParams.status;
-  if (!status || !CONSENT_STATUS_BY_CATEGORY[category]?.includes(status)) {
-    status =
-      CONSENT_STATUS_BY_CATEGORY[category]?.[0] || DEFAULT_QUERY_PARAMS.status;
-  }
-
-  return {
-    category,
-    status,
-    limit: qParams.limit || DEFAULT_QUERY_PARAMS.limit,
-    offset: qParams.offset || DEFAULT_QUERY_PARAMS.offset,
-  };
-};
+export const CONSENT_LIST_LIMIT = 9;
 
 export default function Consent() {
-  const [qParams, setQParams] = useQueryParams<ConsentQueryParams>();
+  const { params, updateQuery } = useQueryParams({
+    limit: CONSENT_LIST_LIMIT,
+    includePage: false,
+  });
 
   useEffect(() => {
-    setQParams(normalizeQueryParams(qParams));
-  }, [qParams, setQParams]);
+    if (params.category && params.status) return;
 
-  const { data, isLoading, isEmpty, isError } = useConsentList(qParams);
+    updateQuery({
+      category: ConsentCategories.REQUESTS,
+      status: ConsentStatuses.REQUESTED,
+    });
+  }, [params.category, params.status, updateQuery]);
+
+  const {
+    data,
+    isLoading,
+    isEmpty,
+    isError,
+    fetchNextPage,
+    hasMore,
+    isFetchingNextPage,
+  } = useConsentList(params);
 
   const handleCategoryChange = (category: ConsentCategories) => {
-    setQParams({
-      ...normalizeQueryParams({
-        ...qParams,
-        category,
-      }),
+    updateQuery({
+      category,
+      status: CONSENT_STATUS_BY_CATEGORY[category][0],
     });
   };
 
   const handleStatusChange = (status: ConsentStatuses) => {
-    setQParams({
-      ...normalizeQueryParams({
-        ...qParams,
-        status,
-      }),
+    updateQuery({
+      status,
     });
   };
 
   const filterProps = {
-    category: qParams.category,
-    status: qParams.status,
+    category: params.category as ConsentCategories,
+    status: params.status as ConsentStatuses,
     onCategoryChange: handleCategoryChange,
     onStatusChange: handleStatusChange,
   };
@@ -114,6 +94,11 @@ export default function Consent() {
         )}
 
         {data && data.length > 0 && !isLoading && <ConsentList data={data} />}
+        <LoadMoreButton
+          onLoadMore={fetchNextPage}
+          hasMore={hasMore}
+          isLoading={isFetchingNextPage}
+        />
       </div>
     </Page>
   );

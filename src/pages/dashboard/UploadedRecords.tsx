@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { FolderOpen, SearchIcon, UploadIcon } from "lucide-react";
-import { useQueryParams } from "raviger";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
@@ -13,9 +12,9 @@ import FileUploadDialog from "@/components/dashboard/dialogs/FileUploadDialog";
 
 import { useAuthContext } from "@/hooks/useAuth";
 import useFileUpload from "@/hooks/useFileUpload";
+import { useQueryParams } from "@/hooks/useQueryParams";
 
 import { BACKEND_ALLOWED_EXTENSIONS } from "@/common/constants";
-import GlobalLoader from "@/common/loaders/GlobalLoader";
 import {
   CardGridSkeleton,
   CardListSkeleton,
@@ -24,55 +23,28 @@ import {
 import routes from "@/api/";
 import { query } from "@/utils/request/request";
 
-interface UploadedRecordsQueryParams {
-  name: string;
-  limit: number;
-  page: number;
-}
-
-const DEFAULT_QUERY_PARAMS: UploadedRecordsQueryParams = {
-  name: "",
-  limit: 10,
-  page: 1,
-};
-
-const normalizeQueryParams = (
-  qParams: Partial<UploadedRecordsQueryParams>,
-): UploadedRecordsQueryParams => ({
-  name: qParams.name || DEFAULT_QUERY_PARAMS.name,
-  limit: qParams.limit || DEFAULT_QUERY_PARAMS.limit,
-  page: qParams.page || DEFAULT_QUERY_PARAMS.page,
-});
+export const UPLOADED_RECORDS_LIMIT = 10;
 
 const UploadedRecords = () => {
   const { user } = useAuthContext();
   const [openUploadDialog, setOpenUploadDialog] = useState(false);
-  const [qParams, setQParams] = useQueryParams<UploadedRecordsQueryParams>();
-
-  const normalizedParams = useMemo(
-    () => normalizeQueryParams(qParams),
-    [qParams],
-  );
-
-  const [searchValue, setSearchValue] = useState(normalizedParams.name);
-
-  useEffect(() => {
-    setSearchValue(normalizedParams.name);
-  }, [normalizedParams.name]);
+  const { params, updateQuery } = useQueryParams({
+    limit: UPLOADED_RECORDS_LIMIT,
+  });
 
   const {
     data: files,
     isLoading: filesLoading,
     error,
   } = useQuery({
-    queryKey: ["uploadedRecords", normalizedParams],
+    queryKey: ["uploadedRecords", params],
     queryFn: query.debounced(routes.dashboard.listUploadedRecords, {
       queryParams: {
         file_type: "patient",
         associating_id: user?.abhaAddress || "",
-        name: normalizedParams.name,
-        limit: normalizedParams.limit,
-        offset: ((normalizedParams.page || 1) - 1) * normalizedParams.limit,
+        name: params.name,
+        limit: params.limit,
+        offset: ((params.page ?? 1) - 1) * UPLOADED_RECORDS_LIMIT,
         ordering: "-modified_date",
       },
     }),
@@ -99,18 +71,6 @@ const UploadedRecords = () => {
     }
   }, [openUploadDialog]);
 
-  const handleSearchChange = useCallback(
-    (value: string) => {
-      setSearchValue(value);
-      setQParams({
-        ...normalizedParams,
-        name: value,
-        page: 1,
-      });
-    },
-    [normalizedParams, setQParams],
-  );
-
   const isEmpty =
     !filesLoading && (!files?.results || files.results.length === 0);
   const isError = !!error;
@@ -131,8 +91,8 @@ const UploadedRecords = () => {
             id="search-by-filename"
             name="name"
             placeholder="Search files..."
-            value={searchValue}
-            onChange={(e) => handleSearchChange(e.target.value)}
+            value={params.name}
+            onChange={(e) => updateQuery({ name: e.target.value })}
             className="pointer-events-auto pl-10 bg-white"
           />
         </div>
@@ -175,7 +135,7 @@ const UploadedRecords = () => {
           description={
             isError
               ? "Please try again or contact support if the problem persists"
-              : normalizedParams.name
+              : params.name
                 ? "Try adjusting your search criteria"
                 : "Upload your first file to get started"
           }
@@ -186,24 +146,22 @@ const UploadedRecords = () => {
         <UploadedRecordList files={files.results} fileUpload={fileUpload} />
       )}
 
-      <div className="flex">
-        {filesLoading ? (
-          <GlobalLoader />
-        ) : (
-          <Pagination
-            data={{ totalCount: files?.count || 0 }}
-            onChange={(page, limit) => {
-              setQParams({
-                ...normalizedParams,
-                page,
-                limit,
-              });
-            }}
-            defaultPerPage={normalizedParams.limit}
-            cPage={normalizedParams.page}
-          />
+      {files?.count &&
+        files.count > UPLOADED_RECORDS_LIMIT &&
+        !filesLoading && (
+          <div className="flex justify-center">
+            <Pagination
+              data={{ totalCount: files?.count || 0 }}
+              onChange={(page) => {
+                updateQuery({
+                  page,
+                });
+              }}
+              defaultPerPage={UPLOADED_RECORDS_LIMIT}
+              cPage={params.page}
+            />
+          </div>
         )}
-      </div>
     </div>
   );
 };

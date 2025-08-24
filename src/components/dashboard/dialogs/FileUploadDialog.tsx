@@ -2,9 +2,7 @@ import {
   AlertCircleIcon,
   CheckIcon,
   FileIcon,
-  ImageIcon,
   PaperclipIcon,
-  PresentationIcon,
   TrashIcon,
   XIcon,
 } from "lucide-react";
@@ -31,6 +29,8 @@ import { FileUploadReturn } from "@/hooks/useFileUpload";
 
 import { FILE_EXTENSIONS } from "@/common/constants";
 
+import { FILE_ICONS } from "@/types/dashboard";
+
 interface FileUploadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -49,16 +49,6 @@ const formatFileSize = (bytes: number): string => {
   const sizes = ["Bytes", "KB", "MB", "GB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
-};
-
-const icons: Record<
-  keyof typeof FILE_EXTENSIONS | "UNKNOWN",
-  React.ElementType
-> = {
-  IMAGE: ImageIcon,
-  PRESENTATION: PresentationIcon,
-  UNKNOWN: FileIcon,
-  DOCUMENT: PaperclipIcon,
 };
 
 const getFileTypeFromFile = (
@@ -308,7 +298,7 @@ export default function FileUploadDialog({
         <Label className="text-sm font-medium">Files to combine:</Label>
         {filePreviews.map((preview, index) => {
           const fileType = getFileTypeFromFile(preview.file);
-          const FileIconComponent = icons[fileType];
+          const FileIconComponent = FILE_ICONS[fileType];
 
           return (
             <div
