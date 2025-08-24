@@ -7,10 +7,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 
 import Page from "@/components/common/Page";
 import Pagination from "@/components/common/Pagination";
-import {
-  NotificationFilters,
-  NotificationStatuses,
-} from "@/components/notifications/NotificationFilters";
+import { NotificationFilters } from "@/components/notifications/NotificationFilters";
 import NotificationList from "@/components/notifications/NotificationList";
 
 import { useQueryParams } from "@/hooks/useQueryParams";
@@ -21,6 +18,7 @@ import {
 } from "@/common/loaders/SkeletonLoader";
 
 import routes from "@/api";
+import { NotificationStatuses } from "@/types/notification";
 import { mutate, query } from "@/utils/request/request";
 
 const NOTIFICATION_LIST_LIMIT = 10;
@@ -68,20 +66,34 @@ export default function Notifications() {
     },
   });
 
+  const { mutate: markAllAsRead } = useMutation({
+    mutationFn: () => mutate(routes.notification.markAllAsRead)(undefined),
+    onSuccess: () => {
+      toast.success("Successfully marked all as read");
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["notificationUnreadCount"] });
+    },
+  });
+
   const isEmpty = !isLoading && (!data?.results || data.results.length === 0);
   const isError = !!error;
   const notifications = data?.results || [];
   const totalCount = data?.count || 0;
 
-  const handleStatusChange = (status: NotificationStatuses) => {
-    updateQuery({
-      status,
-    });
-  };
-
   const filterProps = {
     status: params.status,
-    onStatusChange: handleStatusChange,
+    onStatusChange: (status: NotificationStatuses) => {
+      updateQuery({
+        status,
+      });
+    },
+    onMarkAllAsRead: markAllAsRead,
+    isMarkAllAsReadDisabled:
+      isLoading || isEmpty || isError || notifications.every((e) => e.is_read),
+    onRefresh: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      toast.success("Refreshed notifications");
+    },
   };
 
   return (
@@ -103,31 +115,20 @@ export default function Notifications() {
         {(isEmpty || isError) && !isLoading && (
           <EmptyState
             icon={FolderOpen}
-            title={
-              isError
-                ? "Failed to load notifications"
-                : "No notifications found"
-            }
+            title="No notifications found"
             description={
-              isError
-                ? "Please try again or contact support if the problem persists"
-                : params.status === NotificationStatuses.ALL
-                  ? "You don't have any notifications yet"
-                  : params.status === NotificationStatuses.UNREAD
-                    ? "You don't have any unread notifications"
-                    : "You don't have any read notifications"
+              params.status === NotificationStatuses.ALL
+                ? "You don't have any notifications yet"
+                : params.status === NotificationStatuses.UNREAD
+                  ? "You don't have any unread notifications"
+                  : "You don't have any read notifications"
             }
           />
         )}
 
         {notifications && notifications.length > 0 && !isLoading && (
           <NotificationList
-            notifications={[
-              ...notifications.map((e) => ({ ...e, is_read: true })),
-              ...notifications.map((e) => ({ ...e, is_read: false })),
-              ...notifications.map((e) => ({ ...e, is_read: true })),
-              ...notifications.map((e) => ({ ...e, is_read: false })),
-            ]}
+            notifications={notifications}
             onMarkAsRead={markAsRead}
           />
         )}

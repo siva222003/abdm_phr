@@ -1,4 +1,5 @@
 import {
+  NotificationMarkAllAsReadResponse,
   NotificationResponse,
   NotificationUnreadCountResponse,
 } from "@/types/notification";
@@ -10,5 +11,7 @@ export const notification = {
     "GET /phr/notification/unread_count",
   ),
   markAsRead: API<void>("POST /phr/notification/{id}/mark_read"),
-  markAllAsRead: API<void>("POST /phr/notification/mark_all_read"),
+  markAllAsRead: API<NotificationMarkAllAsReadResponse>(
+    "POST /phr/notification/mark_all_read",
+  ),
 };
