@@ -20,7 +20,7 @@ import {
   TableSkeleton,
 } from "@/common/loaders/SkeletonLoader";
 
-import { notification } from "@/api/notification";
+import routes from "@/api";
 import { mutate, query } from "@/utils/request/request";
 
 const NOTIFICATION_LIST_LIMIT = 10;
@@ -42,7 +42,7 @@ export default function Notifications() {
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["notifications", params],
-    queryFn: query(notification.list, {
+    queryFn: query(routes.notification.list, {
       queryParams: {
         ...(params.status === NotificationStatuses.READ && {
           is_read: true,
@@ -58,7 +58,7 @@ export default function Notifications() {
 
   const { mutate: markAsRead } = useMutation({
     mutationFn: (id: string) =>
-      mutate(notification.markAsRead, {
+      mutate(routes.notification.markAsRead, {
         pathParams: { id },
       })(undefined),
     onSuccess: () => {

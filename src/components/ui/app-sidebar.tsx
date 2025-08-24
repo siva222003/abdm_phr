@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import {
   BadgeCheck,
   Bell,
@@ -38,9 +39,11 @@ import { Avatar } from "@/components/common/Avatar";
 
 import { useAuthContext } from "@/hooks/useAuth";
 
+import routes from "@/api";
 import { getProfilePhotoUrl } from "@/utils";
+import { query } from "@/utils/request/request";
 
-const items = [
+const items = (unreadCount?: number) => [
   {
     title: "My Records",
     url: "/my-records",
@@ -70,12 +73,20 @@ const items = [
     title: "Notifications",
     url: "/notifications",
     icon: <Bell />,
+    badge: unreadCount,
   },
 ];
 
 export function AppSidebar() {
   const { logout, user } = useAuthContext();
   const { isMobile, setOpenMobile, open } = useSidebar();
+
+  const { data: unreadCount } = useQuery({
+    queryKey: ["notidicationCount"],
+    queryFn: query(routes.notification.unreadCount, {
+      silent: true,
+    }),
+  });
 
   useLocationChange(() => {
     if (isMobile) {
@@ -94,7 +105,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {items(unreadCount?.unread_count ?? 0).map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
@@ -106,9 +117,13 @@ export function AppSidebar() {
                       activeClass="bg-white text-green-700 shadow-sm"
                     >
                       {item.icon}
-
-                      <span className="group-data-[collapsible=icon]:hidden ml-1">
+                      <span className="group-data-[collapsible=icon]:hidden ml-1 flex items-center gap-1">
                         {item.title}
+                        {item.badge ? (
+                          <span className="inline-flex items-center justify-center rounded-full bg-primary/10 text-primary text-[10px] font-medium px-1.5 py-0.5 mt-1">
+                            {item.badge}
+                          </span>
+                        ) : null}
                       </span>
                     </ActiveLink>
                   </SidebarMenuButton>
