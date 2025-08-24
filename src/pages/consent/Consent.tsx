@@ -94,6 +94,7 @@ export default function Consent() {
         )}
 
         {data && data.length > 0 && !isLoading && <ConsentList data={data} />}
+
         <LoadMoreButton
           onLoadMore={fetchNextPage}
           hasMore={hasMore}

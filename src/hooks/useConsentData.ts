@@ -43,7 +43,7 @@ const transformConsentRequest = (
 ): ConsentBase => ({
   id: consent.requestId,
   type: ConsentTypes.CONSENT,
-  requester: consent.requester.name || "-",
+  requester: consent.requester.name?.trim() || "-",
   hiu: consent.hiu,
   purpose: consent.purpose,
   fromDate: consent.permission.dateRange?.from ?? "",
@@ -61,7 +61,7 @@ const transformConsentArtefact = (
 ): ConsentBase => ({
   id: consentDetail?.consentId,
   type: ConsentTypes.ARTEFACT,
-  requester: consentDetail?.requester.name || "-",
+  requester: consentDetail?.requester?.name?.trim() || "-",
   hiu: consentDetail?.hiu,
   purpose: consentDetail?.purpose,
   fromDate: consentDetail?.permission.dateRange?.from ?? "",
@@ -82,7 +82,7 @@ const transformSubscriptionRequest = (
   type: request.subscriptionId
     ? ConsentTypes.SUBSCRIPTION_ARTEFACT
     : ConsentTypes.SUBSCRIPTION,
-  requester: request.hiu.name || "-",
+  requester: request.hiu.name?.trim() || "-",
   hiu: request.hiu,
   purpose: request.purpose,
   fromDate: request.period.from ?? "",
@@ -101,7 +101,7 @@ const transformSubscriptionArtefact = (
 ): ConsentBase => ({
   id: artefact.subscriptionId,
   type: ConsentTypes.SUBSCRIPTION_ARTEFACT,
-  requester: artefact.requester.name || "-",
+  requester: artefact.requester.name?.trim() || "-",
   hiu: artefact.requester,
   purpose: artefact.purpose,
   fromDate: artefact.includedSources?.[0]?.period?.from ?? "",

@@ -111,7 +111,7 @@ function ConsentTableRow({ consent }: ConsentItemProps) {
           size="sm"
           onClick={() => navigate(`/consents/${consent.id}/${consent.type}`)}
         >
-          <Eye className="size-4 mr-2" />
+          <Eye className="size-4 mr-0.5" />
           View
         </Button>
       </TableCell>

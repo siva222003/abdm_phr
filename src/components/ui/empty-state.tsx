@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 
-export interface EmptyStateProps {
+interface EmptyStateProps {
   icon: React.ElementType;
   title: string;
   description: string;

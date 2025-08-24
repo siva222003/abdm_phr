@@ -1,93 +1,75 @@
-import { ArrowUp, Loader2 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { ArrowUpFromLine, ChevronDown, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 
-interface LoadMoreScrollTopProps {
+interface LoadMoreButtonProps {
   onLoadMore: () => void;
   isLoading?: boolean;
-  hasMore?: boolean; // from backend
-  scrollThreshold?: number; // px before showing scroll-to-top
-  scrollParent?: HTMLElement | null; // scroll container; defaults to window
+  hasMore?: boolean;
+  scrollThreshold?: number;
 }
 
-const LoadMoreScrollTop: React.FC<LoadMoreScrollTopProps> = ({
+const LoadMoreButton = ({
   onLoadMore,
   isLoading = false,
   hasMore = true,
   scrollThreshold = 300,
-  scrollParent = null,
-}) => {
+}: LoadMoreButtonProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
 
-  const getScrollTop = () => {
-    if (scrollParent) return scrollParent.scrollTop;
-    return window.scrollY || document.documentElement.scrollTop || 0;
-  };
-
   useEffect(() => {
-    if (hasMore) {
-      setIsScrolled(false);
-      return;
-    }
-
-    const target: HTMLElement | Window = scrollParent ?? window;
-
     const onScroll = () => {
-      setIsScrolled(getScrollTop() > scrollThreshold);
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      setIsScrolled(scrollTop > scrollThreshold);
     };
 
-    // initial check
-    setIsScrolled(getScrollTop() > scrollThreshold);
-
-    target.addEventListener("scroll", onScroll, { passive: true });
-    return () => target.removeEventListener("scroll", onScroll);
-  }, [hasMore, scrollParent, scrollThreshold]);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [scrollThreshold]);
 
   const scrollToTop = () => {
-    if (scrollParent && "scrollTo" in scrollParent) {
-      scrollParent.scrollTo({ top: 0, behavior: "smooth" });
-    } else {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // CASE 1: still has more → show Load More button
-  if (hasMore) {
-    return (
-      <div className="flex justify-center mt-8">
+  return (
+    <>
+      {hasMore && (
+        <div className="flex justify-center mt-8 mb-16 sm:mb-4">
+          <Button
+            onClick={onLoadMore}
+            disabled={isLoading}
+            variant="outline"
+            className="flex items-center justify-center gap-2 w-full ssm:max-w-xs rounded-lg border-gray-300 bg-white hover:bg-gray-50 transition disabled:opacity-50 text-sm sm:text-base py-2 sm:py-3"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="size-4 animate-spin text-gray-500" />
+                <span className="font-medium text-gray-600">Loading...</span>
+              </>
+            ) : (
+              <>
+                <span className="font-medium text-gray-700">Load More</span>
+                <ChevronDown className="size-5   text-gray-500" />
+              </>
+            )}
+          </Button>
+        </div>
+      )}
+
+      {isScrolled && (
         <Button
-          onClick={onLoadMore}
-          disabled={isLoading}
-          size="lg"
-          variant="outline"
-          className="flex items-center gap-2 w-full max-w-xs rounded-full shadow-sm hover:shadow-md transition-all hover:scale-[1.02] disabled:opacity-50"
+          size="icon"
+          onClick={scrollToTop}
+          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 rounded-full shadow-md hover:shadow-lg transition bg-white border border-gray-200 p-3 sm:p-4 opacity-90 hover:opacity-100 hover:bg-gray-50"
+          aria-label="Scroll to top"
         >
-          {isLoading && <Loader2 className="size-4 animate-spin" />}
-          <span className="font-medium">
-            {isLoading ? "Loading..." : "Load More"}
-          </span>
+          <ArrowUpFromLine className="size-4 sm:size-5 text-gray-700" />
         </Button>
-      </div>
-    );
-  }
-
-  // CASE 2: no more data AND user scrolled → show floating Scroll-to-Top
-  if (!hasMore && isScrolled) {
-    return (
-      <Button
-        size="icon"
-        onClick={scrollToTop}
-        className="fixed bottom-6 right-6 rounded-full shadow-lg hover:shadow-xl transition-all"
-        aria-label="Scroll to top"
-      >
-        <ArrowUp className="size-5" />
-      </Button>
-    );
-  }
-
-  // CASE 3: no more data + not scrolled → show nothing
-  return null;
+      )}
+    </>
+  );
 };
 
-export default LoadMoreScrollTop;
+export default LoadMoreButton;

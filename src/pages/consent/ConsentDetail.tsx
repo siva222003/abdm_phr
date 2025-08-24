@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ErrorFallback } from "@/components/ui/error-fallback";
 import { Separator } from "@/components/ui/separator";
 
 import Page from "@/components/common/Page";
@@ -85,29 +86,6 @@ function LoadingSkeleton() {
           </div>
         ))}
       </div>
-    </div>
-  );
-}
-
-function ErrorFallback() {
-  const { goBack } = useNavigation();
-
-  return (
-    <div className="container mx-auto max-w-4xl py-12 text-center space-y-6">
-      <div className="space-y-3">
-        <h1 className="text-2xl font-bold text-foreground">
-          Unable to Load Consent
-        </h1>
-        <p className="text-muted-foreground max-w-md mx-auto">
-          We couldn't retrieve the consent details. This might be due to a
-          network issue or the consent may no longer exist.
-        </p>
-      </div>
-
-      <Button variant="outline" onClick={() => goBack("/consents")}>
-        <ArrowLeft className="size-4 mr-2" />
-        Back to Consents
-      </Button>
     </div>
   );
 }
@@ -383,7 +361,14 @@ export default function ConsentDetail({ id, type }: ConsentDetailProps) {
   if (isError || !finalData) {
     return (
       <Page title="Error" hideTitleOnPage>
-        <ErrorFallback />
+        <div className="container mx-auto max-w-4xl space-y-8">
+          <ErrorFallback
+            title="Unable to Load Consent"
+            description="We couldn't retrieve the consent details. This might be due to a network issue or the consent may no longer exist."
+            action={() => goBack("/consents")}
+            actionText="Back to Consents"
+          />
+        </div>
       </Page>
     );
   }

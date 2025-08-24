@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { FolderOpen, Plus } from "lucide-react";
 import { useState } from "react";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 
@@ -35,13 +36,26 @@ const tempLockers = [
   },
 ];
 
-function HealthLockerHeader({ onAddClick }: { onAddClick: () => void }) {
+function HealthLockerHeader({
+  onAddClick,
+  count,
+}: {
+  onAddClick: () => void;
+  count: number;
+}) {
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-700 mb-2">
-          Health Lockers
-        </h1>
+        <div className="flex gap-x-3 items-center flex-wrap">
+          <h1 className="text-2xl font-bold text-gray-700 mb-2">
+            Health Lockers
+          </h1>
+          {count > 0 && (
+            <Badge variant="purple" className="h-5 mb-2">
+              {count} Lockers
+            </Badge>
+          )}
+        </div>
         <p className="text-gray-600 text-sm">
           View and manage your health lockers
         </p>
@@ -65,7 +79,10 @@ export default function HealthLocker() {
   return (
     <Page title="Health Lockers" hideTitleOnPage>
       <div className="w-full mx-auto mt-2">
-        <HealthLockerHeader onAddClick={() => setOpen(true)} />
+        <HealthLockerHeader
+          onAddClick={() => setOpen(true)}
+          count={tempLockers?.length ?? 0}
+        />
 
         {isLoading && (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
