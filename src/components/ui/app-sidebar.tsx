@@ -2,13 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 import {
   BadgeCheck,
   Bell,
-  Building2,
   ChevronsUpDown,
-  FileText,
-  Home,
+  ClipboardList,
+  FileSignature,
+  Hospital,
   LogOut,
-  UserRound,
-  Vault,
+  Shield,
+  User,
 } from "lucide-react";
 import { ActiveLink, navigate, useLocationChange } from "raviger";
 
@@ -43,31 +43,31 @@ import routes from "@/api";
 import { getProfilePhotoUrl } from "@/utils";
 import { query } from "@/utils/request/request";
 
-const items = (unreadCount?: number) => [
+const items = (unreadCount: number) => [
   {
     title: "My Records",
     url: "/my-records",
-    icon: <Home />,
+    icon: <ClipboardList />,
   },
   {
     title: "Profile",
     url: "/profile",
-    icon: <UserRound />,
+    icon: <User />,
   },
   {
     title: "Consents",
     url: "/consents",
-    icon: <FileText />,
+    icon: <FileSignature />,
   },
   {
     title: "Linked Facilities",
     url: "/linked-facilities",
-    icon: <Building2 />,
+    icon: <Hospital />,
   },
   {
     title: "Health Lockers",
     url: "/health-lockers",
-    icon: <Vault />,
+    icon: <Shield />,
   },
   {
     title: "Notifications",

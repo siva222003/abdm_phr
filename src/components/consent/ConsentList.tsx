@@ -1,5 +1,5 @@
 import { Eye } from "lucide-react";
-import { navigate } from "raviger";
+import { Link, navigate } from "raviger";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -29,67 +29,46 @@ interface ConsentItemProps {
   consent: ConsentBase;
 }
 
-const handleConsentNavigation = (consent: ConsentBase) => {
-  navigate(`/consents/${consent.id}/${consent.type}`);
-};
-
-function ConsentCard({ consent }: ConsentItemProps) {
+export function ConsentCard({ consent }: ConsentItemProps) {
   return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div>
-            <h3 className="font-medium text-base mb-2">{consent.requester}</h3>
-            <div className="flex gap-2">
-              <Badge
-                variant={CONSENT_TYPE_VARIANTS[consent.type]}
-                className="text-xs"
-              >
-                {isSubscription(consent.type) ? "Subscription" : "Consent"}
-              </Badge>
-              <Badge
-                variant={CONSENT_STATUS_VARIANTS[consent.status]}
-                className="text-xs"
-              >
-                {toTitleCase(consent.status)}
-              </Badge>
-            </div>
+    <Link href={`/consents/${consent.id}/${consent.type}`} className="block">
+      <Card className="group relative rounded-md border border-gray-200 bg-white hover:shadow-md transition-all p-4 flex flex-col gap-4">
+        <CardHeader className="p-0 gap-0.5">
+          <h3 className="text-base font-semibold text-gray-900">
+            {consent.requester}
+          </h3>
+          <div className="mt-2 flex gap-2 flex-wrap">
+            <Badge variant={CONSENT_TYPE_VARIANTS[consent.type]}>
+              {isSubscription(consent.type) ? "Subscription" : "Consent"}
+            </Badge>
+            <Badge variant={CONSENT_STATUS_VARIANTS[consent.status]}>
+              {toTitleCase(consent.status)}
+            </Badge>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleConsentNavigation(consent)}
-            className="shrink-0"
-          >
-            <Eye className="size-4" />
-          </Button>
-        </div>
-      </CardHeader>
+        </CardHeader>
 
-      <CardContent className="pt-0">
-        <div className="space-y-3">
-          <div>
-            <p className="text-xs text-muted-foreground mb-1">Purpose</p>
-            <p className="text-sm leading-relaxed">{consent.purpose.text}</p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <p className="text-xs text-muted-foreground">From</p>
-              <p className="text-sm font-medium">
+        <CardContent className="p-0">
+          <p className="text-sm text-muted-foreground">Purpose</p>
+          <p className="text-sm text-gray-700 leading-relaxed line-clamp-3">
+            {consent.purpose.text}
+          </p>
+          <div className="mt-2 flex items-center justify-between text-sm text-gray-500 border-t pt-3">
+            <div className="flex flex-col">
+              <span className="text-muted-foreground text-sm">From</span>
+              <span className="font-medium text-gray-900">
                 {formatReadableDateTime(consent.fromDate)}
-              </p>
+              </span>
             </div>
-            <div>
-              <p className="text-xs text-muted-foreground">To</p>
-              <p className="text-sm font-medium">
+            <div className="flex flex-col text-right">
+              <span className="text-muted-foreground text-sm">To</span>
+              <span className="font-medium text-gray-900">
                 {formatReadableDateTime(consent.toDate)}
-              </p>
+              </span>
             </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }
 
@@ -130,7 +109,7 @@ function ConsentTableRow({ consent }: ConsentItemProps) {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => handleConsentNavigation(consent)}
+          onClick={() => navigate(`/consents/${consent.id}/${consent.type}`)}
         >
           <Eye className="size-4 mr-2" />
           View

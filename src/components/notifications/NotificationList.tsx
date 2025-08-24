@@ -82,10 +82,10 @@ const RenderCard = ({ notifications, onMarkAsRead }: NotificationListProps) => (
               : "bg-primary-50 border-primary-200",
           )}
         >
-          <CardContent className="space-y-3">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-center gap-2 min-w-0">
-                <StatusIcon isRead={notif.is_read} />
+          <CardContent className="space-y-3 max-xsm:px-4">
+            <div className="flex items-center gap-2 min-w-0">
+              <StatusIcon isRead={notif.is_read} />
+              <div className="flex justify-between items-center gap-x-2 gap-y-[2px] flex-wrap w-full">
                 <h3
                   className={cn(
                     "text-base font-semibold",
@@ -94,10 +94,10 @@ const RenderCard = ({ notifications, onMarkAsRead }: NotificationListProps) => (
                 >
                   {notif.title}
                 </h3>
+                <span className="text-xs text-gray-500 shrink-0">
+                  {dayjs(notif.published_at).format("DD MMM YYYY, hh:mm A")}
+                </span>
               </div>
-              <span className="text-xs text-gray-500 shrink-0">
-                {dayjs(notif.published_at).format("DD MMM YYYY, hh:mm A")}
-              </span>
             </div>
 
             <p className="text-sm text-gray-600 line-clamp-2">

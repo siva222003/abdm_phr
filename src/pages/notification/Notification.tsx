@@ -38,7 +38,7 @@ export default function Notifications() {
     });
   }, [params.status, updateQuery]);
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ["notifications", params],
     queryFn: query(routes.notification.list, {
       queryParams: {
@@ -76,7 +76,6 @@ export default function Notifications() {
   });
 
   const isEmpty = !isLoading && (!data?.results || data.results.length === 0);
-  const isError = !!error;
   const notifications = data?.results || [];
   const totalCount = data?.count || 0;
 
