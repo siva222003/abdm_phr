@@ -73,15 +73,18 @@ const SwitchProfile = ({
 
   const swithProfileVerifyMutation = useMutation({
     mutationFn: mutate(routes.profile.switchProfileVerify),
-    onSuccess: (data: VerifyAuthResponse) => {
+    onSuccess: async (data: VerifyAuthResponse) => {
       toast.success("Profile switched successfully!");
       setOpen(false);
 
       handleAuthSuccess(data);
 
-      queryClient.invalidateQueries();
+      await queryClient.invalidateQueries();
 
       navigate("/");
+    },
+    onError: () => {
+      queryClient.invalidateQueries({ queryKey: ["phrProfiles"] });
     },
   });
 

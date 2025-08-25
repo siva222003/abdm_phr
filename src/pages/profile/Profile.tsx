@@ -46,7 +46,7 @@ function KYCStatusBadge({ isVerified }: { isVerified: boolean }) {
   return (
     <Badge
       variant="outline"
-      className={`flex items-center whitespace-nowrap ${
+      className={`flex items-center whitespace-nowrap mt-0.5 ${
         isVerified
           ? "bg-green-50 text-primary-500 border-primary-200"
           : "bg-yellow-50 text-warning-500 border-yellow-200"
@@ -101,11 +101,11 @@ function ProfileHeader({
       <Avatar
         imageUrl={getProfilePhotoUrl(userData.profilePhoto)}
         name={userData.abhaAddress}
-        className="size-20 shrink-0"
+        className="size-20 shrink-0 max-sm:size-23"
       />
 
-      <div className="space-y-1">
-        <div className="flex items-center space-x-2">
+      <div className="flex gap-1 items-start flex-wrap">
+        <div className="flex flex-col  space-x-2 gap-1">
           <Tooltip>
             <TooltipTrigger asChild>
               <h1 className="text-xl font-bold truncate">
@@ -116,13 +116,12 @@ function ProfileHeader({
               {userData.abhaAddress}
             </TooltipContent>
           </Tooltip>
-          <KYCStatusBadge isVerified={isKYCVerified} />
+          <AbhaNumberDisplay
+            isKYCVerified={isKYCVerified}
+            abhaNumber={userData.abhaNumber}
+          />
         </div>
-
-        <AbhaNumberDisplay
-          isKYCVerified={isKYCVerified}
-          abhaNumber={userData.abhaNumber}
-        />
+        <KYCStatusBadge isVerified={isKYCVerified} />
       </div>
     </div>
   );

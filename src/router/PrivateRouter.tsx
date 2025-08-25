@@ -78,7 +78,7 @@ export default function PrivateRouter() {
               <SidebarTrigger />
             </div>
             <a className="flex items-center w-full h-full md:hidden">
-              <img className="w-40 -ml-6" src={curaLogo} alt="cura logo" />
+              <img className="w-40" src={curaLogo} alt="cura logo" />
             </a>
           </div>
           <div className="p-3 mt-4" data-cui-page>
