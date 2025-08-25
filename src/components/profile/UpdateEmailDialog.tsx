@@ -1,5 +1,5 @@
-import { useQueryClient } from "@tanstack/react-query";
 import { Dispatch, SetStateAction, useState } from "react";
+import { toast } from "sonner";
 
 import {
   Dialog,
@@ -11,6 +11,8 @@ import {
 
 import EmailOtpFlow from "@/components/auth/EmailOtpFlow";
 
+import { useAuthContext } from "@/hooks/useAuth";
+
 import { AuthFlowTypes, INITIAL_AUTH_FORM_VALUES } from "@/types/auth";
 import { ProfileUpdateActions } from "@/types/profile";
 
@@ -20,12 +22,13 @@ type UpdateEmailDialogProps = {
 };
 
 const UpdateEmailDialog = ({ open, setOpen }: UpdateEmailDialogProps) => {
+  const { logout } = useAuthContext();
   const [memory, setMemory] = useState(INITIAL_AUTH_FORM_VALUES);
-  const queryClient = useQueryClient();
 
   const handleOtpSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: ["user"] });
     setOpen(false);
+    toast.success("Email updated successfully. Please login again.");
+    logout(false);
   };
 
   const handleOpenChange = (isOpen: boolean) => {

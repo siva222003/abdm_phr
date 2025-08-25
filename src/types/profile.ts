@@ -84,6 +84,11 @@ export interface PhrProfile {
   status: string;
 }
 
+export interface HealthIdDataResponse {
+  auto_approve_id: string | null;
+  is_auto_approve_enabled: boolean;
+}
+
 export interface ProfileSwitchResponse {
   transaction_id: string;
   users: User[];

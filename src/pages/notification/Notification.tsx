@@ -21,7 +21,7 @@ import routes from "@/api";
 import { NotificationStatuses } from "@/types/notification";
 import { mutate, query } from "@/utils/request/request";
 
-const NOTIFICATION_LIST_LIMIT = 10;
+const NOTIFICATION_LIST_LIMIT = 15;
 
 export default function Notifications() {
   const queryClient = useQueryClient();

@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import {
   CircleCheckIcon,
   Link2Icon,
@@ -36,8 +37,10 @@ import UserAvatar from "@/components/profile/UserAvatar";
 
 import { useAuthContext } from "@/hooks/useAuth";
 
+import routes from "@/api";
 import { KycStatuses, PhrProfile } from "@/types/profile";
 import { getProfilePhotoUrl } from "@/utils";
+import { query } from "@/utils/request/request";
 
 function KYCStatusBadge({ isVerified }: { isVerified: boolean }) {
   return (
@@ -188,6 +191,17 @@ function AbhaManagementSection({
 
 export default function Profile() {
   const { user, switchProfileEnabled } = useAuthContext();
+
+  const {
+    data: healthIdData,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["healthIdData"],
+    queryFn: query(routes.profile.healthIdData),
+  });
+
+  console.log(healthIdData, isLoading, isError);
 
   const [modals, setModals] = useState({
     editProfile: false,

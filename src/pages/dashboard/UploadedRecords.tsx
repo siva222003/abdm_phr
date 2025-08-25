@@ -23,7 +23,7 @@ import {
 import routes from "@/api/";
 import { query } from "@/utils/request/request";
 
-export const UPLOADED_RECORDS_LIMIT = 10;
+export const UPLOADED_RECORDS_LIMIT = 15;
 
 const UploadedRecords = () => {
   const { user } = useAuthContext();

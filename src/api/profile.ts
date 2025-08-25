@@ -7,6 +7,7 @@ import {
 } from "@/types/auth";
 import "@/types/profile";
 import {
+  HealthIdDataResponse,
   LogoutRequest,
   LogoutResponse,
   PasswordUpdateRequest,
@@ -21,6 +22,7 @@ import { API } from "@/utils/request/api";
 export const profile = {
   getProfile: API<PhrProfile>("GET /phr/profile/get_profile"),
   abhaCard: API<Blob>("GET /phr/profile/phr_card/"),
+  healthIdData: API<HealthIdDataResponse>("GET /phr/profile/setup/"),
   sendOtp: API<SendOtpResponse, SendOtpRequest>(
     "POST /phr/profile/request_otp/",
   ),

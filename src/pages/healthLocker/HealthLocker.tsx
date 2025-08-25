@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { FolderOpen, Plus } from "lucide-react";
 import { useState } from "react";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 
@@ -15,47 +14,35 @@ import { CardGridSkeleton } from "@/common/loaders/SkeletonLoader";
 import routes from "@/api";
 import { query } from "@/utils/request/request";
 
-const tempLockers = [
-  {
-    id: 1,
-    lockerId: "1",
-    lockerName: "Sandbox Test Hospital",
-    patientId: "1",
-    dateCreated: "2025-08-17T00:00:00.000Z",
-    dateModified: "2025-08-17T00:00:00.000Z",
-    isActive: true,
-  },
-  {
-    id: 2,
-    lockerId: "2",
-    lockerName: "DriefCase",
-    patientId: "2",
-    dateCreated: "2025-08-17T00:00:00.000Z",
-    dateModified: "2025-08-17T00:00:00.000Z",
-    isActive: true,
-  },
-];
+// const tempLockers = [
+//   {
+//     id: 1,
+//     lockerId: "1",
+//     lockerName: "Sandbox Test Hospital",
+//     patientId: "1",
+//     dateCreated: "2025-08-17T00:00:00.000Z",
+//     dateModified: "2025-08-17T00:00:00.000Z",
+//     isActive: true,
+//   },
+//   {
+//     id: 2,
+//     lockerId: "2",
+//     lockerName: "DriefCase",
+//     patientId: "2",
+//     dateCreated: "2025-08-17T00:00:00.000Z",
+//     dateModified: "2025-08-17T00:00:00.000Z",
+//     isActive: true,
+//   },
+// ];
 
-function HealthLockerHeader({
-  onAddClick,
-  count,
-}: {
-  onAddClick: () => void;
-  count: number;
-}) {
+function HealthLockerHeader({ onAddClick }: { onAddClick: () => void }) {
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
       <div>
-        <div className="flex gap-x-3 items-center flex-wrap">
-          <h1 className="text-2xl font-bold text-gray-700 mb-2">
-            Health Lockers
-          </h1>
-          {count > 0 && (
-            <Badge variant="purple" className="h-5 mb-2">
-              {count} Lockers
-            </Badge>
-          )}
-        </div>
+        <h1 className="text-2xl font-bold text-gray-700 mb-2">
+          Health Lockers
+        </h1>
+
         <p className="text-gray-600 text-sm">
           View and manage your health lockers
         </p>
@@ -79,10 +66,7 @@ export default function HealthLocker() {
   return (
     <Page title="Health Lockers" hideTitleOnPage>
       <div className="w-full mx-auto mt-2">
-        <HealthLockerHeader
-          onAddClick={() => setOpen(true)}
-          count={tempLockers?.length ?? 0}
-        />
+        <HealthLockerHeader onAddClick={() => setOpen(true)} />
 
         {isLoading && (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -90,18 +74,17 @@ export default function HealthLocker() {
           </div>
         )}
 
-        {(isError || !tempLockers || tempLockers.length === 0) &&
-          !isLoading && (
-            <EmptyState
-              icon={FolderOpen}
-              title="No health lockers found"
-              description="Register a new health locker to get started"
-            />
-          )}
+        {(isError || !data || data.length === 0) && !isLoading && (
+          <EmptyState
+            icon={FolderOpen}
+            title="No health lockers found"
+            description="Register a new health locker to get started"
+          />
+        )}
 
-        {tempLockers && tempLockers.length > 0 && !isLoading && (
+        {data && data.length > 0 && !isLoading && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {tempLockers.map((locker) => (
+            {data.map((locker) => (
               <HealthLockerCard key={locker.lockerId} data={locker} />
             ))}
           </div>
