@@ -21,15 +21,15 @@ function AddFacilityHeader({
   setSearch: Dispatch<SetStateAction<string>>;
 }) {
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+    <div className="space-y-4 mb-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-700 mb-2">Add Facility</h1>
         <p className="text-gray-600 text-sm">
-          Search and register with a facility to manage your health data.
+          Search and link a facility to view and manage your health data.
         </p>
       </div>
 
-      <div className="relative sm:min-w-sm">
+      <div className="relative w-full">
         <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
         <Input
           placeholder="Search facility by name"

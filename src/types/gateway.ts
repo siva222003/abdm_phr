@@ -23,4 +23,5 @@ export interface ProviderIdentifier {
 export interface Provider {
   identifier: ProviderIdentifier;
   facilityType: string[];
+  isGovtEntity: boolean;
 }

@@ -1,7 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { LinkIcon, SearchIcon } from "lucide-react";
+import { ExternalLinkIcon, LinkIcon, SearchIcon } from "lucide-react";
 import { Dispatch, SetStateAction, useState } from "react";
 
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -56,8 +58,10 @@ export default function AddHealthLockerSheet({
         className="w-full sm:max-w-md overflow-y-auto p-6"
       >
         <SheetHeader className="p-0">
-          <SheetTitle className="text-lg">Add Health Locker</SheetTitle>
-          <SheetDescription>
+          <SheetTitle className="text-lg font-semibold">
+            Add Health Locker
+          </SheetTitle>
+          <SheetDescription className="text-sm text-muted-foreground">
             Search and register with a health locker system to manage your
             health data.
           </SheetDescription>
@@ -65,12 +69,14 @@ export default function AddHealthLockerSheet({
 
         <div className="flex flex-col gap-4 mt-6">
           <div className="relative w-full">
-            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <SearchIcon className="size-5 text-muted-foreground" />
+            </div>
             <Input
               placeholder="Search health lockers..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-10"
+              className="pl-12 rounded-lg shadow-sm focus:ring-1 focus:ring-primary"
               autoFocus
             />
           </div>
@@ -78,8 +84,9 @@ export default function AddHealthLockerSheet({
           <ScrollArea className="flex-1">
             <div className="space-y-2">
               {!search && (
-                <div className="flex items-center justify-center h-32 text-sm text-muted-foreground">
-                  Start typing to search for health lockers
+                <div className="flex flex-col items-center justify-center h-32 text-sm text-muted-foreground space-y-2">
+                  <SearchIcon className="size-6 text-muted-foreground opacity-40" />
+                  <span>Start typing to search for health lockers</span>
                 </div>
               )}
 
@@ -89,37 +96,44 @@ export default function AddHealthLockerSheet({
                 ))}
 
               {search && !isLoading && (!data || data.length === 0) && (
-                <div className="flex items-center justify-center text-center h-32 text-sm text-muted-foreground">
-                  No health lockers found for "{search}"
+                <div className="flex flex-col items-center justify-center h-32 text-sm text-muted-foreground space-y-2">
+                  <SearchIcon className="size-6 text-muted-foreground opacity-40" />
+                  <span>No health lockers found for "{search}"</span>
                 </div>
               )}
-
               {data?.map((locker) => {
                 const isLinked = existingLockers.some(
                   (l) => l.lockerId === locker.identifier.id,
                 );
                 return (
-                  <div
+                  <Card
                     key={locker.identifier.id}
-                    className="flex items-center justify-between rounded-lg border bg-card p-3 transition-colors hover:bg-accent cursor-pointer"
-                    onClick={() => {
+                    className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:bg-gray-50 transition-all cursor-pointer gap-2 sm:gap-0"
+                    onClick={() =>
                       window.open(
                         getLink(locker),
                         "_blank",
                         "noopener,noreferrer",
-                      );
-                    }}
+                      )
+                    }
                   >
-                    <h3 className="text-sm font-medium">
-                      {locker.identifier.name || "Unnamed Health Locker"}
-                    </h3>
+                    <div className="flex-1 min-w-0 flex items-center gap-2">
+                      <h3 className="text-sm font-medium line-clamp-1">
+                        {locker.identifier.name || "Unnamed Health Locker"}
+                      </h3>
+                      <ExternalLinkIcon className="size-3 text-gray-400" />
+                    </div>
+
                     {isLinked && (
-                      <div className="flex items-center gap-1 rounded-md bg-muted px-2 py-1">
+                      <Badge
+                        variant="secondary"
+                        className="flex items-center gap-1 text-xs mt-2 sm:mt-0"
+                      >
                         <LinkIcon className="size-3" />
-                        <span className="text-xs">Linked</span>
-                      </div>
+                        Linked
+                      </Badge>
                     )}
-                  </div>
+                  </Card>
                 );
               })}
             </div>

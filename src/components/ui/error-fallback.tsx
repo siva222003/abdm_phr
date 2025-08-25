@@ -33,8 +33,8 @@ export function ErrorFallback({
             </p>
           </div>
 
-          <Button variant="outline" className="mt-4" onClick={action}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
+          <Button variant="outline" className="mt-1" onClick={action}>
+            <ArrowLeft className="mr-2 size-4" />
             {actionText}
           </Button>
         </CardContent>

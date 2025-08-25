@@ -2,6 +2,7 @@ import { ArrowLeft, Link2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { ErrorFallback } from "@/components/ui/error-fallback";
 
 import Page from "@/components/common/Page";
 
@@ -60,30 +61,9 @@ function LinkedFacilityDetailCard({
   );
 }
 
-function ErrorFallback() {
-  const { goBack } = useNavigation();
-
-  return (
-    <div className="text-center space-y-6 py-12">
-      <div className="space-y-3">
-        <h1 className="text-2xl font-bold text-foreground">
-          Unable to Load Linked Facility
-        </h1>
-        <p className="text-muted-foreground max-w-md mx-auto">
-          We couldn't retrieve the linked facility details. This might be due to
-          a network issue or the linked facility may no longer exist.
-        </p>
-      </div>
-      <Button variant="outline" onClick={() => goBack("/linked-facilities")}>
-        <ArrowLeft className="size-4 mr-2" />
-        Back
-      </Button>
-    </div>
-  );
-}
-
 export default function LinkedFacilityDetail({ id }: { id: string }) {
   const { patientLinks, isLoading, isError } = usePatientLinks();
+  const { goBack } = useNavigation();
 
   const data = patientLinks?.find((link) => link.hip.id === id);
 
@@ -103,7 +83,11 @@ export default function LinkedFacilityDetail({ id }: { id: string }) {
       <Page title="Error" hideTitleOnPage>
         <div className="container mx-auto max-w-4xl space-y-6">
           <LinkedFacilityDetailHeader />
-          <ErrorFallback />
+          <ErrorFallback
+            title="Unable to Load Linked Facility"
+            description="We couldn't retrieve the linked facility details. This might be due to a network issue or the linked facility may no longer exist."
+            action={() => goBack("/linked-facilities")}
+          />
         </div>
       </Page>
     );

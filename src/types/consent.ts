@@ -196,6 +196,10 @@ export interface AutoApprovalUpdateRequest {
   enable: boolean;
 }
 
+export interface ConsentInitRequest {
+  patient_id: string;
+}
+
 export interface ConsentUpdateBaseResponse {
   detail: string;
 }

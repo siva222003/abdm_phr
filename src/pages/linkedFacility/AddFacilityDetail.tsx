@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ErrorFallback } from "@/components/ui/error-fallback";
 
 import Page from "@/components/common/Page";
 import DiscoverRecordsStep from "@/components/linkedFacility/DiscoverRecordsStep";
@@ -23,7 +24,7 @@ import {
 import { query } from "@/utils/request/request";
 
 function AddFacilityDetailHeader({
-  title = "Linked Facility",
+  title = "Add Facility",
 }: {
   title?: string;
 }) {
@@ -42,29 +43,6 @@ function AddFacilityDetailHeader({
           Complete the steps below to link this facility to your account.
         </p>
       </div>
-    </div>
-  );
-}
-
-function ErrorFallback() {
-  return (
-    <div className="text-center space-y-6 py-12">
-      <div className="space-y-3">
-        <h1 className="text-2xl font-bold text-foreground">
-          Unable to Load Facility
-        </h1>
-        <p className="text-muted-foreground max-w-md mx-auto">
-          We couldn't retrieve the facility details. This might be due to a
-          network issue or the facility may no longer exist.
-        </p>
-      </div>
-      <Button
-        variant="outline"
-        onClick={() => navigate("/linked-facilities/add")}
-      >
-        <ArrowLeft className="size-4 mr-2" />
-        Back to Facilities
-      </Button>
     </div>
   );
 }
@@ -102,7 +80,12 @@ export default function AddFacilityDetail({ id }: { id: string }) {
       <Page title="Error" hideTitleOnPage>
         <div className="container mx-auto max-w-4xl space-y-6">
           <AddFacilityDetailHeader />
-          <ErrorFallback />
+          <ErrorFallback
+            title="Unable to Load Facility"
+            description="We couldn't retrieve the facility details. This might be due to a network issue or the facility may no longer exist."
+            action={() => navigate("/linked-facilities/add")}
+            actionText="Back to Facilities"
+          />
         </div>
       </Page>
     );

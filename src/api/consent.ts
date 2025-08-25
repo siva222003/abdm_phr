@@ -4,6 +4,7 @@ import {
   ConsentArtefact,
   ConsentArtefactResponse,
   ConsentDenyRequest,
+  ConsentInitRequest,
   ConsentListResponse,
   ConsentRequest,
   ConsentRequestResponse,
@@ -40,4 +41,5 @@ export const consent = {
   updateAutoApproval: API<ConsentUpdateBaseResponse, AutoApprovalUpdateRequest>(
     "POST /phr/consent/auto_approve/{autoApprovalId}/update",
   ),
+  init: API<void, ConsentInitRequest>("POST /phr/consent/request_init"),
 };

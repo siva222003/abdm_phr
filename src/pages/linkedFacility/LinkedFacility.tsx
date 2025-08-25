@@ -53,7 +53,7 @@ export default function LinkedFacility() {
             <EmptyState
               icon={FolderOpen}
               title="No linked facilities found"
-              description="Link a new facility to get started"
+              description="Link a new facility you are associated with to get started"
             />
           )}
 

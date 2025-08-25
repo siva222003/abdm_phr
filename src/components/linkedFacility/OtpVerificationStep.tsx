@@ -58,7 +58,9 @@ const OtpVerificationStep = ({
     const expiryTime = dayjs(thirdStepData?.link?.meta.communicationExpiry);
 
     const update = () => {
-      const diff = expiryTime.diff(dayjs(), "second");
+      const currentTimeInIST = dayjs().add(5, "hour").add(30, "minute");
+      const diff = expiryTime.diff(currentTimeInIST, "second");
+
       if (diff <= 0) {
         setTimeLeft("00:00");
         clearInterval(interval);
@@ -96,7 +98,7 @@ const OtpVerificationStep = ({
       {isLoading && <FullScreenLoader />}
       <CardHeader className="space-y-2 text-center">
         <CardTitle className="text-lg font-semibold">Enter OTP</CardTitle>
-        <CardDescription className="text-sm text-muted-foreground">
+        <CardDescription className="text-sm text-muted-foreground leading-6">
           We’ve sent a 6-digit code to{" "}
           <span className="font-medium">+91{maskMobile(user?.mobile)}</span>
         </CardDescription>
@@ -109,7 +111,7 @@ const OtpVerificationStep = ({
               <InputOTPSlot
                 key={index}
                 index={index}
-                className="xsm:size-12 xs:size-10 size-8.5 xs:mx-1 xs:rounded-md text-lg border border-gray-300"
+                className="xsm:size-12 xs:size-10 size-9 xs:mx-1 xs:rounded-md text-lg border border-gray-300"
               />
             ))}
           </InputOTPGroup>
