@@ -12,6 +12,7 @@ import { handleHttpError } from "@/utils/request/error-handler";
 import { HTTPError } from "@/utils/request/types";
 
 import AuthUserProvider from "./providers/AuthProvider";
+import { NavigationProvider } from "./providers/NavigationProvider";
 import PrivateRouter from "./router/PrivateRouter";
 import PublicRouter from "./router/PublicRouter";
 
@@ -50,17 +51,19 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ScrollToTop />
-      <AuthUserProvider
-        publicRouter={<PublicRouter />}
-        privateRouter={<PrivateRouter />}
-      />
-      <Toaster
-        position="top-right"
-        theme="light"
-        richColors
-        expand
-        toastOptions={{ closeButton: true }}
-      />
+      <NavigationProvider>
+        <AuthUserProvider
+          publicRouter={<PublicRouter />}
+          privateRouter={<PrivateRouter />}
+        />
+        <Toaster
+          position="top-right"
+          theme="light"
+          richColors
+          expand
+          toastOptions={{ closeButton: true }}
+        />
+      </NavigationProvider>
     </QueryClientProvider>
   );
 }

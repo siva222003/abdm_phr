@@ -1,8 +1,30 @@
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import {
+  BadgeCheck,
+  Bell,
+  ChevronsUpDown,
+  ClipboardList,
+  FileSignature,
+  Hospital,
+  LogOut,
+  Shield,
+  User,
+} from "lucide-react";
+import { ActiveLink, navigate, useLocationChange } from "raviger";
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
@@ -10,59 +32,100 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
-const items = [
+import { Avatar } from "@/components/common/Avatar";
+
+import { useAuthContext } from "@/hooks/useAuth";
+
+import routes from "@/api";
+import { getProfilePhotoUrl } from "@/utils";
+import { query } from "@/utils/request/request";
+
+const items = (unreadCount: number) => [
   {
-    title: "Home",
-    url: "#",
-    icon: Home,
+    title: "My Records",
+    url: "/my-records",
+    icon: <ClipboardList />,
   },
   {
-    title: "Inbox",
-    url: "#",
-    icon: Inbox,
+    title: "Profile",
+    url: "/profile",
+    icon: <User />,
   },
   {
-    title: "Calendar",
-    url: "#",
-    icon: Calendar,
+    title: "Consents",
+    url: "/consents",
+    icon: <FileSignature />,
   },
   {
-    title: "Search",
-    url: "#",
-    icon: Search,
+    title: "Linked Facilities",
+    url: "/linked-facilities",
+    icon: <Hospital />,
   },
   {
-    title: "Settings",
-    url: "#",
-    icon: Settings,
+    title: "Health Lockers",
+    url: "/health-lockers",
+    icon: <Shield />,
+  },
+  {
+    title: "Notifications",
+    url: "/notifications",
+    icon: <Bell />,
+    badge: unreadCount,
   },
 ];
 
 export function AppSidebar() {
+  const { logout, user } = useAuthContext();
+  const { isMobile, setOpenMobile, open } = useSidebar();
+
+  const { data: unreadCount } = useQuery({
+    queryKey: ["notidicationCount"],
+    queryFn: query(routes.notification.unreadCount, {
+      silent: true,
+    }),
+  });
+
+  useLocationChange(() => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  });
+
   return (
     <Sidebar
       collapsible="icon"
       variant="sidebar"
       className="group-data-[side=left]:border-r-0"
     >
-      <SidebarHeader>
-        <div className="flex">
-          <h4>ABDM PHR</h4>
-        </div>
-      </SidebarHeader>
+      <SidebarHeader></SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {items(unreadCount?.unread_count ?? 0).map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
+                  <SidebarMenuButton
+                    asChild
+                    tooltip={item.title}
+                    className="text-gray-600 transition font-normal hover:bg-gray-200 hover:text-green-700"
+                  >
+                    <ActiveLink
+                      href={item.url}
+                      activeClass="bg-white text-green-700 shadow-sm"
+                    >
+                      {item.icon}
+                      <span className="group-data-[collapsible=icon]:hidden ml-1 flex items-center gap-1">
+                        {item.title}
+                        {item.badge ? (
+                          <span className="inline-flex items-center justify-center rounded-full bg-primary/10 text-primary text-[10px] font-medium px-1.5 py-0.5 mt-1">
+                            {item.badge}
+                          </span>
+                        ) : null}
+                      </span>
+                    </ActiveLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -70,6 +133,81 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton
+                  size="lg"
+                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                >
+                  <Avatar
+                    className="size-8 rounded-lg"
+                    name={user?.fullName ?? ""}
+                    imageUrl={getProfilePhotoUrl(user?.profilePhoto ?? null)}
+                  />
+                  {(open || isMobile) && (
+                    <>
+                      <div className="grid flex-1 text-left text-sm leading-tight">
+                        <span className="truncate font-semibold">
+                          {user?.fullName}
+                        </span>
+                        <span className="truncate text-xs">
+                          {user?.abhaAddress}
+                        </span>
+                      </div>
+                      <ChevronsUpDown className="ml-auto size-4" />
+                    </>
+                  )}
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+                side={isMobile ? "bottom" : "right"}
+                align="end"
+                sideOffset={4}
+              >
+                <DropdownMenuLabel className="p-0 font-normal">
+                  <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                    <Avatar
+                      className="size-8 rounded-lg"
+                      name={user?.fullName ?? ""}
+                      imageUrl={getProfilePhotoUrl(user?.profilePhoto ?? null)}
+                    />
+                    <div className="grid flex-1 text-left text-sm leading-tight">
+                      <span className="truncate font-semibold">
+                        {user?.fullName}
+                      </span>
+                      <span className="truncate text-xs">
+                        {user?.abhaAddress}
+                      </span>
+                    </div>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem
+                    data-cy="user-menu-profile"
+                    onClick={() => navigate("/profile")}
+                  >
+                    <BadgeCheck />
+                    Profile
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  data-cy="user-menu-logout"
+                  onClick={() => logout()}
+                >
+                  <LogOut />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
       <SidebarRail className="hover:after:bg-transparent hover:bg-transparent" />
     </Sidebar>
   );

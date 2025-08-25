@@ -1,4 +1,4 @@
-import { useNavigate } from "raviger";
+import { navigate } from "raviger";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
@@ -17,8 +17,6 @@ export default function FallbackErrorPage({
   forError = "PAGE_NOT_FOUND",
   ...props
 }: FallbackErrorPageProps) {
-  const navigate = useNavigate();
-
   useEffect(() => {
     toast.dismiss();
   }, []);

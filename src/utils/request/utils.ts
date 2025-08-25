@@ -1,5 +1,7 @@
 import type { Dispatch, SetStateAction } from "react";
 
+import { LocalStorageKeys } from "@/common/constants";
+
 import type { QueryParams } from "@/utils/request/types";
 
 export function makeUrl(
@@ -53,11 +55,6 @@ export function makeHeaders(noAuth: boolean, additionalHeaders?: HeadersInit) {
 }
 
 export function getAuthorizationHeader() {
-  //TODO: Fix this
-  const LocalStorageKeys = {
-    accessToken: "accessToken",
-  };
-
   const accessToken = localStorage.getItem(LocalStorageKeys.accessToken);
 
   if (accessToken) {
